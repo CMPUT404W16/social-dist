@@ -28,4 +28,20 @@ If you want to update the requirement.txt file, type
 
     pip freeze > requirements.txt
     
+--------------
+
+Flask is simple to use when you want to upgrade your database. 
+
+If you do not have the migration folder at the root dir. You should run
+
+    python manage.py db init
+    python manage.py db migrate
+    python manage.py db upgrade
     
+Then Flask will automatically add a migration folder and setup all the things for you.
+    
+If you already have a migration folder and the .sqlite file, run
+
+    python manage.py db upgrade
+    
+We can talk about this part later.
