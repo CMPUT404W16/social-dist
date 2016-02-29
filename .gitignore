@@ -63,6 +63,7 @@ target/
 
 # Virtual Env
 env/
+social-dst/
 
 logs/*
 !.gitkeep
