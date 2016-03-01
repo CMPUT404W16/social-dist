@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block page_content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+<div class="jumbotron">
+    <div id="profile-img">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png" alt="profile image">
+    </div>
+    <div class="btn-group" role="group" style="padding-top: 2em">
+        <button type="button" class="btn btn-default">Add friend</button>
+        <button type="button" class="btn btn-default" style="padding-left: 1.8em;padding-right: 1.8em";>Follow</button>
+    </div>
+</div>
+<ul class="nav nav-pills">
+  <li role="presentation"><a href="#">Friends</a></li>
+  <li role="presentation"><a href="#">Followers</a></li>
+  <li role="presentation"><a href="#">Posts</a></li>
+</ul>
+{% endblock %}

@@ -26,3 +26,11 @@ def index():
                            form=form, name=session.get('name'),
                            known=session.get('known', False))
 
+
+@main.route('/profile', methods=['GET', 'POST'])
+def show_profile():
+    return render_template('user/profile.html')
+
+@main.route('/logout', methods=['POST'])
+def logout():
+    pass
