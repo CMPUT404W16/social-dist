@@ -3,12 +3,12 @@ from .. import db
 from ..models import User
 from ..email import send_email
 from . import main
-from .forms import NameForm
+from .forms import PostForm
 
 
 @main.route('/', methods=['GET', 'POST'])
 def index():
-    form = NameForm()
+    form = PostForm()
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.name.data).first()
         if user is None:
@@ -25,3 +25,4 @@ def index():
     return render_template('index.html',
                            form=form, name=session.get('name'),
                            known=session.get('known', False))
+
