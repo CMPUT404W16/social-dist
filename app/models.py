@@ -25,7 +25,6 @@ class User(db.Model):
     def __repr__(self):
         return '<User %r>' % self.username
 
-<<<<<<< HEAD
 class Post(db.Model):
 
     __tablename__ = 'posts'
@@ -44,14 +43,6 @@ class Post(db.Model):
         target.body_html = bleach.linkify(bleach.clean(
             markdown(value, output_format='html'),
             tags=allowed_tags, strip=True))
-=======
-    
-class Post(db.Model):
-    __tablename__ = 'posts'
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(64))
-    username = db.Column(db.String(64), unique=True, index=True)
-    author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     
     
 class Comment(db.Model):
@@ -95,6 +86,3 @@ class APIRequest:
 
 class NodeAPI:
     pass
-
-
->>>>>>> ea232009741dc20a8e011038becdc57846c136f0
