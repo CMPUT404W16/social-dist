@@ -4,6 +4,9 @@ from flask.ext.mail import Mail
 from flask.ext.moment import Moment
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.pagedown import PageDown
+from flask_admin import Admin
+# from flask_admin.contrib.sqla import ModelView
+# from . import models
 from config import config
 
 bootstrap = Bootstrap()
@@ -11,7 +14,7 @@ mail = Mail()
 moment = Moment()
 db = SQLAlchemy()
 pagedown = PageDown()
-
+admin = Admin()
 
 def create_app(config_name):
     app = Flask(__name__)
@@ -23,6 +26,9 @@ def create_app(config_name):
     moment.init_app(app)
     db.init_app(app)
     pagedown.init_app(app)
+    admin.init_app(app)
+
+    # admin.add_view(ModelView(User, db.session))
 
     from .main import main as main_blueprint
     app.register_blueprint(main_blueprint)
