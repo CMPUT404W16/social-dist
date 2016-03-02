@@ -1,12 +1,15 @@
-from flask import render_template, session, redirect, url_for, current_app
+from flask import render_template, session, redirect, url_for, current_app, flash, abort, request
 from .. import db
 from ..models import User
 from ..email import send_email
 from . import main
-from .forms import PostForm
+from .forms import *
+from flask.ext.login import login_user, logout_user, current_user, login_required, LoginManager
+from .. import login_manager
 
 
 @main.route('/', methods=['GET', 'POST'])
+@login_required
 def index():
     form = PostForm()
     if form.validate_on_submit():
@@ -23,14 +26,66 @@ def index():
         session['name'] = form.name.data
         return redirect(url_for('.index'))
     return render_template('index.html',
-                           form=form, name=session.get('name'),
+                           form=form, name=current_user.username,
                            known=session.get('known', False))
 
+@main.route('/login', methods=['GET', 'POST'])
+def login():
+    loginForm = LoginForm()
+    signupForm = SignupForm()
 
+    # signup form
+    if signupForm.validate_on_submit():
+        user = User.query.filter_by(username=signupForm.username.data).first()
+        if user is None:
+            # this needs to add UUID?
+            user = User(username=signupForm.username.data, password=signupForm.password.data)
+            user.authenticated = True
+            db.session.commit();
+            login_user(user, remember=True)
+
+            flash("User Created Successfully")
+            db.session.add(user)
+            db.session.commit()
+            session['known'] = False
+
+            return redirect(url_for('.index'))
+        else:
+            flash("Username Already Exists")
+
+    elif loginForm.validate_on_submit():
+        user = User.query.filter_by(username=loginForm.name.data).first()
+        if user:
+            # this needs to be changed for hashing
+            print(user.password)
+            print(loginForm.password.data)
+            if user.password == loginForm.password.data:
+                db.session.add(user)
+                user.authenticated = True
+                db.session.commit()
+                login_user(user, remember=True)
+                session['known'] = False
+                flash("login successful")
+                return redirect(url_for('.index'))
+            else:
+                flash("Incorrect username/password combination")
+        else:
+            flash("User does not exist")
+
+    return render_template('login.html', loginForm=loginForm, signupForm=signupForm)
+
+@login_required
 @main.route('/profile', methods=['GET', 'POST'])
 def show_profile():
     return render_template('user/profile.html')
 
+@login_required
 @main.route('/logout', methods=['POST'])
 def logout():
-    pass
+    logout_user()
+    return redirect(url_for('.index'))
+
+@login_manager.user_loader
+def load_user(id):
+    user = User.query.filter_by(username=id).first()
+    return user

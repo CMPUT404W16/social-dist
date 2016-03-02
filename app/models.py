@@ -21,6 +21,23 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), unique=True, index=True)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
+    password = db.Column(db.String(64))
+    authenticated = db.Column(db.Boolean, default=False)
+
+    @property
+    def is_authenticated(self):
+        return self.authenticated
+
+    @property
+    def is_active(self):
+        return True
+
+    @property
+    def is_anonymous(self):
+        return False
+
+    def get_id(self):
+        return self.username
 
     def __repr__(self):
         return '<User %r>' % self.username
