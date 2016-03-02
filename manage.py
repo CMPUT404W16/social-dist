@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 import os
-from fbook import create_app, db
+from app import app
+from fbook import db
 from fbook.models import User, Role
 from flask.ext.script import Manager, Shell
 from flask.ext.migrate import Migrate, MigrateCommand
 from config import config as app_conf
 
-conf = os.getenv('FLASK_CONFIG') or 'default'
-app = create_app(app_conf[conf])
 manager = Manager(app)
 migrate = Migrate(app, db)
 
