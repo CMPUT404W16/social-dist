@@ -24,6 +24,7 @@ def index():
         else:
             session['known'] = True
         session['name'] = form.name.data
+        # session['username'] = form.name.data
         return redirect(url_for('.index'))
     return render_template('index.html',
                            form=form, name=current_user.username,
@@ -75,12 +76,12 @@ def login():
     return render_template('login.html', loginForm=loginForm, signupForm=signupForm)
 
 @login_required
-@main.route('/profile', methods=['GET', 'POST'])
-def show_profile():
+@main.route('/profile/<username>', methods=['GET', 'POST'])
+def show_profile(username):
     return render_template('user/profile.html')
 
 @login_required
-@main.route('/logout', methods=['POST'])
+@main.route('/logout', methods=['GET', 'POST'])
 def logout():
     logout_user()
     return redirect(url_for('.index'))
