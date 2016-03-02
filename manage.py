@@ -4,8 +4,10 @@ from fbook import create_app, db
 from fbook.models import User, Role
 from flask.ext.script import Manager, Shell
 from flask.ext.migrate import Migrate, MigrateCommand
+from config import config as app_conf
 
-app = create_app(os.getenv('FLASK_CONFIG') or 'default')
+conf = os.getenv('FLASK_CONFIG') or 'default'
+app = create_app(app_conf[conf])
 manager = Manager(app)
 migrate = Migrate(app, db)
 
