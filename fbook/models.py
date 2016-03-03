@@ -1,4 +1,4 @@
-from db import db
+from .db import db
 import bleach
 from markdown import markdown
 from datetime import datetime

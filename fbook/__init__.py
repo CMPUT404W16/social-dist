@@ -5,6 +5,7 @@ from flask.ext.moment import Moment
 from flask.ext.pagedown import PageDown
 
 from admin import configureAdmin
+from .db import db
 
 bootstrap = Bootstrap()
 mail = Mail()
@@ -14,10 +15,11 @@ pagedown = PageDown()
 def create_app(conf):
     app = Flask(__name__)
     app.config.from_object(conf)
-
+    print conf.SQLALCHEMY_DATABASE_URI
     bootstrap.init_app(app)
     mail.init_app(app)
     moment.init_app(app)
+    db.init_app(app)
     pagedown.init_app(app)
 
     configureAdmin(app)
