@@ -78,7 +78,20 @@ def login():
 @login_required
 @main.route('/profile/<username>', methods=['GET', 'POST'])
 def show_profile(username):
-    return render_template('user/profile.html')
+    return render_template('user/profile.html', user_profile=username)
+
+@login_required
+@main.route('/profile/<username>/settings', methods=['GET', 'POST'])
+def show_settings(username):
+    return render_template('user/settings.html')
+
+"""
+@login_required
+@main.route('/profile/<username>/settings', methods=['POST'])
+def change_password(username):
+    flash("User does not exist")
+    return render_template('user/settings.html')
+"""
 
 @login_required
 @main.route('/logout', methods=['GET', 'POST'])

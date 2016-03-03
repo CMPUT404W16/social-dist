@@ -19,9 +19,15 @@ class LoginForm(Form):
 	password = PasswordField('Password', validators=[Required()])
 	submit = SubmitField('Login')
 
-
 class SignupForm(Form):
 	username = StringField('Username')
 	password = PasswordField('New Password', validators=[Required(), EqualTo('confirm', message='Passwords must match')])
 	confirm = PasswordField('Repeat Password')
 	submit = SubmitField('Sign Up')
+
+# for for setting new password
+class NewPasswordForm(Form):
+    new_password = PasswordField('New Password', validators=[Required()])
+    confirm = PasswordField('Confirm NewPassword', validators=[Required(),
+        EqualTo('confirm', message='New password mismatch!')])
+    submit = SubmitField('Set')
