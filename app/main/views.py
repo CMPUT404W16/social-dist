@@ -76,13 +76,14 @@ def login():
     return render_template('login.html', loginForm=loginForm, signupForm=signupForm)
 
 @login_required
-@main.route('/profile/<username>', methods=['GET', 'POST'])
+@main.route('/<username>', methods=['GET', 'POST'])
 def show_profile(username):
     return render_template('user/profile.html', user_profile=username)
 
 @login_required
-@main.route('/profile/<username>/settings', methods=['GET', 'POST'])
-def show_settings(username):
+@main.route('/settings', methods=['GET', 'POST'])
+def show_settings():
+    #password_form = ChangePasswordForm()
     return render_template('user/settings.html')
 
 """

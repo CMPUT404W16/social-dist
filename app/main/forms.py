@@ -26,8 +26,8 @@ class SignupForm(Form):
 	submit = SubmitField('Sign Up')
 
 # for for setting new password
-class NewPasswordForm(Form):
+class ChangePasswordForm(Form):
     new_password = PasswordField('New Password', validators=[Required()])
-    confirm = PasswordField('Confirm NewPassword', validators=[Required(),
+    confirm = PasswordField('Confirm New Password', validators=[Required(),
         EqualTo('confirm', message='New password mismatch!')])
     submit = SubmitField('Set')
