@@ -101,14 +101,6 @@ def show_settings():
 
     return render_template('user/settings.html', pass_form=new_password_form)
 
-"""
-@login_required
-@main.route('/profile/<username>/settings', methods=['POST'])
-def change_password(username):
-    flash("User does not exist")
-    return render_template('user/settings.html')
-"""
-
 @login_required
 @main.route('/logout', methods=['GET', 'POST'])
 def logout():
