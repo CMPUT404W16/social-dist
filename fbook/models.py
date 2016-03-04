@@ -78,8 +78,12 @@ class Follow(db.Model):
         return requester_id == requestee_id
     
 
-class Node:
-    pass
+class Node(db.Model):
+    __tablename__ = 'nodes'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), unique=True)
+    def __repr__(self):
+        return '<Nodes %r>' % self.name
 
 class APIRequest:
     pass
