@@ -83,8 +83,23 @@ def show_profile(username):
 @login_required
 @main.route('/settings', methods=['GET', 'POST'])
 def show_settings():
-    #password_form = ChangePasswordForm()
-    return render_template('user/settings.html')
+    """
+    This function will also handle password changes.
+    """
+
+    new_password_form = ChangePasswordForm()
+
+    if new_password_form.validate_on_submit():
+        user = User.query.filter_by(username=current_user.username).first()
+        if (user):
+            # change password in db
+            user.password = new_password_form.new_password.data
+            db.session.commit()
+
+            flash("New password set.")
+            return redirect(url_for('.show_settings'))
+
+    return render_template('user/settings.html', pass_form=new_password_form)
 
 """
 @login_required

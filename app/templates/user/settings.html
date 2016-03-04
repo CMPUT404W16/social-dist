@@ -13,12 +13,12 @@
         <h3 class="panel-title">Password</h3>
       </div>
       <div class="panel-body">
-          Content
+          {{ wtf.quick_form(pass_form) }}
       </div>
     </div>
 </div>
 {% endblock %}
 
-<!-- {% block scripts %}
+{% block scripts %}
 {{ super() }}
-{% endblock %} -->
+{% endblock %}
