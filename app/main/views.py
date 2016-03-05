@@ -75,10 +75,14 @@ def login():
 
     return render_template('login.html', loginForm=loginForm, signupForm=signupForm)
 
+# <user> requires a username
 @login_required
-@main.route('/users/<username>', methods=['GET', 'POST'])
-def show_profile(username):
-    return render_template('user/profile.html', user_profile=username)
+@main.route('/users/<user>', methods=['GET', 'POST'])
+def show_profile(user):
+    userx = User.query.filter_by(username=user).first()
+    if (userx):
+        idx = userx.id
+    return render_template('user/profile.html', user_profile=user, user_id=idx)
 
 @login_required
 @main.route('/settings', methods=['GET', 'POST'])
@@ -100,6 +104,20 @@ def show_settings():
             return redirect(url_for('.show_settings'))
 
     return render_template('user/settings.html', pass_form=new_password_form)
+
+# returns followers.html with a list of user's followers
+@login_required
+@main.route('/users/<user>/followers', methods=['GET'])
+def show_followers(user):
+    followers_list = None
+    return render_template('user/followers.html', followers=followers_list)
+
+# returns friends.html with a list of user's friends
+@login_required
+@main.route('/users/<user>/friends', methods=['GET'])
+def show_friends(user):
+    friends_list = None
+    return render_template('user/friends.html', friends=friends_list)
 
 @login_required
 @main.route('/logout', methods=['GET', 'POST'])

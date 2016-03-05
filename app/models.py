@@ -39,6 +39,38 @@ class User(db.Model):
     def get_id(self):
         return self.username
 
+    # user is an id int
+    def is_follower(self, user):
+        t = Follow.query.filter_by(requester_id=self.id,
+                                    requestee_id=user).first()
+        if t:
+            return True
+        else:
+            return False
+
+    def is_friend(self, user):
+        t = Friend.query.filter_by(a_id=self.id, b_id=user).first()
+        if t:
+            return True
+        else:
+            t = Friend.query.filter_by(a_id=user, b_id=self.id).first()
+            if t:
+                return True
+            else:
+                return False
+
+    def follow(self, user):
+        pass
+
+    def unfollow(self, user):
+        pass
+
+    def befriend(self, user):
+        pass
+
+    def unfriend(self, user):
+        pass
+
     def __repr__(self):
         return '<User %r>' % self.username
 
@@ -60,8 +92,8 @@ class Post(db.Model):
         target.body_html = bleach.linkify(bleach.clean(
             markdown(value, output_format='html'),
             tags=allowed_tags, strip=True))
-    
-    
+
+
 class Comment(db.Model):
     __tablename__ = 'comments'
     id = db.Column(db.Integer, primary_key=True)
@@ -75,7 +107,7 @@ class Image(db.Model):
     post_id = db.Column(db.Integer, db.ForeignKey('posts.id'))
     file = 0
 
-    
+
 class Privacy:
     pass
 
@@ -83,17 +115,17 @@ class Privacy:
 class Friend(db.Model):
     a_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
     b_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
-    
+
     def integrityCheck(self, a_id, b_id):
         return a_id == b_id
-    
+
 class Follow(db.Model):
     requester_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
     requestee_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
-    
+
     def integrityCheck(self, requester_id, requestee_id):
         return requester_id == requestee_id
-    
+
 
 class Node:
     pass
