@@ -76,7 +76,7 @@ def login():
     return render_template('login.html', loginForm=loginForm, signupForm=signupForm)
 
 @login_required
-@main.route('/<username>', methods=['GET', 'POST'])
+@main.route('/users/<username>', methods=['GET', 'POST'])
 def show_profile(username):
     return render_template('user/profile.html', user_profile=username)
 
