@@ -7,12 +7,16 @@
     <div id="profile-img">
         <img src="https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png" alt="profile image">
     </div>
-    {% if (current_user.username != user_profile)
-        and (not current_user.is_follower(user_id)) %}
+    {% if (current_user.username != user_profile) %}
+    {% if (not current_user.is_follower(user_id)) %}
     <div class="btn-group" role="group" style="padding-top: 2em">
         <!-- <button type="button" class="btn btn-default">Add friend</button> -->
-        <button type="button" class="btn btn-default" style="padding-left: 1.8em;padding-right: 1.8em";>Follow</button>
+        <!-- <button type="button" class="btn btn-default" style="padding-left: 1.8em;padding-right: 1.8em";>Follow</button> -->
+        <a href={{ "/follow/"+user_profile }} class="btn btn-default" role="button">Follow</a>
     </div>
+    {% else %}
+    <button type="button" class="btn btn-default">Followed</button>
+    {% endif %}
     {% endif %}
 </div>
 <ul class="nav nav-pills">

@@ -1,6 +1,6 @@
 from flask import render_template, session, redirect, url_for, current_app, flash, abort, request
 from .. import db
-from ..models import User
+from ..models import User, Follow
 from ..email import send_email
 from . import main
 from .forms import *
@@ -118,6 +118,20 @@ def show_followers(user):
 def show_friends(user):
     friends_list = None
     return render_template('user/friends.html', friends=friends_list)
+
+# current user follows user
+@login_required
+@main.route('/follow/<user>', methods=['GET', 'POST'])
+def follow(user):
+    requestee_idx = User.query.filter_by(username=user).first().id
+    new_follow = Follow(requester_id=current_user.id,
+                        requestee_id=requestee_idx)
+    db.session.add(new_follow)
+    db.session.commit()
+
+    flash("You have just followed "+user)
+
+    return redirect("/users/"+user)
 
 @login_required
 @main.route('/logout', methods=['GET', 'POST'])
