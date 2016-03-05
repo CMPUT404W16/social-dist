@@ -82,8 +82,12 @@ class Node(db.Model):
     __tablename__ = 'nodes'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=True)
-    def __repr__(self):
-        return '<Nodes %r>' % self.name
+
+    # number of node connections limited to our server
+    limitNumber = 3
+    def limitCheck(self, limitNumber, id):
+        return len(id) <= limitCheck
+
 
 class APIRequest:
     pass
