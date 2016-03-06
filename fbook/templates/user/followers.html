@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block page_content %}
+<div class="page-header">
+  <h1>Your Followers</h1>
+</div>
+{% if (followers) %}
+<table class="table table-hover">
+    <thead>
+      <tr>
+        <th>Follower</th>
+        <th>Accept as friend</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% for f in followers %}
+        <tr>
+            <td>{{ f[0] }}</td>
+            <td><a href="#" class="btn btn-primary" role="button">Accept</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+ {% endif %}
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+{% endblock %}
