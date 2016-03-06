@@ -1,7 +1,7 @@
 from . import db
 import bleach
 from markdown import markdown
-from datetime import datetime, date
+from datetime import datetime
 
 class Permission:
     pass
@@ -98,7 +98,7 @@ class Comment(db.Model):
     __tablename__ = 'comments'
     id = db.Column(db.Integer, primary_key=True)
     post_id = db.Column(db.Integer, db.ForeignKey('posts.id'))
-    content = title = db.Column(db.String(500))
+    content = db.Column(db.String(500))
 
 
 class Image(db.Model):
