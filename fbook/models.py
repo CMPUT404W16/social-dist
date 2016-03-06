@@ -2,6 +2,7 @@ from . import db
 import bleach
 from markdown import markdown
 from datetime import datetime
+from werkzeug.security import generate_password_hash, check_password_hash
 
 class Permission:
     pass
@@ -38,6 +39,12 @@ class User(db.Model):
 
     def get_id(self):
         return self.username
+
+    def set_password(self, password):
+        self.password = generate_password_hash(password)
+
+    def verify_password(self, password):
+        return check_password_hash(self.password, password)
 
     # user is an id int
     def is_follower(self, user):

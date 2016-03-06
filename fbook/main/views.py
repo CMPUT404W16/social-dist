@@ -40,36 +40,35 @@ def login():
         user = User.query.filter_by(username=signupForm.username.data).first()
         if user is None:
             # this needs to add UUID?
-            user = User(username=signupForm.username.data, password=signupForm.password.data)
-            user.authenticated = True
+            # add user to db
+            user = User(username=signupForm.username.data, authenticated=True)
+            user.set_password(signupForm.password.data);
+            db.session.add(user)
             db.session.commit();
+            # login user
             login_user(user, remember=True)
 
             flash("User Created Successfully")
-            db.session.add(user)
-            db.session.commit()
-            session['known'] = False
-
+            
             return redirect(url_for('.index'))
         else:
             flash("Username Already Exists")
 
+    # if login request
     elif loginForm.validate_on_submit():
+        # check user exists and verify password
         user = User.query.filter_by(username=loginForm.name.data).first()
-        if user:
-            # this needs to be changed for hashing
-            print(user.password)
-            print(loginForm.password.data)
-            if user.password == loginForm.password.data:
-                db.session.add(user)
+        if user is not None:
+            if user.verify_password(loginForm.password.data):
+                # login user
                 user.authenticated = True
                 db.session.commit()
                 login_user(user, remember=True)
-                session['known'] = False
+
                 flash("login successful")
                 return redirect(url_for('.index'))
             else:
-                flash("Incorrect username/password combination")
+                flash("Incorrect Password")
         else:
             flash("User does not exist")
 
