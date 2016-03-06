@@ -19,15 +19,12 @@ pagedown = PageDown()
 
 def create_app(conf):
     app = Flask(__name__)
-<<<<<<< HEAD:app/__init__.py
 
-    
-    app.config.from_object(config[config_name])
-    config[config_name].init_app(app)
-=======
+    # app.config.from_object(config[config_name])
+    # config[config_name].init(app)
+
     app.config.from_object(conf)
-    #conf.init_app(app)
->>>>>>> 74cda63a7d6ad320b8959042ffd3d040ff80cdae:fbook/__init__.py
+    #conf.init_app(app)    
 
     bootstrap.init_app(app)
     mail.init_app(app)
