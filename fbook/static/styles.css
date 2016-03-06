@@ -80,3 +80,14 @@ div.pagination {
     padding: 0px;
     margin: 0px;
 }
+
+#profile-img {
+    border: 2px solid white;
+    width: 10em;
+    height: 10em;
+}
+
+#profile-img img {
+    max-width:100%;
+    max-height:100%;
+}
