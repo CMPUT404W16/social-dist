@@ -6,7 +6,7 @@ from . import main
 from .forms import *
 from flask.ext.login import login_user, logout_user, current_user, login_required, LoginManager
 from .. import login_manager
-
+from flask import jsonify
 
 @main.route('/', methods=['GET', 'POST'])
 @login_required
@@ -109,8 +109,25 @@ def show_settings():
 @login_required
 @main.route('/users/<user>/followers', methods=['GET'])
 def show_followers(user):
-    followers_list = None
-    return render_template('user/followers.html', followers=followers_list)
+    # followers_list = Follow.query.filter_by(
+                        # requestee_id=current_user.id).first()
+    # followers_list = db.session.query(Follow).join(User, Follow.requestee_id==current_user.id, Follow.requester_id==User.id).all()
+    # followers_list = db.session.query(Follow, User).filter_by(requestee_id=current_user.id).all()
+    template = "SELECT u.username, u.id " + \
+        "FROM follow f, users u " + \
+        "WHERE f.requestee_id = {requestee} " + \
+        "AND f.requester_id = u.id"
+
+    query_str = template.format(requestee=current_user.id)
+    followers_list = db.engine.execute(query_str)
+
+    followersx = None
+    if (followers_list):
+        followersx = []
+        for row in followers_list:
+            followersx.append([row[0], row[1]])
+
+    return render_template('user/followers.html', followers=followersx)
 
 # returns friends.html with a list of user's friends
 @login_required

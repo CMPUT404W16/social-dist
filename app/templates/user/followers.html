@@ -2,6 +2,24 @@
 
 {% block page_content %}
 <p>Followers</p>
+{% if (followers) %}
+<table class="table table-hover">
+    <thead>
+      <tr>
+        <th>Follower</th>
+        <th>Accept friend</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% for f in followers %}
+        <tr>
+            <td>{{ f[0] }}</td>
+            <td><a href="#" class="btn btn-primary" role="button">Accept</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+ {% endif %}
 {% endblock %}
 
 {% block scripts %}
