@@ -86,13 +86,12 @@ class Nodes(db.Model):
     '''    
     op.create_table('nodes',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('name', sa.String(length=64), nullable=True),
-    sa.Column('verified', sa.Boolean(), nullable=True),
-    sa.Column('verified_date', sa.DateTime(), nullable=True),
+    sa.Column('ip_address', sa.String(length=64), nullable=True),
+    sa.Column('authCode', sa.Boolean(), nullable=True),
+    sa.Column('auth_date', sa.DateTime(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     '''
-    can_edit = False
     __tablename__ = 'nodes'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=True)
@@ -107,6 +106,13 @@ class Nodes(db.Model):
     #def limitCheck(self, limitNumber, id):
     #    return len(id) <= limitCheck
 
+class myModelView(sqla.ModelView):
+    can_create = False
+    can_edit = False
+    can_delete = False
+    column_editable_list = ['name']
+    column_list = ['name', 'verified']
+    column_exclude_list = ['id', 'verified_date']
 
 class APIRequest:
     pass

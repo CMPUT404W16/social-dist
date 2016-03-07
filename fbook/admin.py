@@ -7,4 +7,4 @@ admin = Admin()
 def configureAdmin(app):
 	admin.init_app(app)
 	admin.add_view(ModelView(User, db.session))
-	admin.add_view(ModelView(Nodes, db.session))
+	admin.add_view(myModelView(Nodes, db.session))
