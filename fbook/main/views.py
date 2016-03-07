@@ -1,6 +1,6 @@
 from flask import render_template, session, redirect, url_for, current_app, flash, abort, request
 from .. import db
-from ..models import User, Follow
+from ..models import User, Follow, Friend
 from ..email import send_email
 from . import main
 from .forms import *
@@ -50,7 +50,7 @@ def login():
             login_user(user, remember=True)
 
             flash("User Created Successfully")
-            
+
             return redirect(url_for('.index'))
         else:
             flash("Username Already Exists")
@@ -133,8 +133,31 @@ def show_followers(user):
 @login_required
 @main.route('/users/<user>/friends', methods=['GET'])
 def show_friends(user):
-    friends_list = None
-    return render_template('user/friends.html', friends=friends_list)
+    # list of friends' usernames
+
+    friends_list = Friend.query.filter_by(a_id=current_user.id).all()
+    friends_list2 = Friend.query.filter_by(b_id=current_user.id).all()
+    friendsx = None
+    if (friends_list):
+        friendsx = []
+        for f in friends_list:
+            fid = User.query.filter_by(id=f.b_id).first()
+            friendsx.append(fid.username)
+    if (friends_list2):
+        if (not friendsx):
+            friendsx = []
+        for f in followers_list2:
+            fid = User.query.filter_by(id=f.a_id).first()
+            friendsx.append(fid.username)
+
+    return render_template('user/friends.html', friends=friendsx)
+
+# # returns friends.html with a list of user's friends
+# @login_required
+# @main.route('/users/<user>/friends', methods=['GET'])
+# def show_friends(user):
+#     friends_list = None
+#     return render_template('user/friends.html', friends=friends_list)
 
 # current user follows user
 @login_required
@@ -149,6 +172,20 @@ def follow(user):
     flash("You have just followed "+user)
 
     return redirect("/users/"+user)
+
+# current user befriends user
+@login_required
+@main.route('/befriend/<user>', methods=['GET', 'POST'])
+def befriend(user):
+    friend_idx = User.query.filter_by(username=user).first().id
+    new_friend = Friend(a_id=current_user.id,
+                        b_id=friend_idx)
+    db.session.add(new_friend)
+    db.session.commit()
+
+    flash("You have just befriended "+user)
+
+    return redirect("/users/"+current_user.username+"/friends")
 
 @login_required
 @main.route('/logout', methods=['GET', 'POST'])
