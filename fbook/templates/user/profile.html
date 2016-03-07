@@ -15,7 +15,7 @@
         <a href={{ "/follow/"+user_profile }} class="btn btn-default" role="button">Follow</a>
     </div>
     {% else %}
-    <button type="button" class="btn btn-default">Followed</button>
+        <a href={{ "/unfollow/"+user_profile }} class="btn btn-default" role="button">Unfollow</a>
     {% endif %}
     {% endif %}
 </div>
@@ -27,7 +27,6 @@
     {% endif %}
 </ul>
 {% endblock %}
-
 {% block scripts %}
 {{ super() }}
 {% endblock %}

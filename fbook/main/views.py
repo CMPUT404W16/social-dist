@@ -82,7 +82,8 @@ def show_profile(user):
     userx = User.query.filter_by(username=user).first()
     if (userx):
         idx = userx.id
-    return render_template('user/profile.html', user_profile=user, user_id=idx)
+    return render_template('user/profile.html', user_profile=user, user_id=idx, user_obj=userx)
+
 
 @login_required
 @main.route('/settings', methods=['GET', 'POST'])
@@ -147,6 +148,17 @@ def follow(user):
     db.session.commit()
 
     flash("You have just followed "+user)
+
+    return redirect("/users/"+user)
+
+@login_required
+@main.route('/unfollow/<user>', methods=['GET', 'POST'])
+def unfollow(user):
+    requestee_idx = User.query.filter_by(username=user).first()
+    current_user.unfriend(requestee_idx)
+    db.session.commit()
+
+    flash("You have just unfollowed "+user)
 
     return redirect("/users/"+user)
 
