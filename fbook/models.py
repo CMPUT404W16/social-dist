@@ -1,4 +1,5 @@
 from .db import db
+from sqlalchemy.dialects import postgresql
 import bleach
 from markdown import markdown
 from datetime import datetime
@@ -64,6 +65,7 @@ class Privacy:
 
 
 class Friend(db.Model):
+    __tablename__ = "friends"
     a_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
     b_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
     
@@ -71,6 +73,7 @@ class Friend(db.Model):
         return a_id == b_id
     
 class Follow(db.Model):
+    __tablename__ = "follows"
     requester_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
     requestee_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
     
@@ -78,11 +81,19 @@ class Follow(db.Model):
         return requester_id == requestee_id
     
 
-class Node:
-    pass
+class Node(db.Model):
+    __tablename__ = "nodes"
+    id = db.Column(db.Integer, primary_key=True)
+    ip_addr = db.Column(postgresql.INET)
+    auth_code = db.Column(db.String(128))
+    isRestricted = False
 
-class APIRequest:
-    pass
+# class APIRequest:
+    # __tablename__ = "apiRequests"
+    # id = db.Column(db.Integer, primary_key=True)
 
-class NodeAPI:
-    pass
+
+# class NodeAPI:
+    # __tablename__ = "nodeAPIs"
+    # node_id = db.Column(db.Integer, db.ForeignKey('nodes.id'), primary_key=True)
+    # request_id = db.Column(db.Integer, db.ForeignKey('apiRequests.id'), primary_key=True)
