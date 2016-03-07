@@ -71,12 +71,14 @@ class User(db.Model):
             else:
                 return False
 
+    # not used; using routes
     def follow(self, user):
         pass
 
     def unfollow(self, user):
         pass
 
+    # not used; using routes
     def befriend(self, user):
         pass
 
