@@ -3,6 +3,10 @@ import bleach
 from markdown import markdown
 from datetime import datetime
 
+from flask.ext import admin
+from flask.ext.admin.contrib import sqla
+from flask.ext.admin.contrib.sqla import filters
+
 class Permission:
     pass
 
@@ -78,15 +82,30 @@ class Follow(db.Model):
         return requester_id == requestee_id
     
 
-class Node(db.Model):
+class Nodes(db.Model):
+    '''    
+    op.create_table('nodes',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('name', sa.String(length=64), nullable=True),
+    sa.Column('verified', sa.Boolean(), nullable=True),
+    sa.Column('verified_date', sa.DateTime(), nullable=True),
+    sa.PrimaryKeyConstraint('id')
+    )
+    '''
+    can_edit = False
     __tablename__ = 'nodes'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=True)
+    verified = db.Column(db.Boolean)
+    verified_date = db.Column(db.DateTime)
+
+    def __unicode__(self):
+        return self.name
 
     # number of node connections limited to our server
-    limitNumber = 3
-    def limitCheck(self, limitNumber, id):
-        return len(id) <= limitCheck
+    #limitNumber = 3
+    #def limitCheck(self, limitNumber, id):
+    #    return len(id) <= limitCheck
 
 
 class APIRequest:
