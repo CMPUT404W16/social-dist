@@ -73,3 +73,6 @@ bower_components/
 tmp
 .DS_Store
 .idea
+
+# database
+.sqlite

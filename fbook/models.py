@@ -83,7 +83,14 @@ class User(db.Model):
         pass
 
     def unfriend(self, user):
-        pass
+        opt1 = Friend.query.filter_by(a_id=self.id, b_id=user.id).first()
+        opt2 = Friend.query.filter_by(a_id=user.id, b_id=self.id).first()
+        if opt1:
+            opt1.delete()
+        if opt2:
+            opt2.delete()
+
+        Follow.query.filter_by(requester_id=self.id).delete()
 
     def __repr__(self):
         return '<User %r>' % self.username
