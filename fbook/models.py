@@ -91,8 +91,8 @@ class Node(db.Model):
     name = db.Column(db.String(64), unique=True)
     ip_addr = db.Column(postgresql.INET)
     auth_code = db.Column(db.String(128))
-    isRestricted = False
-    verified_date = db.Column(db.DateTime)
+    isRestricted = db.Column(db.Boolean, default=False)
+    verified_date = db.Column(db.DateTime, default=db.func.current_timestamp())
 
     def __unicode__(self):
         return self.name
