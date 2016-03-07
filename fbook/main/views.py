@@ -127,7 +127,7 @@ def show_followers(user):
         for row in followers_list:
             followersx.append([row[0], row[1]])
 
-    return render_template('user/followers.html', followers=followersx)
+    return render_template('user/followers.html', followers=followersx, user_profile=user, user_id=current_user.id)
 
 # returns friends.html with a list of user's friends
 @login_required
@@ -150,7 +150,7 @@ def show_friends(user):
             fid = User.query.filter_by(id=f.a_id).first()
             friendsx.append(fid.username)
 
-    return render_template('user/friends.html', friends=friendsx)
+    return render_template('user/friends.html', friends=friendsx, user_profile=user, user_id=current_user.id)
 
 # # returns friends.html with a list of user's friends
 # @login_required

@@ -1,6 +1,6 @@
-{% extends "base.html" %}
+{% extends "user/profile.html" %}
 
-{% block page_content %}
+{% block child_content %}
 <div class="page-header">
   <h1>Your Followers</h1>
 </div>
@@ -22,7 +22,7 @@
         {% endfor %}
     </tbody>
 </table>
- {% endif %}
+{% endif %}
 {% endblock %}
 
 {% block scripts %}
