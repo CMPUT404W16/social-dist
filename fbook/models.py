@@ -4,6 +4,10 @@ import bleach
 from markdown import markdown
 from datetime import datetime
 
+from flask.ext import admin
+from flask.ext.admin.contrib import sqla
+from flask.ext.admin.contrib.sqla import filters
+
 class Permission:
     pass
 
@@ -84,9 +88,20 @@ class Follow(db.Model):
 class Node(db.Model):
     __tablename__ = "nodes"
     id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), unique=True)
     ip_addr = db.Column(postgresql.INET)
     auth_code = db.Column(db.String(128))
     isRestricted = False
+    verified_date = db.Column(db.DateTime)
+
+    def __unicode__(self):
+        return self.name
+
+class NodeRequest(db.Model):
+    __tablename__ = "nodeRequests"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), unique=True)
+    ip_addr = db.Column(postgresql.INET)
 
 # class APIRequest:
     # __tablename__ = "apiRequests"
