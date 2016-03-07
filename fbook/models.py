@@ -3,13 +3,15 @@ import bleach
 from markdown import markdown
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
+import uuid
+
 
 class Permission:
     pass
 
 class Role(db.Model):
     __tablename__ = 'roles'
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(64), unique=True)
     users = db.relationship('User', backref='role', lazy='dynamic')
 
@@ -19,7 +21,7 @@ class Role(db.Model):
 
 class User(db.Model):
     __tablename__ = 'users'
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer(), unique=True, primary_key=True)
     username = db.Column(db.String(64), unique=True, index=True)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     password = db.Column(db.String(64))
@@ -36,6 +38,9 @@ class User(db.Model):
     @property
     def is_anonymous(self):
         return False
+
+    def set_id(self):
+        self.id = int(str(uuid.uuid4().int)[0:10])
 
     def get_id(self):
         return self.username

@@ -39,9 +39,10 @@ def login():
     if signupForm.validate_on_submit():
         user = User.query.filter_by(username=signupForm.username.data).first()
         if user is None:
-            # this needs to add UUID?
             # add user to db
             user = User(username=signupForm.username.data, authenticated=True)
+            user.set_id()
+            print(user.id)
             user.set_password(signupForm.password.data);
             db.session.add(user)
             db.session.commit();
