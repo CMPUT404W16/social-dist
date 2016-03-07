@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block page_content %}
-<div style="margin-left:10em;margin-right:10em"
+<script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.12.0.min.js"></script>
 <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 <div class="jumbotron">
     <p>Current user: {{ current_user.username }}</p>
@@ -20,17 +20,16 @@
     {% endif %}
     {% endif %}
 </div>
-<ul class="nav nav-pills">
+<ul class="nav nav-tabs">
     <li role="presentation"><a href="#">Posts</a></li>
     {% if (current_user.username == user_profile) %}
-    <li role="presentation"><a href={{ '/users/'+current_user.username+'/friends' }}>Friends</a></li>
-    <li role="presentation"><a href={{ '/users/'+current_user.username+'/followers' }}>Followers</a></li>
+    <li id="tab-friends" role="presentation"><a href={{ '/users/'+current_user.username+'/friends' }}>Friends</a></li>
+    <li id="tab-followers" role="presentation"><a href={{ '/users/'+current_user.username+'/followers' }}>Followers</a></li>
     {% endif %}
 </ul>
 
 {% block child_content %}{% endblock %}
 
-</div>
 {% endblock %}
 
 {% block scripts %}

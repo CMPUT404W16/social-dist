@@ -1,6 +1,9 @@
 {% extends "user/profile.html" %}
 
 {% block child_content %}
+<script type="text/javascript">
+$("#tab-followers").attr('class', 'active');
+</script>
 <div class="page-header">
   <h1>Your Followers</h1>
 </div>
@@ -17,7 +20,11 @@
         <tr>
             <td><a href={{ '/users/'+f[0] }}>{{ f[0] }}</a></td>
             <!-- <td>{{ f[1] }}</td> -->
+            {% if (not current_user.is_friend(f[1])) %}
             <td><a href={{ "/befriend/"+f[0] }} class="btn btn-primary" role="button">Accept</a></td>
+            {% else %}
+            <td></td>
+            {% endif %}
         </tr>
         {% endfor %}
     </tbody>
