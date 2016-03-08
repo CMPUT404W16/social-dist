@@ -1,31 +1,26 @@
 from flask import render_template, session, redirect, url_for, current_app, flash, abort, request
 from .. import db
-from ..models import User, Follow
+from ..models import *
 from ..email import send_email
 from . import main
 from .forms import *
 from flask.ext.login import login_user, logout_user, current_user, login_required, LoginManager
 from .. import login_manager
-from flask import jsonify
+
 
 @main.route('/', methods=['GET', 'POST'])
 @login_required
 def index():
     form = PostForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(username=form.name.data).first()
-        if user is None:
-            user = User(username=form.name.data)
-            db.session.add(user)
-            session['known'] = False
-        else:
-            session['known'] = True
-        session['name'] = form.name.data
-        # session['username'] = form.name.data
+        post = Post(body=form.body.data, author_id=current_user._get_current_object())
+        db.session.add(post)
         return redirect(url_for('.index'))
+    posts = Post.query.order_by(Post.timestamp.desc()).all()
     return render_template('index.html',
                            form=form, name=current_user.username,
-                           known=session.get('known', False))
+                           posts=posts)
+
 
 @main.route('/login', methods=['GET', 'POST'])
 def login():
@@ -101,6 +96,7 @@ def show_settings():
             return redirect(url_for('.show_settings'))
 
     return render_template('user/settings.html', pass_form=new_password_form)
+
 
 # returns followers.html with a list of user's followers
 @login_required
