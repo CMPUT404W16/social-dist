@@ -147,7 +147,7 @@ def show_friends(user):
     if (friends_list2):
         if (not friendsx):
             friendsx = []
-        for f in followers_list2:
+        for f in friends_list2:
             fid = User.query.filter_by(id=f.a_id).first()
             friendsx.append(fid.username)
 
@@ -167,6 +167,16 @@ def follow(user):
     requestee_idx = User.query.filter_by(username=user).first().id
     new_follow = Follow(requester_id=current_user.id,
                         requestee_id=requestee_idx)
+
+    following = Follow.query.filter_by(requester_id=requestee_idx,
+                        requestee_id=current_user.id).first()
+
+    if following:
+        new_friend = Friend(a_id=current_user.id,
+                        b_id=requestee_idx)
+        db.session.add(new_friend)
+
+
     db.session.add(new_follow)
     db.session.commit()
 
@@ -181,6 +191,8 @@ def befriend(user):
     friend_idx = User.query.filter_by(username=user).first().id
     new_friend = Friend(a_id=current_user.id,
                         b_id=friend_idx)
+    new_follow = Follow(requester_id=current_user.id, requestee_id=friend_idx)
+    db.session.add(new_follow)
     db.session.add(new_friend)
     db.session.commit()
 
