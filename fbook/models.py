@@ -104,9 +104,6 @@ class User(db.Model):
     def unfriend(self, user):
         pass
 
-    def __repr__(self):
-        return '<User %r>' % self.username
-
 
 class Post(db.Model):
     __tablename__ = 'posts'

@@ -13,7 +13,7 @@ from .. import login_manager
 def index():
     form = PostForm()
     if form.validate_on_submit():
-        post = Post(body=form.body.data, author_id=current_user._get_current_object())
+        post = Post(body=form.body.data, author_id=current_user._get_current_object().id)
         db.session.add(post)
         return redirect(url_for('.index'))
     posts = Post.query.order_by(Post.timestamp.desc()).all()
