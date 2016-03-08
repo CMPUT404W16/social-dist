@@ -2,10 +2,12 @@ from flask import Flask
 from flask.ext.bootstrap import Bootstrap
 from flask.ext.mail import Mail
 from flask.ext.moment import Moment
-from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.pagedown import PageDown
 from config import config
 from flask.ext.login import LoginManager
+
+from admin import am
+from .db import db
 
 
 # for login
@@ -13,19 +15,12 @@ login_manager = LoginManager()
 bootstrap = Bootstrap()
 mail = Mail()
 moment = Moment()
-db = SQLAlchemy()
 pagedown = PageDown()
-
 
 def create_app(conf):
     app = Flask(__name__)
 
-    # app.config.from_object(config[config_name])
-    # config[config_name].init(app)
-
     app.config.from_object(conf)
-    #conf.init_app(app)    
-
     bootstrap.init_app(app)
     mail.init_app(app)
     moment.init_app(app)
@@ -35,6 +30,11 @@ def create_app(conf):
     login_manager.login_view = '/login'
     login_manager.login_message = ""
 
+
+    from api.api import api
+    api.init_app(app)
+
+    am.init_app(app)
 
     from .main import main as main_blueprint
     app.register_blueprint(main_blueprint)
