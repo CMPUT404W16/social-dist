@@ -6,7 +6,7 @@ from flask.ext.pagedown import PageDown
 from config import config
 from flask.ext.login import LoginManager
 
-from admin import configureAdmin
+from admin import am
 from .db import db
 
 
@@ -34,7 +34,7 @@ def create_app(conf):
     from api.api import api
     api.init_app(app)
 
-    configureAdmin(app)
+    am.init_app(app)
 
     from .main import main as main_blueprint
     app.register_blueprint(main_blueprint)
