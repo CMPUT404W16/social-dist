@@ -13,12 +13,7 @@ from .. import login_manager
 def index():
     form = PostForm()
     if form.validate_on_submit():
-<<<<<<< HEAD
         post = Post(body=form.body.data, author_id=current_user._get_current_object().id)
-=======
-        post = Post(body=form.body.data,
-                author_id=current_user._get_current_object().id)
->>>>>>> 88dd8d4621326d785c4817156b74530aa150b19f
         db.session.add(post)
         return redirect(url_for('.index'))
     posts = Post.query.order_by(Post.timestamp.desc()).all()
