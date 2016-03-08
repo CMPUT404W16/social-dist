@@ -56,7 +56,6 @@ class User(db.Model):
     password = db.Column(db.String(64))
     authenticated = db.Column(db.Boolean, default=False)
 
-
     @property
     def is_authenticated(self):
         return self.authenticated
@@ -106,6 +105,13 @@ class User(db.Model):
 
     def __repr__(self):
         return '<User %r>' % self.username
+
+class UserRequest(db.Model):
+    __tablename__ = 'userRequests'
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(64), unique=True, index=True)
+    password = db.Column(db.String(64))
+
 
 class Post(db.Model):
     __tablename__ = 'posts'

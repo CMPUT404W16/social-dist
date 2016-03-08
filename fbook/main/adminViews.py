@@ -25,7 +25,7 @@ class NodeRequestModelView(ModelView):
 			for req in query.all():
 				node = 	Node(name = req.name, 
 					ip_addr = req.ip_addr,
-					auth_code = "some code"
+					auth_code = self.generateCode()
 					)
 				nodes.append(node)
 		except Exception as e:
@@ -53,7 +53,7 @@ class NodeRequestModelView(ModelView):
 
 			node = Node(name = req.name,
 				ip_addr = req.ip_addr,
-				auth_code = "bleh"
+				auth_code = self.generateCode()
 				)
 		except Exception as e:
 			# No need to rollback, id doesn't exist perhaps?
@@ -71,6 +71,9 @@ class NodeRequestModelView(ModelView):
 			print(e)
 
 		return redirect(url_for('NodeRequest.index_view'))
+
+		def generateCode(self):
+			pass
 
 class NodeModelView(ModelView):
 	can_create = False
