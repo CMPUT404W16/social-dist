@@ -5,10 +5,10 @@ from flask import request, url_for, redirect
 from ..admin import am
 from ..models import *
 
+# Logic for handling and displaying Node Requests
 class NodeRequestModelView(ModelView):
 	can_edit = False
-	# can_create = False
-	# can_delete = False
+	can_create = False
 	column_labels = dict(
 		name = "Name",
 		ip_addr = "IP Address"
@@ -28,13 +28,20 @@ class NodeRequestModelView(ModelView):
 					auth_code = "some code"
 					)
 				nodes.append(node)
+		except Exception as e:
+			# No need to rollback, id doesn't exist perhaps?
+			# Rare
+			print(e)
+			return
 
+		try:
 			# Add nodes
 			db.session.add_all(nodes)
 			# Delete requests
-			query.delete(synchronize_session='fetch')
+			query.delete()
 			db.session.commit()
 		except Exception as e:
+			# Problem with db, rollback
 			db.session.rollback()
 			print(e)
 
@@ -48,11 +55,18 @@ class NodeRequestModelView(ModelView):
 				ip_addr = req.ip_addr,
 				auth_code = "bleh"
 				)
+		except Exception as e:
+			# No need to rollback, id doesn't exist perhaps?
+			# Rare
+			print(e)
+			return redirect(url_for('NodeRequest.index_view'))
 
+		try:
 			db.session.add(node)
 			db.session.delete(req)
 			db.session.commit()
 		except Exception as e:
+			# Problem with db, rollback
 			db.session.rollback()
 			print(e)
 

@@ -164,8 +164,9 @@ class Follow(db.Model):
 class Node(db.Model):
     __tablename__ = "nodes"
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(64), unique=True)
+    name = db.Column(db.String(64))
     ip_addr = db.Column(postgresql.INET)
+    email = db.Column(db.String(64), unique=True)
     auth_code = db.Column(db.String(128))
     isRestricted = db.Column(db.Boolean, default=False)
     verified_date = db.Column(db.DateTime, default=db.func.current_timestamp())
@@ -176,8 +177,9 @@ class Node(db.Model):
 class NodeRequest(db.Model):
     __tablename__ = "nodeRequests"
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(64), unique=True)
+    name = db.Column(db.String(64))
     ip_addr = db.Column(postgresql.INET)
+    email = db.Column(db.String(64), unique=True)
 
 # class APIRequest:
     # __tablename__ = "apiRequests"
