@@ -1,6 +1,6 @@
 from flask import render_template, session, redirect, url_for, current_app, flash, abort, request
 from .. import db
-from ..models import User, Follow, Friend
+from ..models import User, Follow, Friend, UserRequest
 from ..email import send_email
 from . import main
 from .forms import *
@@ -36,19 +36,30 @@ def login():
     if signupForm.validate_on_submit():
         user = User.query.filter_by(username=signupForm.username.data).first()
         if user is None:
-            # add user to db
-            user = User(username=signupForm.username.data, authenticated=True)
-            user.set_id()
-            print(user.id)
-            user.set_password(signupForm.password.data);
-            db.session.add(user)
-            db.session.commit();
-            # login user
-            login_user(user, remember=True)
+            ureq = UserRequest(username=signupForm.username.data)
+            ureq.set_password(signupForm.password.data)
+            try:
+                db.session.add(ureq)
+                db.session.commit()
+            except Exception as e:
+                db.session.rollback()
+                print(e)
 
-            flash("User Created Successfully")
 
-            return redirect(url_for('.index'))
+            # # add user to db
+            # user = User(username=signupForm.username.data, authenticated=True)
+            # user.set_id()
+            # print(user.id)
+            # user.set_password(signupForm.password.data);
+            # db.session.add(user)
+            # db.session.commit();
+            # # login user
+            # login_user(user, remember=True)
+
+            flash("Signup Request Submitted")
+
+            return redirect('/')
+            # return redirect(url_for('.index'))
         else:
             flash("Username Already Exists")
 

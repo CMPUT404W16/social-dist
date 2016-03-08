@@ -6,7 +6,6 @@ from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 import uuid
 
-
 from flask.ext import admin
 from flask.ext.admin.contrib import sqla
 from flask.ext.admin.contrib.sqla import filters
@@ -56,7 +55,7 @@ class User(db.Model):
     id = db.Column(db.Integer(), unique=True, primary_key=True)
     username = db.Column(db.String(64), unique=True, index=True)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
-    password = db.Column(db.String(64))
+    password = db.Column(db.String(128))
     authenticated = db.Column(db.Boolean, default=False)
 
     @property
@@ -123,10 +122,13 @@ class User(db.Model):
         return '<User %r>' % self.username
 
 class UserRequest(db.Model):
-    __tablename__ = 'userRequests'
+    __tablename__ = 'user_requests'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), unique=True, index=True)
-    password = db.Column(db.String(64))
+    password = db.Column(db.String(128))
+
+    def set_password(self, password):
+        self.password = generate_password_hash(password)
 
 
 class Post(db.Model):
@@ -197,7 +199,7 @@ class Node(db.Model):
         return self.name
 
 class NodeRequest(db.Model):
-    __tablename__ = "nodeRequests"
+    __tablename__ = "node_requests"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64))
     ip_addr = db.Column(postgresql.INET)
