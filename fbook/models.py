@@ -181,6 +181,8 @@ class NodeRequest(db.Model):
     ip_addr = db.Column(postgresql.INET)
     email = db.Column(db.String(64), unique=True)
 
+  
+
 # class APIRequest:
     # __tablename__ = "apiRequests"
     # id = db.Column(db.Integer, primary_key=True)
