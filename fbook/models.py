@@ -56,7 +56,6 @@ class User(db.Model):
     password = db.Column(db.String(64))
     authenticated = db.Column(db.Boolean, default=False)
 
-
     @property
     def is_authenticated(self):
         return self.authenticated
@@ -111,13 +110,36 @@ class Post(db.Model):
     body = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    comments = db.relationship('Comment', backref='post', lazy='dynamic')
+    privacy = db.Column(db.Integer, default=0)
+    
+    @staticmethod
+    def on_changed_body(target, value, oldvalue, initiator):
+        allowed_tags = ['a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
+                        'em', 'i', 'li', 'ol', 'pre', 'strong', 'ul',
+                        'h1', 'h2', 'h3', 'p']
+        target.body_html = bleach.linkify(bleach.clean(
+            markdown(value, output_format='html'),
+            tags=allowed_tags, strip=True))
 
 
 class Comment(db.Model):
     __tablename__ = 'comments'
     id = db.Column(db.Integer, primary_key=True)
+    body = db.Column(db.Text)
+    body_html = db.Column(db.Text)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    disabled = db.Column(db.Boolean)
+    author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     post_id = db.Column(db.Integer, db.ForeignKey('posts.id'))
-    content = db.Column(db.String(500))
+
+    @staticmethod
+    def on_changed_body(target, value, oldvalue, initiator):
+        allowed_tags = ['a', 'abbr', 'acronym', 'b', 'code', 'em', 'i',
+                        'strong']
+        target.body_html = bleach.linkify(bleach.clean(
+            markdown(value, output_format='html'),
+            tags=allowed_tags, strip=True))
 
 
 class Image(db.Model):
@@ -128,7 +150,9 @@ class Image(db.Model):
 
 
 class Privacy:
-    pass
+    PUBLIC = 0
+    ONLY_ME = 1
+    ONLY_MY_FRIENT = 2
 
 
 class Friend(db.Model):
@@ -152,7 +176,7 @@ class Node(db.Model):
     __tablename__ = "nodes"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64))
-    ip_addr = db.Column(postgresql.INET)
+    #ip_addr = db.Column(postgresql.INET)
     email = db.Column(db.String(64), unique=True)
     auth_code = db.Column(db.String(128))
     isRestricted = db.Column(db.Boolean, default=False)
@@ -165,7 +189,7 @@ class NodeRequest(db.Model):
     __tablename__ = "nodeRequests"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64))
-    ip_addr = db.Column(postgresql.INET)
+    #ip_addr = db.Column(postgresql.INET)
     email = db.Column(db.String(64), unique=True)
 
 # class APIRequest:
