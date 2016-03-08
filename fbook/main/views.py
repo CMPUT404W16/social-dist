@@ -13,7 +13,7 @@ from .. import login_manager
 def index():
     form = PostForm()
     if form.validate_on_submit():
-        post = Post(body=form.body.data, author_id=current_user._get_current_object().id)
+        post = Post(title=form.title.data,body=form.body.data, author_id=current_user._get_current_object().id)
         db.session.add(post)
         return redirect(url_for('.index'))
     posts = Post.query.order_by(Post.timestamp.desc()).all()
@@ -34,10 +34,9 @@ def post(id):
         db.session.add(comment)
         flash('Your comment has been created')
         return redirect(url_for('.post', id=post.id))
-    page = request.args.get('page', 1, type=int)
-    comments = Comment.query.filter_by().all()
-    return render_template('post.html', posts=[post], form=form,
-                           comments=comments)
+    comments = Comment.query.filter_by(post_id=post.id)
+    print comments
+    return render_template('post.html', posts=[post], form=form, comments=comments)
 
 @main.route('/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -57,13 +56,13 @@ def edit(id):
 @main.route('/delete_post/<int:id>', methods=['POST', 'GET'])
 @login_required
 def delete_post(id):
-    Post.query.filter(post.id == id).delete()
+    p = Post.query.get_or_404(id)
+    print p
+    db.session.delete(p)
     db.session.commit()
     form = PostForm()
     posts = Post.query.order_by(Post.timestamp.desc()).all()
-    return render_template('index.html',
-                           form=form, name=current_user.username,
-                           posts=posts)
+    return redirect(url_for('.index'))
 
 
 @main.route('/login', methods=['GET', 'POST'])
