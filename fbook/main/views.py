@@ -79,7 +79,7 @@ def login():
 @login_required
 @main.route('/users/<user>', methods=['GET', 'POST'])
 def show_profile(user):
-    userx = User.query.filter_by(username=user).first()
+    userx = User.query.filter_by(username=user).first_or_404()
     if (userx):
         idx = userx.id
     return render_template('user/profile.html', user_profile=user, user_id=idx, user_obj=userx)
@@ -147,7 +147,7 @@ def show_friends(user):
     if (friends_list2):
         if (not friendsx):
             friendsx = []
-        for f in followers_list2:
+        for f in friends_list2:
             fid = User.query.filter_by(id=f.a_id).first()
             friendsx.append(fid.username)
 
