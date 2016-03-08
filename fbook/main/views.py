@@ -22,6 +22,23 @@ def index():
                            posts=posts)
 
 
+
+@main.route('/post/<int:id>', methods=['GET', 'POST'])
+def post(id):
+    post = Post.query.get_or_404(id)
+    form = CommentForm()
+    if form.validate_on_submit():
+        comment = Comment(body=form.body.data,
+                          post=post,
+                          author_id=current_user._get_current_object().id)
+        db.session.add(comment)
+        flash('Your comment has been created')
+        return redirect(url_for('.post', id=post.id))
+    page = request.args.get('page', 1, type=int)
+    comments = Comment.query.filter_by().all()
+    return render_template('post.html', posts=[post], form=form,
+                           comments=comments)
+
 @main.route('/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit(id):
@@ -36,6 +53,17 @@ def edit(id):
         return redirect(url_for('.index'))
     form.body.data = post.body
     return render_template('edit_post.html', form=form)
+
+@main.route('/delete_post/<int:id>', methods=['POST', 'GET'])
+@login_required
+def delete_post(id):
+    Post.query.filter(post.id == id).delete()
+    db.session.commit()
+    form = PostForm()
+    posts = Post.query.order_by(Post.timestamp.desc()).all()
+    return render_template('index.html',
+                           form=form, name=current_user.username,
+                           posts=posts)
 
 
 @main.route('/login', methods=['GET', 'POST'])

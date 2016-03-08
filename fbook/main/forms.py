@@ -28,3 +28,7 @@ class ChangePasswordForm(Form):
         validators=[Required(), EqualTo('new_password',
         message='New password mismatch!')])
     submit = SubmitField('Set')
+
+class CommentForm(Form):
+    body = StringField('', validators=[Required()])
+    submit = SubmitField('Submit')
