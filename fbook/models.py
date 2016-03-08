@@ -173,10 +173,6 @@ class Node(db.Model):
     def __unicode__(self):
         return self.name
 
-class myNodeView(sqla.ModelView):
-    can_edit = False
-    #can_create = False
-
 class NodeRequest(db.Model):
     __tablename__ = "nodeRequests"
     id = db.Column(db.Integer, primary_key=True)
