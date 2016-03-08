@@ -13,13 +13,56 @@ from .. import login_manager
 def index():
     form = PostForm()
     if form.validate_on_submit():
-        post = Post(body=form.body.data, author_id=current_user._get_current_object().id)
+        post = Post(title=form.title.data,body=form.body.data, author_id=current_user._get_current_object().id)
         db.session.add(post)
         return redirect(url_for('.index'))
     posts = Post.query.order_by(Post.timestamp.desc()).all()
     return render_template('index.html',
                            form=form, name=current_user.username,
                            posts=posts)
+
+
+
+@main.route('/post/<int:id>', methods=['GET', 'POST'])
+def post(id):
+    post = Post.query.get_or_404(id)
+    form = CommentForm()
+    if form.validate_on_submit():
+        comment = Comment(body=form.body.data,
+                          post=post,
+                          author_id=current_user._get_current_object().id)
+        db.session.add(comment)
+        flash('Your comment has been created')
+        return redirect(url_for('.post', id=post.id))
+    comments = Comment.query.filter_by(post_id=post.id)
+    print comments
+    return render_template('post.html', posts=[post], form=form, comments=comments)
+
+@main.route('/edit/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit(id):
+    post = Post.query.get_or_404(id)
+    if current_user.id != post.author_id:
+        abort(403)
+    form = PostForm()
+    if form.validate_on_submit():
+        post.body = form.body.data
+        db.session.add(post)
+        flash('The post has been updated.')
+        return redirect(url_for('.index'))
+    form.body.data = post.body
+    return render_template('edit_post.html', form=form)
+
+@main.route('/delete_post/<int:id>', methods=['POST', 'GET'])
+@login_required
+def delete_post(id):
+    p = Post.query.get_or_404(id)
+    print p
+    db.session.delete(p)
+    db.session.commit()
+    form = PostForm()
+    posts = Post.query.order_by(Post.timestamp.desc()).all()
+    return redirect(url_for('.index'))
 
 
 @main.route('/login', methods=['GET', 'POST'])
