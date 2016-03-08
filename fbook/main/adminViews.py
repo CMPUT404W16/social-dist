@@ -72,5 +72,16 @@ class NodeRequestModelView(ModelView):
 
 		return redirect(url_for('NodeRequest.index_view'))
 
-am.add_view(ModelView(Node, db.session, name="Node", category="Nodes", endpoint="Node"))
+class NodeModelView(ModelView):
+	can_create = False
+	column_labels = dict(
+		name = 'Name',
+		ip_addr = 'IP Address',
+		email = 'Email',
+		auth_code = 'Authentication Code',
+		isRestricted = 'Is Restricted',
+		verified_date = 'Verified Date'
+		)
+
+am.add_view(NodeModelView(Node, db.session, name="Node", category="Nodes", endpoint="Node"))
 am.add_view(NodeRequestModelView(NodeRequest, db.session, name="Node Request", category="Nodes", endpoint="NodeRequest"))
