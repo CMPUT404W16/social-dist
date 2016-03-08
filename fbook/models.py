@@ -1,7 +1,12 @@
-from . import db
+from .db import db
+from sqlalchemy.dialects import postgresql
 import bleach
 from markdown import markdown
 from datetime import datetime
+
+from flask.ext import admin
+from flask.ext.admin.contrib import sqla
+from flask.ext.admin.contrib.sqla import filters
 
 class Permission:
     FOLLOW = 0x01
@@ -99,26 +104,13 @@ class User(db.Model):
     def unfriend(self, user):
         pass
 
-    def __repr__(self):
-        return '<User %r>' % self.username
 
 class Post(db.Model):
     __tablename__ = 'posts'
     id = db.Column(db.Integer, primary_key=True)
     body = db.Column(db.Text)
-    body_html = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    comments = db.relationship('Comment', backref='post', lazy='dynamic')
-
-    @staticmethod
-    def on_changed_body(target, value, oldvalue, initiator):
-        allowed_tags = ['a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
-                        'em', 'i', 'li', 'ol', 'pre', 'strong', 'ul',
-                        'h1', 'h2', 'h3', 'p']
-        target.body_html = bleach.linkify(bleach.clean(
-            markdown(value, output_format='html'),
-            tags=allowed_tags, strip=True))
 
 
 class Comment(db.Model):
@@ -140,6 +132,7 @@ class Privacy:
 
 
 class Friend(db.Model):
+    __tablename__ = "friends"
     a_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
     b_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
 
@@ -147,6 +140,7 @@ class Friend(db.Model):
         return a_id == b_id
 
 class Follow(db.Model):
+    __tablename__ = "follows"
     requester_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
     requestee_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
 
@@ -154,11 +148,32 @@ class Follow(db.Model):
         return requester_id == requestee_id
 
 
-class Node:
-    pass
+class Node(db.Model):
+    __tablename__ = "nodes"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64))
+    ip_addr = db.Column(postgresql.INET)
+    email = db.Column(db.String(64), unique=True)
+    auth_code = db.Column(db.String(128))
+    isRestricted = db.Column(db.Boolean, default=False)
+    verified_date = db.Column(db.DateTime, default=db.func.current_timestamp())
 
-class APIRequest:
-    pass
+    def __unicode__(self):
+        return self.name
 
-class NodeAPI:
-    pass
+class NodeRequest(db.Model):
+    __tablename__ = "nodeRequests"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64))
+    ip_addr = db.Column(postgresql.INET)
+    email = db.Column(db.String(64), unique=True)
+
+# class APIRequest:
+    # __tablename__ = "apiRequests"
+    # id = db.Column(db.Integer, primary_key=True)
+
+
+# class NodeAPI:
+    # __tablename__ = "nodeAPIs"
+    # node_id = db.Column(db.Integer, db.ForeignKey('nodes.id'), primary_key=True)
+    # request_id = db.Column(db.Integer, db.ForeignKey('apiRequests.id'), primary_key=True)
