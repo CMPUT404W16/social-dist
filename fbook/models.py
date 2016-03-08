@@ -3,6 +3,9 @@ from sqlalchemy.dialects import postgresql
 import bleach
 from markdown import markdown
 from datetime import datetime
+from werkzeug.security import generate_password_hash, check_password_hash
+import uuid
+
 
 from flask.ext import admin
 from flask.ext.admin.contrib import sqla
@@ -17,7 +20,7 @@ class Permission:
 
 class Role(db.Model):
     __tablename__ = 'roles'
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(64), unique=True)
     default = db.Column(db.Boolean, default=False, index=True)
     permissions = db.Column(db.Integer)
@@ -50,7 +53,7 @@ class Role(db.Model):
 
 class User(db.Model):
     __tablename__ = 'users'
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer(), unique=True, primary_key=True)
     username = db.Column(db.String(64), unique=True, index=True)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     password = db.Column(db.String(64))
@@ -68,8 +71,17 @@ class User(db.Model):
     def is_anonymous(self):
         return False
 
+    def set_id(self):
+        self.id = int(str(uuid.uuid4().int)[0:10])
+
     def get_id(self):
         return self.username
+
+    def set_password(self, password):
+        self.password = generate_password_hash(password)
+
+    def verify_password(self, password):
+        return check_password_hash(self.password, password)
 
     # user is an id int
     def is_follower(self, user):
@@ -91,17 +103,21 @@ class User(db.Model):
             else:
                 return False
 
+    # not used; using routes
     def follow(self, user):
         pass
 
     def unfollow(self, user):
         pass
 
+    # not used; using routes
     def befriend(self, user):
         pass
 
     def unfriend(self, user):
-        pass
+        opt1 = Friend.query.filter_by(a_id=self.id, b_id=user.id).delete()
+        opt2 = Friend.query.filter_by(a_id=user.id, b_id=self.id).delete()
+        Follow.query.filter_by(requester_id=self.id).delete()
 
     def __repr__(self):
         return '<User %r>' % self.username

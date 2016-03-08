@@ -1,7 +1,30 @@
 {% extends "user/profile.html" %}
 
-{% block page_content %}
-<p>Friends</p>
+{% block child_content %}
+<script type="text/javascript">
+$("#tab-friends").attr('class', 'active');
+</script>
+<div class="page-header">
+  <h1>Your Friends</h1>
+</div>
+{% if (friends) %}
+<table class="table table-hover">
+    <thead>
+      <tr>
+        <th>Friends</th>
+        <!-- <th>Accept as friend</th> -->
+      </tr>
+    </thead>
+    <tbody>
+        {% for f in friends %}
+        <tr>
+            <td><a href={{ '/users/'+f }}>{{ f }}</a></td>
+            <!-- <td>{{ f[1] }}</td> -->
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
 {% endblock %}
 
 {% block scripts %}

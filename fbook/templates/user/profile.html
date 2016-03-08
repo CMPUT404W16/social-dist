@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block page_content %}
+<script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.12.0.min.js"></script>
 <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 <div class="jumbotron">
     <p>Current user: {{ current_user.username }}</p>
@@ -15,19 +16,21 @@
         <a href={{ "/follow/"+user_profile }} class="btn btn-default" role="button">Follow</a>
     </div>
     {% else %}
-    <button type="button" class="btn btn-default">Followed</button>
+        <a href={{ "/unfollow/"+user_profile }} class="btn btn-default" role="button">Unfollow</a>
     {% endif %}
     {% endif %}
 </div>
-<ul class="nav nav-pills">
+<ul class="nav nav-tabs">
     <li role="presentation"><a href="#">Posts</a></li>
     {% if (current_user.username == user_profile) %}
-    <li role="presentation"><a href={{ '/users/'+current_user.username+'/friends' }}>Friends</a></li>
-    <li role="presentation"><a href={{ '/users/'+current_user.username+'/followers' }}>Followers</a></li>
+    <li id="tab-friends" role="presentation"><a href={{ '/users/'+current_user.username+'/friends' }}>Friends</a></li>
+    <li id="tab-followers" role="presentation"><a href={{ '/users/'+current_user.username+'/followers' }}>Followers</a></li>
     {% endif %}
 </ul>
-{% endblock %}
 
+{% block child_content %}{% endblock %}
+
+{% endblock %}
 {% block scripts %}
 {{ super() }}
 {% endblock %}
