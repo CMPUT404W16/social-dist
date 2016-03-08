@@ -35,6 +35,18 @@
     	{{ wtf.quick_form(signupForm) }}
     </div>
 </div>
+<br>
+<h4 class="text-center">Or</h4>
+<br>
+<div class="signup text-center">
+    <a href="#collapse3" data-toggle="collapse">
+        <h1>Request API</h1>
+    </a>
+    <div id="collapse3" class="collapse text-center">
+        {{ wtf.quick_form(apiForm) }}
+    </div>
+</div>
+
 {% endblock %}
 
 {% block scripts %}
