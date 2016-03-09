@@ -1,16 +1,13 @@
 from flask.ext.wtf import Form
-from wtforms import StringField, SubmitField, PasswordField, validators
+from wtforms import StringField, SubmitField, PasswordField, validators, SelectField
 from wtforms.validators import Required, EqualTo
 from flask.ext.pagedown.fields import PageDownField
 
 
-
-class NameForm(Form):
-    name = StringField('What is your name?', validators=[Required()])
-    submit = SubmitField('Submit')
-
 class PostForm(Form):
+    title = StringField('Title', validators=[Required()])
     body = PageDownField('What is on your mind?', validators=[Required()])
+    #mkdown = SelectField('Use markdown for this post?', choices=[(False, 'No'),(True, 'Yes')], default=False)
     submit = SubmitField("Post")
 
 # form for logging in the user
@@ -33,3 +30,7 @@ class ChangePasswordForm(Form):
         validators=[Required(), EqualTo('new_password',
         message='New password mismatch!')])
     submit = SubmitField('Set')
+
+class CommentForm(Form):
+    body = StringField('', validators=[Required()])
+    submit = SubmitField('Submit')

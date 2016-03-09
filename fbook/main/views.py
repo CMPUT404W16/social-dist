@@ -1,34 +1,69 @@
 from flask import render_template, session, redirect, url_for, current_app, flash, abort, request
 from .. import db
-from ..models import User, Follow, Friend
+from ..models import *
 from ..email import send_email
 from . import main
 from .forms import *
 from flask.ext.login import login_user, logout_user, current_user, login_required, LoginManager
 from .. import login_manager
-from flask import jsonify
+
 
 @main.route('/', methods=['GET', 'POST'])
 @login_required
 def index():
     form = PostForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(username=form.name.data).first()
-        if user is None:
-            user = User(username=form.name.data)
-            db.session.add(user)
-            session['known'] = False
-            if current_app.config['FLASKY_ADMIN']:
-                send_email(current_app.config['FLASKY_ADMIN'], 'New User',
-                           'mail/new_user', user=user)
-        else:
-            session['known'] = True
-        session['name'] = form.name.data
-        # session['username'] = form.name.data
+        post = Post(title=form.title.data,body=form.body.data, author_id=current_user._get_current_object().id)
+        db.session.add(post)
         return redirect(url_for('.index'))
+    posts = Post.query.order_by(Post.timestamp.desc()).all()
     return render_template('index.html',
                            form=form, name=current_user.username,
-                           known=session.get('known', False))
+                           posts=posts)
+
+
+
+@main.route('/post/<int:id>', methods=['GET', 'POST'])
+def post(id):
+    post = Post.query.get_or_404(id)
+    form = CommentForm()
+    if form.validate_on_submit():
+        comment = Comment(body=form.body.data,
+                          post=post,
+                          author_id=current_user._get_current_object().id)
+        db.session.add(comment)
+        flash('Your comment has been created')
+        return redirect(url_for('.post', id=post.id))
+    comments = Comment.query.filter_by(post_id=post.id)
+    print comments
+    return render_template('post.html', posts=[post], form=form, comments=comments)
+
+@main.route('/edit/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit(id):
+    post = Post.query.get_or_404(id)
+    if current_user.id != post.author_id:
+        abort(403)
+    form = PostForm()
+    if form.validate_on_submit():
+        post.body = form.body.data
+        db.session.add(post)
+        flash('The post has been updated.')
+        return redirect(url_for('.index'))
+    form.body.data = post.body
+    return render_template('edit_post.html', form=form)
+
+@main.route('/delete_post/<int:id>', methods=['POST', 'GET'])
+@login_required
+def delete_post(id):
+    p = Post.query.get_or_404(id)
+    print p
+    db.session.delete(p)
+    db.session.commit()
+    form = PostForm()
+    posts = Post.query.order_by(Post.timestamp.desc()).all()
+    return redirect(url_for('.index'))
+
 
 @main.route('/login', methods=['GET', 'POST'])
 def login():
@@ -105,6 +140,7 @@ def show_settings():
             return redirect(url_for('.show_settings'))
 
     return render_template('user/settings.html', pass_form=new_password_form)
+
 
 # returns followers.html with a list of user's followers
 @login_required
