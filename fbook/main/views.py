@@ -11,6 +11,12 @@ from .. import login_manager
 @main.route('/', methods=['GET', 'POST'])
 @login_required
 def index():
+    """
+    Index page view function.
+    
+    Accept GET POST method
+    ROUTING: /
+    """
     form = PostForm()
     if form.validate_on_submit():
         post = Post(title=form.title.data,body=form.body.data, author_id=current_user._get_current_object().id, author=current_user._get_current_object().username)
@@ -25,22 +31,34 @@ def index():
 
 @main.route('/post/<int:id>', methods=['GET', 'POST'])
 def post(id):
+    """
+    Post page view function.
+    
+    Accept GET POST method
+    ROUTING: /post/<int:id>
+    """
     post = Post.query.get_or_404(id)
     form = CommentForm()
     if form.validate_on_submit():
         comment = Comment(body=form.body.data,
-                          post=post,
-                          author_id=current_user._get_current_object().id, author=current_user._get_current_object().username)
+                          post=post, 
+                          author_id=current_user._get_current_object().id,
+                          author=current_user._get_current_object().username)
         db.session.add(comment)
         flash('Your comment has been created')
         return redirect(url_for('.post', id=post.id))
     comments = Comment.query.filter_by(post_id=post.id)
-    print comments
-    return render_template('post/post.html', posts=[post], form=form, comments=comments)
+    return render_template('post/post.html', posts=[post], form=form, comments=comments, mainpage=True)
 
 @main.route('/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit(id):
+    """
+    Edit post page view function.
+    
+    Accept GET POST method
+    ROUTING: /edit/<int:id>
+    """
     post = Post.query.get_or_404(id)
     if current_user.id != post.author_id:
         abort(403)
@@ -56,7 +74,16 @@ def edit(id):
 @main.route('/delete_post/<int:id>', methods=['POST', 'GET'])
 @login_required
 def delete_post(id):
+    """
+    Edit post page view function.
+    
+    Accept GET POST method
+    ROUTING: /edit/<int:id>
+    """
+    
     p = Post.query.get_or_404(id)
+    if current_user.id != p.author_id:
+        abort(403)
     db.session.delete(p)
     db.session.commit()
     form = PostForm()
@@ -76,7 +103,6 @@ def login():
             # add user to db
             user = User(username=signupForm.username.data, authenticated=True)
             user.set_id()
-            print(user.id)
             user.set_password(signupForm.password.data);
             db.session.add(user)
             db.session.commit();

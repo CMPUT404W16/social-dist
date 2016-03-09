@@ -5,8 +5,6 @@ from markdown import markdown
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 import uuid
-
-
 from flask.ext import admin
 from flask.ext.admin.contrib import sqla
 from flask.ext.admin.contrib.sqla import filters
