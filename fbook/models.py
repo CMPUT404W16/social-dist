@@ -118,8 +118,6 @@ class User(db.Model):
         opt2 = Friend.query.filter_by(a_id=user.id, b_id=self.id).delete()
         Follow.query.filter_by(requester_id=self.id).delete()
 
-    def __repr__(self):
-        return '<User %r>' % self.username
 
 class UserRequest(db.Model):
     __tablename__ = 'user_requests'
@@ -134,12 +132,15 @@ class UserRequest(db.Model):
 class Post(db.Model):
     __tablename__ = 'posts'
     id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.Text)
     body = db.Column(db.Text)
-    body_html = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    author = db.Column(db.String(64), db.ForeignKey('users.username'))
     comments = db.relationship('Comment', backref='post', lazy='dynamic')
-
+    privacy = db.Column(db.Integer, default=0)
+    markdown = db.Column(db.Boolean, default=False)
+    
     @staticmethod
     def on_changed_body(target, value, oldvalue, initiator):
         allowed_tags = ['a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
@@ -153,8 +154,21 @@ class Post(db.Model):
 class Comment(db.Model):
     __tablename__ = 'comments'
     id = db.Column(db.Integer, primary_key=True)
+    body = db.Column(db.Text)
+    body_html = db.Column(db.Text)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    disabled = db.Column(db.Boolean)
+    author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    author = db.Column(db.String(64), db.ForeignKey('users.username'))
     post_id = db.Column(db.Integer, db.ForeignKey('posts.id'))
-    content = db.Column(db.String(500))
+
+    @staticmethod
+    def on_changed_body(target, value, oldvalue, initiator):
+        allowed_tags = ['a', 'abbr', 'acronym', 'b', 'code', 'em', 'i',
+                        'strong']
+        target.body_html = bleach.linkify(bleach.clean(
+            markdown(value, output_format='html'),
+            tags=allowed_tags, strip=True))
 
 
 class Image(db.Model):
@@ -165,7 +179,9 @@ class Image(db.Model):
 
 
 class Privacy:
-    pass
+    PUBLIC = 0
+    ONLY_ME = 1
+    ONLY_MY_FRIENT = 2
 
 
 class Friend(db.Model):
@@ -189,7 +205,7 @@ class Node(db.Model):
     __tablename__ = "nodes"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64))
-    ip_addr = db.Column(postgresql.INET)
+    #ip_addr = db.Column(postgresql.INET)
     email = db.Column(db.String(64), unique=True)
     auth_code = db.Column(db.String(128))
     isRestricted = db.Column(db.Boolean, default=False)
@@ -202,7 +218,7 @@ class NodeRequest(db.Model):
     __tablename__ = "node_requests"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64))
-    ip_addr = db.Column(postgresql.INET)
+    #ip_addr = db.Column(postgresql.INET)
     email = db.Column(db.String(64), unique=True)
 
   
