@@ -7,6 +7,8 @@ from .forms import *
 from flask.ext.login import login_user, logout_user, current_user, login_required, LoginManager
 from .. import login_manager
 from flask import jsonify
+from validate_email import validate_email
+import socket, httplib, urllib
 
 @main.route('/', methods=['GET', 'POST'])
 @login_required
@@ -31,6 +33,7 @@ def index():
 def login():
     loginForm = LoginForm()
     signupForm = SignupForm()
+    apiForm = APIForm()
 
     # signup form
     if signupForm.validate_on_submit():
@@ -81,7 +84,50 @@ def login():
         else:
             flash("User does not exist")
 
-    return render_template('login.html', loginForm=loginForm, signupForm=signupForm)
+    elif apiForm.validate_on_submit(): # wants to request access from our server
+        valid_info = True
+        name = apiForm.name.data
+        ip_addr = apiForm.ip_addr.data
+        email = apiForm.email.data
+
+        # check validity of ip address
+        try:
+            socket.inet_aton(ip_addr)
+        except socket.error as e:
+            flash("Invalid IP Address")
+            valid_info = False
+            print(e)
+
+        # check validity of email
+        is_valid = validate_email(email, verify=True)
+        if is_valid == False:
+            flash("Invalid Email Address")
+            valid_info = False
+
+        if valid_info == True: # valid information, send POST request
+            payload = urllib.urlencode({'name': name, 'ip_addr': ip_addr, 'email': email})
+            host = "127.0.0.1"
+            port = 5000
+            so = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            ip = socket.gethostbyname(host)
+            so.connect((ip, port))
+
+            # Make request
+            so.send("POST /noderequest/new HTTP/1.1\r\n")
+            so.send("Host: %s\r\n" % host)
+            so.send("Connection: close\r\n")
+            so.send("Content-Type: application/x-www-form-urlencoded\r\n")
+            so.send("Content-Length: %d\r\n\r\n" % len(payload))
+            so.send(payload)
+            so.close()
+
+            return redirect(url_for('.index'))
+        else: # invalid information, do not send request info
+            return redirect(url_for('.index'))
+
+
+
+    return render_template('login.html', loginForm=loginForm, signupForm=signupForm, apiForm=apiForm)
 
 # <user> requires a username
 @login_required
