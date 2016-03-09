@@ -27,6 +27,7 @@ class APIForm(Form):
 	name = StringField('Name', validators =[Required()])
 	ip_addr = StringField('IP Address', validators =[Required()])
 	email = StringField('Email', validators =[Required()])
+	auth = StringField('Authentication', validators = [Required()])
 	submit = SubmitField('Submit Request')
 
 # for for setting new password
