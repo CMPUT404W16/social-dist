@@ -12,7 +12,8 @@ Contents:
    :maxdepth: 2
 
    fbook
-   fbook.view
+   fbook.routing
+   api
 
 
 Indices and tables

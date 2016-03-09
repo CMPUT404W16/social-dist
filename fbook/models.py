@@ -119,6 +119,13 @@ class User(db.Model):
 
 
 class Post(db.Model):
+    """
+    Post Model.
+
+    :param int id: Unique post id.
+    :param str title: Post title.
+    :param str body: Post content.
+    """
     __tablename__ = 'posts'
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.Text)
@@ -129,7 +136,7 @@ class Post(db.Model):
     comments = db.relationship('Comment', backref='post', lazy='dynamic')
     privacy = db.Column(db.Integer, default=0)
     markdown = db.Column(db.Boolean, default=False)
-    
+
     @staticmethod
     def on_changed_body(target, value, oldvalue, initiator):
         allowed_tags = ['a', 'abbr', 'acronym', 'b', 'blockquote', 'code',

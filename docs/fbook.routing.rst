@@ -1,8 +1,5 @@
-Fbook view
+Fbook URL ROUTING
 ==================
-
-Module contents
----------------
 
 .. autoflask:: app:app
    :endpoints:
