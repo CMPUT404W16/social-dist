@@ -36,7 +36,7 @@ def post(id):
         return redirect(url_for('.post', id=post.id))
     comments = Comment.query.filter_by(post_id=post.id)
     print comments
-    return render_template('post.html', posts=[post], form=form, comments=comments)
+    return render_template('post/post.html', posts=[post], form=form, comments=comments)
 
 @main.route('/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -51,7 +51,7 @@ def edit(id):
         flash('The post has been updated.')
         return redirect(url_for('.index'))
     form.body.data = post.body
-    return render_template('edit_post.html', form=form)
+    return render_template('post/edit_post.html', form=form)
 
 @main.route('/delete_post/<int:id>', methods=['POST', 'GET'])
 @login_required
