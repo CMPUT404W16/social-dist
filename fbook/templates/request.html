@@ -18,28 +18,13 @@
 <br>
 <div class="login text-center">
 	<a href="#collapse1" data-toggle="collapse">
-     	<h1>Login</h1>
+     	<h1>Request API</h1>
     </a>
     <div id="collapse1" class="collapse text-center">
-    	{{ wtf.quick_form(loginForm) }}
+    	{{ wtf.quick_form(apiForm) }}
     </div>
 </div>
-<br>
-<h4 class="text-center">Or</h4>
-<br>
-<div class="signup text-center">
-	<a href="#collapse2" data-toggle="collapse">
-     	<h1>Sign Up</h1>
-    </a>
-    <div id="collapse2" class="collapse text-center">
-    	{{ wtf.quick_form(signupForm) }}
-    </div>
-</div>
-<div>
-    <form action="/request">
-        <input type="submit" value="RequestAPI">
-    </form>
-</div>
+
 {% endblock %}
 
 {% block scripts %}

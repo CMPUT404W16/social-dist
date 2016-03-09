@@ -26,7 +26,7 @@ class SignupForm(Form):
 class APIForm(Form):
 	name = StringField('Name', validators =[Required()])
 	email = StringField('Email', validators =[Required()])
-	auth = StringField('Authentication', validators = [Required()])
+	auth = StringField('Authentication', validators =[Required()])
 	submit = SubmitField('Submit Request')
 
 # for for setting new password
