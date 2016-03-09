@@ -25,7 +25,6 @@ class SignupForm(Form):
 # form for submitting an nodeAPI request
 class APIForm(Form):
 	name = StringField('Name', validators =[Required()])
-	ip_addr = StringField('IP Address', validators =[Required()])
 	email = StringField('Email', validators =[Required()])
 	auth = StringField('Authentication', validators = [Required()])
 	submit = SubmitField('Submit Request')

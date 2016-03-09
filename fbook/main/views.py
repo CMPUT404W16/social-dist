@@ -88,9 +88,11 @@ def login():
     elif apiForm.validate_on_submit(): # wants to request access from our server
         valid_info = True
         name = apiForm.name.data
-        ip_addr = apiForm.ip_addr.data
+        ip_addr = request.remote_addr
         email = apiForm.email.data
         auth = apiForm.auth.data
+
+        #print ip_addr
 
         true_auth = "Test1"
 
