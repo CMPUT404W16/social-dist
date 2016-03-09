@@ -106,14 +106,12 @@ def login():
 
         if valid_info == True: # valid information, send POST request
             payload = urllib.urlencode({'name': name, 'ip_addr': ip_addr, 'email': email})
-            print payload
             host = "127.0.0.1"
             port = 5000
             so = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             ip = socket.gethostbyname(host)
             so.connect((ip, port))
 
-            print ip
             # Make request
             so.send("POST /noderequest/new HTTP/1.1\r\n")
             so.send("Host: %s\r\n" % host)
@@ -121,7 +119,8 @@ def login():
             so.send("Content-Type: application/x-www-form-urlencoded\r\n")
             so.send("Content-Length: %d\r\n\r\n" % len(payload))
             so.send(payload)
-            
+            so.close()
+
             return redirect(url_for('.index'))
         else: # invalid information, do not send request info
             return redirect(url_for('.index'))
