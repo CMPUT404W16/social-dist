@@ -13,7 +13,7 @@ from .. import login_manager
 def index():
     form = PostForm()
     if form.validate_on_submit():
-        post = Post(title=form.title.data,body=form.body.data, author_id=current_user._get_current_object().id)
+        post = Post(title=form.title.data,body=form.body.data, author_id=current_user._get_current_object().id, author=current_user._get_current_object().username)
         db.session.add(post)
         return redirect(url_for('.index'))
     posts = Post.query.order_by(Post.timestamp.desc()).all()
@@ -30,7 +30,7 @@ def post(id):
     if form.validate_on_submit():
         comment = Comment(body=form.body.data,
                           post=post,
-                          author_id=current_user._get_current_object().id)
+                          author_id=current_user._get_current_object().id, author=current_user._get_current_object().username)
         db.session.add(comment)
         flash('Your comment has been created')
         return redirect(url_for('.post', id=post.id))
@@ -57,7 +57,6 @@ def edit(id):
 @login_required
 def delete_post(id):
     p = Post.query.get_or_404(id)
-    print p
     db.session.delete(p)
     db.session.commit()
     form = PostForm()

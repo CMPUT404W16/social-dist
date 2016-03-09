@@ -127,6 +127,7 @@ class Post(db.Model):
     body = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    author = db.Column(db.String(64), db.ForeignKey('users.username'))
     comments = db.relationship('Comment', backref='post', lazy='dynamic')
     privacy = db.Column(db.Integer, default=0)
     markdown = db.Column(db.Boolean, default=False)
@@ -149,6 +150,7 @@ class Comment(db.Model):
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     disabled = db.Column(db.Boolean)
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    author = db.Column(db.String(64), db.ForeignKey('users.username'))
     post_id = db.Column(db.Integer, db.ForeignKey('posts.id'))
 
     @staticmethod
