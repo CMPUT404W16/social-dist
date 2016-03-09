@@ -34,7 +34,6 @@ def index():
 def login():
     loginForm = LoginForm()
     signupForm = SignupForm()
-    apiForm = APIForm()
 
     # signup form
     if signupForm.validate_on_submit():
@@ -85,7 +84,14 @@ def login():
         else:
             flash("User does not exist")
 
-    elif apiForm.validate_on_submit(): # wants to request access from our server
+
+    return render_template('login.html', loginForm=loginForm, signupForm=signupForm)
+
+@main.route('/request', methods = ['GET', 'POST'])
+def register():
+    apiForm = APIForm()
+    
+    if apiForm.validate_on_submit(): # wants to request access from our server
         valid_info = True
         name = apiForm.name.data
         ip_addr = request.remote_addr
@@ -142,7 +148,7 @@ def login():
 
 
 
-    return render_template('login.html', loginForm=loginForm, signupForm=signupForm, apiForm=apiForm)
+    return render_template('request.html', apiForm=apiForm)
 
 # <user> requires a username
 @login_required
