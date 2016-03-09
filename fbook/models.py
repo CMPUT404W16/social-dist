@@ -54,7 +54,7 @@ class User(db.Model):
     id = db.Column(db.Integer(), unique=True, primary_key=True)
     username = db.Column(db.String(64), unique=True, index=True)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
-    password = db.Column(db.String(64))
+    password = db.Column(db.String(128))
     authenticated = db.Column(db.Boolean, default=False)
 
     @property
