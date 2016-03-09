@@ -16,6 +16,7 @@ class LoginForm(Form):
 	password = PasswordField('Password', validators=[Required()])
 	submit = SubmitField('Login')
 
+# for singup
 class SignupForm(Form):
 	username = StringField('Username')
 	password = PasswordField('New Password', validators=[Required(), EqualTo('confirm', message='Passwords must match')])
