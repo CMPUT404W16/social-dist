@@ -8,7 +8,8 @@ from flask.ext.login import login_user, logout_user, current_user, login_require
 from .. import login_manager
 from flask import jsonify
 from validate_email import validate_email
-import socket, httplib, urllib
+from urlparse import urlparse
+import socket, httplib, urllib, os
 
 @main.route('/', methods=['GET', 'POST'])
 @login_required
@@ -106,8 +107,13 @@ def login():
 
         if valid_info == True: # valid information, send POST request
             payload = urllib.urlencode({'name': name, 'ip_addr': ip_addr, 'email': email})
-            host = "127.0.0.1"
-            port = 5000
+            url = request.base_url
+            parsed = urlparse(url)
+            port = parsed.port
+            host = request.remote_addr
+            
+            #print host
+            #print port
             so = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             ip = socket.gethostbyname(host)
             so.connect((ip, port))
@@ -121,6 +127,7 @@ def login():
             so.send(payload)
             so.close()
 
+            flash("Request sent")
             return redirect(url_for('.index'))
         else: # invalid information, do not send request info
             return redirect(url_for('.index'))
