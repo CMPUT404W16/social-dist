@@ -88,8 +88,13 @@ def login():
     elif apiForm.validate_on_submit(): # wants to request access from our server
         valid_info = True
         name = apiForm.name.data
-        ip_addr = apiForm.ip_addr.data
+        ip_addr = request.remote_addr
         email = apiForm.email.data
+        auth = apiForm.auth.data
+
+        #print ip_addr
+
+        true_auth = "Test1"
 
         # check validity of ip address
         try:
@@ -105,6 +110,11 @@ def login():
             flash("Invalid Email Address")
             valid_info = False
 
+        # check if authentication code is right
+        if auth != true_auth:
+            flash("Invalid Authentication Code")
+            valid_info = False
+
         if valid_info == True: # valid information, send POST request
             payload = urllib.urlencode({'name': name, 'ip_addr': ip_addr, 'email': email})
             url = request.base_url
@@ -112,8 +122,6 @@ def login():
             port = parsed.port
             host = request.remote_addr
             
-            #print host
-            #print port
             so = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             ip = socket.gethostbyname(host)
             so.connect((ip, port))
