@@ -8,7 +8,6 @@ from .forms import *
 from flask.ext.login import login_user, logout_user, current_user, login_required, LoginManager
 from .. import login_manager
 from flask import jsonify
-from validate_email import validate_email
 from urlparse import urlparse
 import socket, httplib, urllib, os
 
@@ -41,7 +40,7 @@ def post(id):
         return redirect(url_for('.post', id=post.id))
     comments = Comment.query.filter_by(post_id=post.id)
     print comments
-    return render_template('post/post.html', posts=[post], form=form, comments=comments)
+    return render_template('post/post.html', posts=[post], form=form, comments=comments, show=True)
 
 @main.route('/edit/<int:id>', methods=['GET', 'POST'])
 @login_required

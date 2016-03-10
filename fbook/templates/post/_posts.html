@@ -13,7 +13,7 @@
         </div>
         
         <div class="post-footer">
-            {% if current_user.id == post.author_id %}
+            {% if current_user.id == post.author_id and show%}
             <a href="{{url_for('.edit', id=post.id)}}">
                 <span class="label label-primary">Edit</span>
             </a>
