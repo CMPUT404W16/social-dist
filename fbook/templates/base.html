@@ -28,6 +28,18 @@
                 <li role="separator" class="divider"></li>
                 <li><a href="/logout">Logout</a></li>
             </ul>
+            <div class="dropdown" style="float:right;padding-top:0.6em">
+                <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                    Where to?
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                   <li><a href={{ '/users/'+current_user.username }}>Profile</a></li>
+                    <li><a href={{ '/settings' }}>Settings</a></li>
+                    <li role="separator" class="divider"></li>
+                    <li><a href="/logout">Logout</a></li>
+                </ul>
+            </div>
         </div>
     </div>
 </div>
