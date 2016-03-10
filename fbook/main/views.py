@@ -158,7 +158,7 @@ def show_settings():
         user = User.query.filter_by(username=current_user.username).first()
         if (user):
             # change password in db
-            user.password = new_password_form.new_password.data
+            user.set_password(new_password_form.new_password.data)
             db.session.commit()
 
             flash("New password set.")
@@ -176,7 +176,7 @@ def show_followers(user):
     # followers_list = db.session.query(Follow).join(User, Follow.requestee_id==current_user.id, Follow.requester_id==User.id).all()
     # followers_list = db.session.query(Follow, User).filter_by(requestee_id=current_user.id).all()
     template = "SELECT u.username, u.id " + \
-        "FROM follow f, users u " + \
+        "FROM follows f, users u " + \
         "WHERE f.requestee_id = {requestee} " + \
         "AND f.requester_id = u.id"
 
