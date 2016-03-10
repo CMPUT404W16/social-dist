@@ -21,6 +21,7 @@ def index():
     if form.validate_on_submit():
         post = Post(title=form.title.data,body=form.body.data, author_id=current_user._get_current_object().id, author=current_user._get_current_object().username)
         db.session.add(post)
+        db.session.commit()
         return redirect(url_for('.index'))
     posts = Post.query.order_by(Post.timestamp.desc()).all()
     return render_template('index.html',
@@ -45,6 +46,7 @@ def post(id):
                           author_id=current_user._get_current_object().id,
                           author=current_user._get_current_object().username)
         db.session.add(comment)
+        db.session.commit()
         flash('Your comment has been created')
         return redirect(url_for('.post', id=post.id))
     comments = Comment.query.filter_by(post_id=post.id)
@@ -66,6 +68,7 @@ def edit(id):
     if form.validate_on_submit():
         post.body = form.body.data
         db.session.add(post)
+        db.session.commit()
         flash('The post has been updated.')
         return redirect(url_for('.index'))
     form.body.data = post.body
