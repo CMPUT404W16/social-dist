@@ -15,10 +15,17 @@ import socket, httplib, urllib, os
 @main.route('/', methods=['GET', 'POST'])
 @login_required
 def index():
+    """
+    Index page view function.
+
+    Accept GET POST method
+    ROUTING: /
+    """
     form = PostForm()
     if form.validate_on_submit():
         post = Post(title=form.title.data,body=form.body.data, author_id=current_user._get_current_object().id, author=current_user._get_current_object().username)
         db.session.add(post)
+        db.session.commit()
         return redirect(url_for('.index'))
     posts = Post.query.order_by(Post.timestamp.desc()).all()
     return render_template('index.html',
@@ -29,38 +36,64 @@ def index():
 
 @main.route('/post/<int:id>', methods=['GET', 'POST'])
 def post(id):
+    """
+    Post page view function.
+
+    Accept GET POST method
+    ROUTING: /post/<int:id>
+    """
     post = Post.query.get_or_404(id)
     form = CommentForm()
     if form.validate_on_submit():
         comment = Comment(body=form.body.data,
                           post=post,
-                          author_id=current_user._get_current_object().id, author=current_user._get_current_object().username)
+                          author_id=current_user._get_current_object().id,
+                          author=current_user._get_current_object().username)
         db.session.add(comment)
+        db.session.commit()
         flash('Your comment has been created')
         return redirect(url_for('.post', id=post.id))
     comments = Comment.query.filter_by(post_id=post.id)
-    print comments
     return render_template('post/post.html', posts=[post], form=form, comments=comments, show=True)
+
 
 @main.route('/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit(id):
+    """
+    Edit post page view function.
+
+    Accept GET POST method
+    ROUTING: /edit/<int:id>
+    """
     post = Post.query.get_or_404(id)
     if current_user.id != post.author_id:
         abort(403)
     form = PostForm()
     if form.validate_on_submit():
         post.body = form.body.data
+        post.title = form.title.data
         db.session.add(post)
+        db.session.commit()
         flash('The post has been updated.')
         return redirect(url_for('.index'))
+    form.title.data = post.title
     form.body.data = post.body
     return render_template('post/edit_post.html', form=form)
 
 @main.route('/delete_post/<int:id>', methods=['POST', 'GET'])
 @login_required
 def delete_post(id):
+    """
+    Edit post page view function.
+
+    Accept GET POST method
+    ROUTING: /edit/<int:id>
+    """
+
     p = Post.query.get_or_404(id)
+    if current_user.id != p.author_id:
+        abort(403)
     db.session.delete(p)
     db.session.commit()
     form = PostForm()
@@ -77,14 +110,16 @@ def login():
     if signupForm.validate_on_submit():
         user = User.query.filter_by(username=signupForm.username.data).first()
         if user is None:
-            ureq = UserRequest(username=signupForm.username.data)
-            ureq.set_password(signupForm.password.data)
-            try:
-                db.session.add(ureq)
-                db.session.commit()
-            except Exception as e:
-                db.session.rollback()
-                print(e)
+            # add user to db
+            user = User(username=signupForm.username.data, authenticated=True)
+            user.set_id()
+            user.set_password(signupForm.password.data);
+            db.session.add(user)
+            db.session.commit();
+            # login user
+            login_user(user, remember=True)
+
+            flash("User Created Successfully")
 
 
             # # add user to db
@@ -211,7 +246,7 @@ def show_settings():
         user = User.query.filter_by(username=current_user.username).first()
         if (user):
             # change password in db
-            user.password = new_password_form.new_password.data
+            user.set_password(new_password_form.new_password.data)
             db.session.commit()
 
             flash("New password set.")
@@ -229,7 +264,7 @@ def show_followers(user):
     # followers_list = db.session.query(Follow).join(User, Follow.requestee_id==current_user.id, Follow.requester_id==User.id).all()
     # followers_list = db.session.query(Follow, User).filter_by(requestee_id=current_user.id).all()
     template = "SELECT u.username, u.id " + \
-        "FROM follow f, users u " + \
+        "FROM follows f, users u " + \
         "WHERE f.requestee_id = {requestee} " + \
         "AND f.requester_id = u.id"
 
