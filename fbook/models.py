@@ -70,7 +70,7 @@ class User(db.Model):
         return False
 
     def set_id(self):
-        self.id = int(str(uuid.uuid4().int)[0:10])
+        self.id = int(str(uuid.uuid4().int)[0:8])
 
     def get_id(self):
         return self.username

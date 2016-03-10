@@ -13,7 +13,7 @@ from .. import login_manager
 def index():
     """
     Index page view function.
-    
+
     Accept GET POST method
     ROUTING: /
     """
@@ -34,7 +34,7 @@ def index():
 def post(id):
     """
     Post page view function.
-    
+
     Accept GET POST method
     ROUTING: /post/<int:id>
     """
@@ -42,7 +42,7 @@ def post(id):
     form = CommentForm()
     if form.validate_on_submit():
         comment = Comment(body=form.body.data,
-                          post=post, 
+                          post=post,
                           author_id=current_user._get_current_object().id,
                           author=current_user._get_current_object().username)
         db.session.add(comment)
@@ -57,7 +57,7 @@ def post(id):
 def edit(id):
     """
     Edit post page view function.
-    
+
     Accept GET POST method
     ROUTING: /edit/<int:id>
     """
@@ -79,11 +79,11 @@ def edit(id):
 def delete_post(id):
     """
     Edit post page view function.
-    
+
     Accept GET POST method
     ROUTING: /edit/<int:id>
     """
-    
+
     p = Post.query.get_or_404(id)
     if current_user.id != p.author_id:
         abort(403)
