@@ -67,10 +67,12 @@ def edit(id):
     form = PostForm()
     if form.validate_on_submit():
         post.body = form.body.data
+        post.title = form.title.data
         db.session.add(post)
         db.session.commit()
         flash('The post has been updated.')
         return redirect(url_for('.index'))
+    form.title.data = post.title
     form.body.data = post.body
     return render_template('post/edit_post.html', form=form)
 
