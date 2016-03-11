@@ -1,6 +1,5 @@
 from flask import render_template, session, redirect, url_for, current_app, flash, abort, request
 from .. import db
-
 from ..models import *
 from ..email import send_email
 from . import main
