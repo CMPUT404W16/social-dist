@@ -8,6 +8,7 @@ from flask.ext.login import login_user, logout_user, current_user, login_require
 from .. import login_manager
 from flask import jsonify
 from urlparse import urlparse
+from validate_email import validate_email
 import socket, httplib, urllib, os
 
 
@@ -148,14 +149,12 @@ def login():
 @main.route('/request', methods = ['GET', 'POST'])
 def register():
     apiForm = APIForm()
-    
+
     if apiForm.validate_on_submit(): # wants to request access from our server
         valid_info = True
         name = apiForm.name.data
         ip_addr = request.remote_addr
         email = apiForm.email.data
-        # auth = apiForm.auth.data
-
         username = apiForm.username.data
         password = apiForm.password.data
 
@@ -173,49 +172,33 @@ def register():
             flash("Invalid Email Address")
             valid_info = False
 
-        # check if email is unique
-        # username String(64), password String(128) 
-        email_query = "SELECT email" + \
-                    "FROM Node" + \
-                    "WHERE email = {email}" 
-        email_query_str = email_query.format(email = email)
-        node_email_list = db.engine.execute(email_query_str)
+        # check if email is unique in the table Node and NodeRequest
 
-        if node_email_list: # means username already exists 
+        equery = Node.query.filter_by(email=email).all()
+        print equery
+
+        if len(equery) > 0: # means email already exists 
             flash("Invalid Email Address")
-            is_valid == False
+            valid_info = False
 
         # check if username is unique in the table Node and NodeRequest
-        username_query = "SELECT username" + \
-                        "FROM Node" + \
-                        "WHERE username = {username}" 
-        username_query_str = username_query.format(username = username)
-        node_username_list = db.engine.execute(username_query_str)
+        uquery = Node.query.filter_by(username=username).all()
 
-        if node_username_list: # means username already exists 
+        if len(uquery) > 0: # means username already exists 
             flash("Invalid Username")
-            is_valid == False
+            valid_info = False
 
-        if valid_info == True: # valid information, send POST request
-            payload = urllib.urlencode({'name': name, 'username': username, 'password': password, 
-                                        'email': email, 'ip_addr': ip_addr})
-            url = request.base_url
-            parsed = urlparse(url)
-            port = parsed.port
-            host = request.remote_addr
-            
-            so = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            ip = socket.gethostbyname(host)
-            so.connect((ip, port))
-
-            # Make request
-            so.send("POST /noderequest/new HTTP/1.1\r\n")
-            so.send("Host: %s\r\n" % host)
-            so.send("Connection: close\r\n")
-            so.send("Content-Type: application/x-www-form-urlencoded\r\n")
-            so.send("Content-Length: %d\r\n\r\n" % len(payload))
-            so.send(payload)
-            so.close()
+        if valid_info == True: # valid information, commit to db
+            # add the new information into request from the request
+            req = NodeRequest (name= name, username= username, 
+                password= password, email= email, ip_addr= ip_addr)
+            req.set_password(password)
+            try:
+                db.session.add(req)
+                db.session.commit()
+            except Exception as e:
+                db.session.rollback()
+                print(e)
 
             flash("Request sent")
             return redirect(url_for('.index'))
