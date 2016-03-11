@@ -235,7 +235,7 @@ def show_profile(user):
     Returns the profile page populated with <user>'s information.
     The view is passed with:
     user_profile: <user>'s username: string
-    user_id: <user>'s id: int
+    user_id: <user>'s id: string
     user_obj: User model object
     """
 
@@ -292,7 +292,7 @@ def show_followers(user):
     The view is passed with:
     followers: a Python list of <user>'s followers
     user_profile: <user>'s username: string
-    user_id: <user>'s id: int
+    user_id: <user>'s id: string
     """
 
     template = "SELECT u.username, u.id " + \
@@ -328,7 +328,7 @@ def show_friends(user):
     The view is passed with:
     friends: a Python list of <user>'s friends
     user_profile: <user>'s username: string
-    user_id: <user>'s id: int
+    user_id: <user>'s id: string
     """
 
     friends_list = Friend.query.filter_by(a_id=current_user.id).all()

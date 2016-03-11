@@ -67,6 +67,7 @@ class User(db.Model):
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     password = db.Column(db.String(128))
     authenticated = db.Column(db.Boolean, default=False)
+    host = db.Column(db.String(64))
 
     @property
     def is_authenticated(self):

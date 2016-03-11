@@ -1,1 +1,1 @@
-from . import api, example, nodeAPI
+from . import api, example, nodeAPI, friendAPI
