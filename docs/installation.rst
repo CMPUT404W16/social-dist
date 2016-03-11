@@ -46,7 +46,7 @@ If no enviroment variable `DATABASE_URL` given, the program will using the defau
 
 
 Deployment
----------------
+----------
 To deploy the program by simple run follow command::
 
     python app.py
@@ -54,7 +54,7 @@ To deploy the program by simple run follow command::
 Now, you Fbook instantance should be able to reach at http://127.0.0.1:5000
 
 Advanced Deployment
-----------------------
+-------------------
 Run Fbook with special configration.::
 
     env FLASK_CONFIG={config_name} python app.py
