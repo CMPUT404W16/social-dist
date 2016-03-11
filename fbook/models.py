@@ -136,7 +136,14 @@ class Post(db.Model):
     :param int id: Unique post id.
     :param str title: Post title.
     :param str body: Post content.
+    :param DateTime timestamp: The post creation time.
+    :param int author_id: Author id.
+    :param str author: Author username.
+    :param obj comments: Referent to comments object.
+    :param int privacy: Whether shows post or not.
+    :param int markdown: Whether the post content in markdown or not.
     """
+
     __tablename__ = 'posts'
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.Text)
@@ -188,7 +195,7 @@ class Image(db.Model):
 class Privacy:
     PUBLIC = 0
     ONLY_ME = 1
-    ONLY_MY_FRIENT = 2
+    ONLY_MY_FRIEND = 2
 
 
 class Friend(db.Model):
@@ -212,23 +219,30 @@ class Node(db.Model):
     __tablename__ = "nodes"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64))
-    #ip_addr = db.Column(postgresql.INET)
+    username = db.Column(db.String(64), unique=True)
+    password = db.Column(db.String(128))
+    ip_addr = db.Column(postgresql.INET)
     email = db.Column(db.String(64), unique=True)
-    auth_code = db.Column(db.String(128))
     isRestricted = db.Column(db.Boolean, default=False)
     verified_date = db.Column(db.DateTime, default=db.func.current_timestamp())
 
     def __unicode__(self):
         return self.name
 
+    def verify_password(self, password):
+        return check_password_hash(self.password, password)
+
 class NodeRequest(db.Model):
     __tablename__ = "node_requests"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64))
-    #ip_addr = db.Column(postgresql.INET)
+    username = db.Column(db.String(64, unique=True))
+    password = db.Column(db.String(128))
+    ip_addr = db.Column(postgresql.INET)
     email = db.Column(db.String(64), unique=True)
 
-  
+    def set_password(self, password):
+        self.password = generate_password_hash(password)
 
 # class APIRequest:
     # __tablename__ = "apiRequests"

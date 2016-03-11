@@ -12,7 +12,10 @@ class NodeRequestModelView(ModelView):
 	# can_create = False
 	column_labels = dict(
 		name = "Name",
-		ip_addr = "IP Address"
+		username = "User Name",
+		password = "Password",
+		ip_addr = "IP Address",
+		email = "Email Address",
 		)
 	list_template = "admin/nodeRequest_list.html"
 
@@ -24,9 +27,12 @@ class NodeRequestModelView(ModelView):
 			# Create requests
 			nodes = []
 			for req in query.all():
-				node = 	Node(name = req.name, 
+				node = 	Node(
+					name = req.name, 
+					username = req.username,
+					password = req.password,
 					ip_addr = req.ip_addr,
-					auth_code = self.generateCode()
+					email = req.email
 					)
 				nodes.append(node)
 		except Exception as e:
@@ -53,8 +59,10 @@ class NodeRequestModelView(ModelView):
 			req = NodeRequest.query.get(id)
 
 			node = Node(name = req.name,
+				username = req.username,
+				password = req.password,
 				ip_addr = req.ip_addr,
-				auth_code = self.generateCode()
+				email = req.email
 				)
 		except Exception as e:
 			# No need to rollback, id doesn't exist perhaps?
@@ -73,16 +81,14 @@ class NodeRequestModelView(ModelView):
 
 		return redirect(url_for('NodeRequest.index_view'))
 
-	def generateCode(self):
-		return int(str(uuid.uuid4().int)[0:10])
-
 class NodeModelView(ModelView):
 	can_create = False
 	column_labels = dict(
 		name = 'Name',
 		ip_addr = 'IP Address',
 		email = 'Email',
-		auth_code = 'Authentication Code',
+		username = 'User Name',
+		password = 'Password',
 		isRestricted = 'Is Restricted',
 		verified_date = 'Verified Date'
 		)
