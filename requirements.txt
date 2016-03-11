@@ -24,7 +24,6 @@ Mako==0.9.1
 Markdown==2.6.5
 MarkupSafe==0.18
 pi==0.1.2
-psycopg2==2.6.1
 pyDNS==2.3.6
 PyGreSQL==4.1.1
 python-dateutil==2.5.0
