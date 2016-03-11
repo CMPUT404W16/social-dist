@@ -5,16 +5,18 @@ from .. models import NodeRequest
 
 parser = reqparse.RequestParser()
 parser.add_argument('name')
-parser.add_argument('ip_addr')
+parser.add_argument('username')
+parser.add_argument('password')
 parser.add_argument('email')
+parser.add_argument('ip_addr')
 
 class serverRequest(Resource):
 	def post(self):
 		try:
 			args = parser.parse_args();
 			# add the new information into request from the request
-			req = NodeRequest (name= args['name'], 
-			ip_addr= args['ip_addr'], email= args['email'])
+			req = NodeRequest (name= args['name'], username= args['username'], 
+				password = args['password'], email= args['email'], ip_addr=args['ip_addr'])
 			db.session.add(req)
 			db.session.commit()
 

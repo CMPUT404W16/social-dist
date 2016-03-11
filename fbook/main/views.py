@@ -160,10 +160,6 @@ def register():
         username = apiForm.username.data
         password = apiForm.password.data
 
-        #print ip_addr
-
-        true_auth = "Test1"
-
         # check validity of ip address
         try:
             socket.inet_aton(ip_addr)
@@ -177,6 +173,7 @@ def register():
         if is_valid == False:
             flash("Invalid Email Address")
             valid_info = False
+
         # check if email is unique
         # username String(64), password String(128) 
         email_query = "SELECT email" + \
@@ -200,13 +197,9 @@ def register():
             flash("Invalid Username")
             is_valid == False
 
-        # check if authentication code is right
-        if auth != true_auth:
-            flash("Invalid Authentication Code")
-            valid_info = False
-
         if valid_info == True: # valid information, send POST request
-            payload = urllib.urlencode({'name': name, 'ip_addr': ip_addr, 'email': email})
+            payload = urllib.urlencode({'name': name, 'username': username, 'password': password, 
+                                        'email': email, 'ip_addr': ip_addr})
             url = request.base_url
             parsed = urlparse(url)
             port = parsed.port
@@ -229,8 +222,6 @@ def register():
             return redirect(url_for('.index'))
         else: # invalid information, do not send request info
             return redirect(url_for('.index'))
-
-
 
     return render_template('request.html', apiForm=apiForm)
 
