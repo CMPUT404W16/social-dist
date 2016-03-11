@@ -169,7 +169,10 @@ def register():
         name = apiForm.name.data
         ip_addr = request.remote_addr
         email = apiForm.email.data
-        auth = apiForm.auth.data
+        # auth = apiForm.auth.data
+
+        username = apiForm.username.data
+        password = apiForm.password.data
 
         #print ip_addr
 
@@ -188,6 +191,28 @@ def register():
         if is_valid == False:
             flash("Invalid Email Address")
             valid_info = False
+        # check if email is unique
+        # username String(64), password String(128) 
+        email_query = "SELECT email" + \
+                    "FROM Node" + \
+                    "WHERE email = {email}" 
+        email_query_str = email_query.format(email = email)
+        node_email_list = db.engine.execute(email_query_str)
+
+        if node_email_list: # means username already exists 
+            flash("Invalid Email Address")
+            is_valid == False
+
+        # check if username is unique in the table Node and NodeRequest
+        username_query = "SELECT username" + \
+                        "FROM Node" + \
+                        "WHERE username = {username}" 
+        username_query_str = username_query.format(username = username)
+        node_username_list = db.engine.execute(username_query_str)
+
+        if node_username_list: # means username already exists 
+            flash("Invalid Username")
+            is_valid == False
 
         # check if authentication code is right
         if auth != true_auth:
