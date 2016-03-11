@@ -118,6 +118,9 @@ class User(db.Model):
         opt2 = Friend.query.filter_by(a_id=user.id, b_id=self.id).delete()
         Follow.query.filter_by(requester_id=self.id).delete()
 
+    def can(self, permissions):
+        return self.role is not None and \
+            (self.role.permissions & permissions) == permissions
 
 class UserRequest(db.Model):
     __tablename__ = 'user_requests'

@@ -4,10 +4,16 @@ from flask_admin.actions import action
 from flask import request, url_for, redirect
 from ..admin import am
 from ..models import *
+from flask.ext.login import current_user
 import uuid
 
 # Logic for handling and displaying Node Requests
 class NodeRequestModelView(ModelView):
+
+	def is_accessible(self):
+		if current_user.is_authenticated:
+			return current_user.can(Permission.ADMINISTER)
+
 	can_edit = False
 	# can_create = False
 	column_labels = dict(
@@ -82,6 +88,11 @@ class NodeRequestModelView(ModelView):
 		return redirect(url_for('NodeRequest.index_view'))
 
 class NodeModelView(ModelView):
+
+	def is_accessible(self):
+		if current_user.is_authenticated:
+			return current_user.can(Permission.ADMINISTER)
+	
 	can_create = False
 	column_labels = dict(
 		name = 'Name',
@@ -94,6 +105,11 @@ class NodeModelView(ModelView):
 		)
 
 class UserRequestModelView(ModelView):
+
+	def is_accessible(self):
+		if current_user.is_authenticated:
+			return current_user.can(Permission.ADMINISTER)
+
 	can_edit = False
 	can_create = False
 	list_template = "admin/userRequest_list.html"
@@ -157,7 +173,11 @@ class UserRequestModelView(ModelView):
 		return redirect(url_for('UserRequest.index_view'))
 
 class UserModelView(ModelView):
-	pass
+
+	def is_accessible(self):
+		if current_user.is_authenticated:
+			return current_user.can(Permission.ADMINISTER)
+
 
 am.add_view(NodeModelView(Node, db.session, name="Node", category="Nodes", endpoint="Node"))
 am.add_view(NodeRequestModelView(NodeRequest, db.session, name="Node Request", category="Nodes", endpoint="NodeRequest"))
