@@ -236,7 +236,7 @@ class NodeRequest(db.Model):
     __tablename__ = "node_requests"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64))
-    username = db.Column(db.String(64, unique=True))
+    username = db.Column(db.String(64), unique=True)
     password = db.Column(db.String(128))
     ip_addr = db.Column(postgresql.INET)
     email = db.Column(db.String(64), unique=True)
