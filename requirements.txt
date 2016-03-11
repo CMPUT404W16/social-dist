@@ -28,6 +28,7 @@ pi==0.1.2
 pyDNS==2.3.6
 python-dateutil==2.5.0
 pytz==2015.7
+selenium
 six==1.10.0
 SQLAlchemy==0.9.9
 validate-email==1.3
