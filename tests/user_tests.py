@@ -6,7 +6,6 @@ class StartingTestCase(unittest.TestCase):
         self.driver = webdriver.PhantomJS()
         self.baseURL = "http://localhost:5000/"
         self.driver.set_window_size(1120, 550)
-        
 
     def tearDown(self):
         self.driver.quit()
@@ -33,7 +32,6 @@ class StartingTestCase(unittest.TestCase):
         self.driver.find_element_by_id("btnSubmit").click()
         self.assertIn("hello.",
                 self.driver.find_element_by_id("txt_resumo").text)
-
 
 if __name__ == '__main__':
     unittest.main()
