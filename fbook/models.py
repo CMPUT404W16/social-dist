@@ -136,7 +136,14 @@ class Post(db.Model):
     :param int id: Unique post id.
     :param str title: Post title.
     :param str body: Post content.
+    :param DateTime timestamp: The post creation time.
+    :param int author_id: Author id.
+    :param str author: Author username.
+    :param obj comments: Referent to comments object.
+    :param int privacy: Whether shows post or not.
+    :param int markdown: Whether the post content in markdown or not.
     """
+
     __tablename__ = 'posts'
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.Text)
@@ -228,7 +235,7 @@ class NodeRequest(db.Model):
     #ip_addr = db.Column(postgresql.INET)
     email = db.Column(db.String(64), unique=True)
 
-  
+
 
 # class APIRequest:
     # __tablename__ = "apiRequests"
