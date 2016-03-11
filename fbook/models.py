@@ -62,7 +62,7 @@ class User(db.Model):
     """
     
     __tablename__ = 'users'
-    id = db.Column(db.Integer(), unique=True, primary_key=True)
+    id = db.Column(db.String(128), unique=True, primary_key=True)
     username = db.Column(db.String(64), unique=True, index=True)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     password = db.Column(db.String(128))
@@ -81,7 +81,7 @@ class User(db.Model):
         return False
 
     def set_id(self):
-        self.id = int(str(uuid.uuid4().int)[0:8])
+        self.id = str(uuid.uuid4().hex)
 
     def get_id(self):
         return self.username
