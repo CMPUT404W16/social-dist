@@ -102,6 +102,20 @@ def delete_post(id):
 
 @main.route('/login', methods=['GET', 'POST'])
 def login():
+    """
+    Login/Signup page view function.
+
+    Accept GET POST method
+    ROUTING: /login
+
+    Uses WTForms to handle forms. Renders login.html passing a LoginForm and a
+    SignupForm Form objects. Uses FLask-Login and redirects the user back to /.
+
+    The view is passed with:
+    loginForm: Form object
+    signupFOrm: Form object
+    """
+
     loginForm = LoginForm()
     signupForm = SignupForm()
 
@@ -148,7 +162,7 @@ def login():
 @main.route('/request', methods = ['GET', 'POST'])
 def register():
     apiForm = APIForm()
-    
+
     if apiForm.validate_on_submit(): # wants to request access from our server
         valid_info = True
         name = apiForm.name.data
@@ -185,7 +199,7 @@ def register():
             parsed = urlparse(url)
             port = parsed.port
             host = request.remote_addr
-            
+
             so = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             ip = socket.gethostbyname(host)
             so.connect((ip, port))
@@ -212,6 +226,19 @@ def register():
 @login_required
 @main.route('/users/<user>', methods=['GET', 'POST'])
 def show_profile(user):
+    """
+    Profile page view function.
+
+    Accept GET POST method
+    ROUTING: /users/<user>
+
+    Returns the profile page populated with <user>'s information.
+    The view is passed with:
+    user_profile: <user>'s username: string
+    user_id: <user>'s id: int
+    user_obj: User model object
+    """
+
     userx = User.query.filter_by(username=user).first_or_404()
     if (userx):
         idx = userx.id
@@ -222,7 +249,16 @@ def show_profile(user):
 @main.route('/settings', methods=['GET', 'POST'])
 def show_settings():
     """
-    This function will also handle password changes.
+    Settings page view function.
+
+    Accept GET POST method
+    ROUTING: /settings
+
+    Returns the settings.html view with a form to change the user's password.
+    Redirects back to the settings page upon successful password change.
+
+    The view is passed with:
+    pass_form: Form object
     """
 
     new_password_form = ChangePasswordForm()
@@ -244,10 +280,21 @@ def show_settings():
 @login_required
 @main.route('/users/<user>/followers', methods=['GET'])
 def show_followers(user):
-    # followers_list = Follow.query.filter_by(
-                        # requestee_id=current_user.id).first()
-    # followers_list = db.session.query(Follow).join(User, Follow.requestee_id==current_user.id, Follow.requester_id==User.id).all()
-    # followers_list = db.session.query(Follow, User).filter_by(requestee_id=current_user.id).all()
+    """
+    Followers page view function.
+
+    Accept GET method
+    ROUTING: /users/<user>/followers
+
+    Returns the followers.html populated with <user>'s followers from a db
+    query.
+
+    The view is passed with:
+    followers: a Python list of <user>'s followers
+    user_profile: <user>'s username: string
+    user_id: <user>'s id: int
+    """
+
     template = "SELECT u.username, u.id " + \
         "FROM follows f, users u " + \
         "WHERE f.requestee_id = {requestee} " + \
@@ -268,7 +315,21 @@ def show_followers(user):
 @login_required
 @main.route('/users/<user>/friends', methods=['GET'])
 def show_friends(user):
-    # list of friends' usernames
+    """
+    Friends page view function.
+
+    Accept GET method
+    ROUTING: /users/<user>/friends
+
+    Returns the friends.html populated with <user>'s friends from a db
+    query. It executes two queries since <user> could be on either of a_id or
+    b_id of the Friends model.
+
+    The view is passed with:
+    friends: a Python list of <user>'s friends
+    user_profile: <user>'s username: string
+    user_id: <user>'s id: int
+    """
 
     friends_list = Friend.query.filter_by(a_id=current_user.id).all()
     friends_list2 = Friend.query.filter_by(b_id=current_user.id).all()
@@ -298,6 +359,18 @@ def show_friends(user):
 @login_required
 @main.route('/follow/<user>', methods=['GET', 'POST'])
 def follow(user):
+    """
+    User follow route action function.
+
+    Accept GET POST method
+    ROUTING: /follow/<user>
+
+    The URL verb for following <user>. Creates a new Follow with the requester
+    as the current user and the requestee as <user>. If the requestee has
+    already followed the current user, an automatic friendship is created.
+    Redirects to <user>'s profile page.
+    """
+
     requestee_idx = User.query.filter_by(username=user).first().id
     new_follow = Follow(requester_id=current_user.id,
                         requestee_id=requestee_idx)
@@ -322,6 +395,16 @@ def follow(user):
 @login_required
 @main.route('/befriend/<user>', methods=['GET', 'POST'])
 def befriend(user):
+    """
+    User befriend route action function.
+
+    Accept GET POST method
+    ROUTING: /befriend/<user>
+
+    The URL verb for befriending <user>. Creates a new Friend object and
+    redirects to <user>'s friends page.
+    """
+
     friend_idx = User.query.filter_by(username=user).first().id
     new_friend = Friend(a_id=current_user.id,
                         b_id=friend_idx)
@@ -337,6 +420,16 @@ def befriend(user):
 @login_required
 @main.route('/unfollow/<user>', methods=['GET', 'POST'])
 def unfollow(user):
+    """
+    User unfollow route action function.
+
+    Accept GET POST method
+    ROUTING: /unfollow/<user>
+
+    The URL verb for unfollowing <user>. Uses User model function unfriend.
+    Redirects to <user>'s profile page.
+    """
+
     requestee_idx = User.query.filter_by(username=user).first()
     current_user.unfriend(requestee_idx)
     db.session.commit()
@@ -348,6 +441,15 @@ def unfollow(user):
 @login_required
 @main.route('/logout', methods=['GET', 'POST'])
 def logout():
+    """
+    User logout route action function.
+
+    Accept GET POST method
+    ROUTING: /logout
+
+    The URL verb for logout. Redirects to / with the user logged out.
+    """
+
     logout_user()
     return redirect(url_for('.index'))
 
