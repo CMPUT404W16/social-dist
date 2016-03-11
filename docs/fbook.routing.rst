@@ -1,4 +1,4 @@
-Fbook URL ROUTING
+URL Routing Rules
 ==================
 
 .. autoflask:: app:app

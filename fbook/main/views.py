@@ -6,6 +6,10 @@ from . import main
 from .forms import *
 from flask.ext.login import login_user, logout_user, current_user, login_required, LoginManager
 from .. import login_manager
+from flask import jsonify
+from urlparse import urlparse
+from validate_email import validate_email
+import socket, httplib, urllib, os
 
 
 @main.route('/', methods=['GET', 'POST'])
@@ -50,7 +54,8 @@ def post(id):
         flash('Your comment has been created')
         return redirect(url_for('.post', id=post.id))
     comments = Comment.query.filter_by(post_id=post.id)
-    return render_template('post/post.html', posts=[post], form=form, comments=comments, mainpage=True)
+    return render_template('post/post.html', posts=[post], form=form, comments=comments, show=True)
+
 
 @main.route('/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -105,18 +110,18 @@ def login():
     if signupForm.validate_on_submit():
         user = User.query.filter_by(username=signupForm.username.data).first()
         if user is None:
-            # add user to db
-            user = User(username=signupForm.username.data, authenticated=True)
-            user.set_id()
-            user.set_password(signupForm.password.data);
-            db.session.add(user)
-            db.session.commit();
-            # login user
-            login_user(user, remember=True)
+            ureq = UserRequest(username=signupForm.username.data)
+            ureq.set_password(signupForm.password.data)
+            try:
+                db.session.add(ureq)
+                db.session.commit()
+            except Exception as e:
+                db.session.rollback()
+                print(e)
 
-            flash("User Created Successfully")
+            flash("Signup Request Submitted")
 
-            return redirect(url_for('.index'))
+            return redirect('/')
         else:
             flash("Username Already Exists")
 
@@ -138,7 +143,69 @@ def login():
         else:
             flash("User does not exist")
 
+
     return render_template('login.html', loginForm=loginForm, signupForm=signupForm)
+
+@main.route('/request', methods = ['GET', 'POST'])
+def register():
+    apiForm = APIForm()
+
+    if apiForm.validate_on_submit(): # wants to request access from our server
+        valid_info = True
+        name = apiForm.name.data
+        ip_addr = request.remote_addr
+        email = apiForm.email.data
+        username = apiForm.username.data
+        password = apiForm.password.data
+
+        # check validity of ip address
+        try:
+            socket.inet_aton(ip_addr)
+        except socket.error as e:
+            flash("Invalid IP Address")
+            valid_info = False
+            print(e)
+
+        # check validity of email
+        is_valid = validate_email(email, verify=True)
+        if is_valid == False:
+            flash("Invalid Email Address")
+            valid_info = False
+
+        # check if email is unique in the table Node and NodeRequest
+
+        equery = Node.query.filter_by(email=email).all()
+        print equery
+
+        if len(equery) > 0: # means email already exists 
+            flash("Invalid Email Address")
+            valid_info = False
+
+        # check if username is unique in the table Node and NodeRequest
+        uquery = Node.query.filter_by(username=username).all()
+
+        if len(uquery) > 0: # means username already exists 
+            flash("Invalid Username")
+            valid_info = False
+
+        if valid_info == True: # valid information, commit to db
+            # add the new information into request from the request
+            req = NodeRequest (name= name, username= username, 
+                password= password, email= email, ip_addr= ip_addr)
+            req.set_password(password)
+            try:
+                db.session.add(req)
+                db.session.commit()
+            except Exception as e:
+                db.session.rollback()
+                print(e)
+
+            flash("Request sent")
+            return redirect(url_for('.index'))
+        else: # invalid information, do not send request info
+            return redirect(url_for('.index'))
+
+    return render_template('request.html', apiForm=apiForm)
 
 # <user> requires a username
 @login_required

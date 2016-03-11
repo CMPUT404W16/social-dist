@@ -1,17 +1,11 @@
-Fbook Modules
+Implementation details
 =============
 
-fbook.models module
--------------------
+.. toctree::
+    :maxdepth: 2
 
-.. automodule:: fbook.models
-    :members:
-    :show-inheritance:
+    fbook.db
+    fbook.view
+    fbook.routing
 
 
-Module contents
----------------
-
-.. automodule:: fbook
-    :members:
-    :show-inheritance:

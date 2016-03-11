@@ -23,6 +23,15 @@ class SignupForm(Form):
 	confirm = PasswordField('Repeat Password')
 	submit = SubmitField('Sign Up')
 
+# form for submitting an nodeAPI request
+class APIForm(Form):
+	name = StringField('Name', validators =[Required()])
+	username = StringField('UserName', validators = [Required()])
+	password = PasswordField('New Password', validators=[Required(), EqualTo('confirm', message='Passwords must match')])
+	confirm = PasswordField('Repeat Password', validators=[Required()])
+	email = StringField('Email', validators =[Required()])
+	submit = SubmitField('Submit Request')
+
 # for for setting new password
 class ChangePasswordForm(Form):
     new_password = PasswordField('New Password', validators=[Required()])

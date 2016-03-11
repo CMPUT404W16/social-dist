@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}Flasky{% endblock %}
+
+{% block navbar %}
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            
+            <a class="navbar-brand" href="{{ url_for('main.index') }}">Flasky</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_content %}
+<br>
+<div class="login text-center">
+	<h1>Request API</h1>
+    <div>
+    	{{ wtf.quick_form(apiForm) }}
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+{{ pagedown.include_pagedown() }}
+{% endblock %}

@@ -5,6 +5,7 @@ from markdown import markdown
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 import uuid
+
 from flask.ext import admin
 from flask.ext.admin.contrib import sqla
 from flask.ext.admin.contrib.sqla import filters
@@ -50,6 +51,16 @@ class Role(db.Model):
 
 
 class User(db.Model):
+    """
+    User Model.
+
+    :param int id: Unique user id.
+    :param str username: Unique username.
+    :param int role_id: The id of the user's role.
+    :param str password: The password of the user.
+    :param bool authenticated: Whether the user is authenticated.
+    """
+    
     __tablename__ = 'users'
     id = db.Column(db.Integer(), unique=True, primary_key=True)
     username = db.Column(db.String(64), unique=True, index=True)
@@ -117,6 +128,19 @@ class User(db.Model):
         opt2 = Friend.query.filter_by(a_id=user.id, b_id=self.id).delete()
         Follow.query.filter_by(requester_id=self.id).delete()
 
+    def can(self, permissions):
+        return self.role is not None and \
+            (self.role.permissions & permissions) == permissions
+
+class UserRequest(db.Model):
+    __tablename__ = 'user_requests'
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(64), unique=True, index=True)
+    password = db.Column(db.String(128))
+
+    def set_password(self, password):
+        self.password = generate_password_hash(password)
+
 
 class Post(db.Model):
     """
@@ -125,7 +149,14 @@ class Post(db.Model):
     :param int id: Unique post id.
     :param str title: Post title.
     :param str body: Post content.
+    :param DateTime timestamp: The post creation time.
+    :param int author_id: Author id.
+    :param str author: Author username.
+    :param obj comments: Referent to comments object.
+    :param int privacy: Whether shows post or not.
+    :param int markdown: Whether the post content in markdown or not.
     """
+
     __tablename__ = 'posts'
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.Text)
@@ -148,12 +179,20 @@ class Post(db.Model):
 
 
 class Comment(db.Model):
+    """
+    Comment Model.
+
+    :param int id: Unique post id.
+    :param str body: comment content.
+    :param DateTime timestamp: The post creation time.
+    :param int author_id: Author id.
+    :param str author: Author username.
+    :param int post_id: Referent to a post's id.
+    """
     __tablename__ = 'comments'
     id = db.Column(db.Integer, primary_key=True)
     body = db.Column(db.Text)
-    body_html = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-    disabled = db.Column(db.Boolean)
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     author = db.Column(db.String(64), db.ForeignKey('users.username'))
     post_id = db.Column(db.Integer, db.ForeignKey('posts.id'))
@@ -177,7 +216,7 @@ class Image(db.Model):
 class Privacy:
     PUBLIC = 0
     ONLY_ME = 1
-    ONLY_MY_FRIENT = 2
+    ONLY_MY_FRIEND = 2
 
 
 class Friend(db.Model):
@@ -201,21 +240,33 @@ class Node(db.Model):
     __tablename__ = "nodes"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64))
-    #ip_addr = db.Column(postgresql.INET)
+    username = db.Column(db.String(64), unique=True)
+    password = db.Column(db.String(128))
+    ip_addr = db.Column(postgresql.INET)
     email = db.Column(db.String(64), unique=True)
-    auth_code = db.Column(db.String(128))
     isRestricted = db.Column(db.Boolean, default=False)
     verified_date = db.Column(db.DateTime, default=db.func.current_timestamp())
 
     def __unicode__(self):
         return self.name
 
+    def verify_password(self, password):
+        return check_password_hash(self.password, password)
+
+    def verify_access(self):
+        return not self.isRestricted
+
 class NodeRequest(db.Model):
-    __tablename__ = "nodeRequests"
+    __tablename__ = "node_requests"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64))
-    #ip_addr = db.Column(postgresql.INET)
+    username = db.Column(db.String(64), unique=True)
+    password = db.Column(db.String(128))
+    ip_addr = db.Column(postgresql.INET)
     email = db.Column(db.String(64), unique=True)
+
+    def set_password(self, password):
+        self.password = generate_password_hash(password)
 
 # class APIRequest:
     # __tablename__ = "apiRequests"

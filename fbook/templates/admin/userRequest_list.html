@@ -1,0 +1,16 @@
+{% extends 'admin/model/list.html' %}
+
+{% block body %}
+	{{ super() }}
+{% endblock %}
+
+{% block list_row_actions %}
+	<form class="icon" method="POST" action="{{ url_for('UserRequest.approve') }}">
+		<input id="action" name="action" value="approve" type="hidden">
+		<input name="id" value="{{ get_pk_value(row) }}" type="hidden">
+		<button onclick="return confirm('Are you sure you want to approve this user?');" title="Approve">
+			<span class="fa fa-ok icon-ok"></span>
+		</button>
+	</form>
+	{{ super() }}
+  {% endblock %}
