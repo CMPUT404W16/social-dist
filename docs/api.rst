@@ -72,6 +72,29 @@ Author API
 
     Get the author's profiles.
 
+  **Example request**:
+
+  {
+    "displayname": "cody", 
+    "friends": [
+        {
+            "displayname": "friend1", 
+            "host": "127.0.0.1:5000", 
+            "id": "28e324124d144d41bebcdb9112efa104", 
+            "url": "127.0.0.1:5000/author/853683c6120347aab99a37ccf5b1d3fa"
+        }, 
+        {
+            "displayname": "friend2", 
+            "host": "127.0.0.1:5000", 
+            "id": "853683c6120347aab99a37ccf5b1d3fa", 
+            "url": "127.0.0.1:5000/author/853683c6120347aab99a37ccf5b1d3fa"
+        }
+    ], 
+    "host": "127.0.0.1:5000", 
+    "id": "af6a29e580244bcaa31e4f7f078d3137", 
+    "url": "127.0.0.1:5000/author/af6a29e580244bcaa31e4f7f078d3137"
+  }    
+
 .. http:get:: /api/author/posts
 
     Retrieval all visible posts to the currently authenticated user.
@@ -87,6 +110,36 @@ Friend API
 .. http:get:: /api/friends/(str:author_id)/(str:author_id)
 
     Check whether two authors are friend or not.
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+
+    {
+      "authors": [
+        "28e324124d144d41bebcdb9112efa104", 
+        "af6a29e580244bcaa31e4f7f078d3137"
+      ], 
+      "friends": true, 
+      "query": "friends"
+    }
+
+.. http:get:: /api/friends/(str:author_id)
+
+    Returns a list of author_id's friends.
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+
+    {
+      "friends": [
+        "b84b250afa7747f6a563b326ea161efb"
+      ], 
+      "query": "friends"
+    }
 
 .. http:post:: /api/friends/(str:author_id)
 

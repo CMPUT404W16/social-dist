@@ -6,23 +6,24 @@ from flask.ext.login import current_user
 
 
 class friends(Resource):
-	# a reponse if friends or not
+	# a reponse of users friends
 	# ask a service http://service/friends/<authorid>
 	def get(self, authorid):
 		data = {}
-		friends = False
 
-		a = Friend.query.filter_by(a_id=current_user.id,b_id=authorid).first()
-		b = Friend.query.filter_by(b_id=current_user.id,a_id=authorid).first()
+		friendsList = []
 
-		if a or b:
-			friends = True
+		a = Friend.query.filter_by(a_id=authorid).all()
+		b = Friend.query.filter_by(b_id=authorid).all()
+		for friend in a:
+			friendsList.append(friend.b_id)
+		for friend in b:
+			friendsList.append(friend.a_id)
 
-		friendsList = [current_user.id, authorid]
+		
 		
 		data['query'] = 'friends'
-		data['authors'] = friendsList
-		data['friends'] = friends
+		data['friends'] = friendsList
 
 		return data
 
@@ -103,6 +104,26 @@ class friend_request(Resource):
 
 		return data
 
+class friend(Resource):
+	def get(self, authorid1, authorid2):
+		data = {}
+		friends = False
+
+		a = Friend.query.filter_by(a_id=authorid2,b_id=authorid1).first()
+		b = Friend.query.filter_by(b_id=authorid2,a_id=authorid1).first()
+
+		if a or b:
+			friends = True
+
+		friendsList = [authorid1, authorid2]
+		
+		data['query'] = 'friends'
+		data['authors'] = friendsList
+		data['friends'] = friends
+
+		return data
+
 api.add_resource(profile, '/api/author/<string:authorid>')
 api.add_resource(friends, '/api/friends/<string:authorid>')
-api.add_resource(friend_request, '/api/friendrequest')
+api.add_resource(friend, '/api/friends/<string:authorid1>/<string:authorid2>')
+#api.add_resource(friend_request, '/api/friendrequest')

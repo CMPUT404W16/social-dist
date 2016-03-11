@@ -295,19 +295,12 @@ def show_followers(user):
     user_id: <user>'s id: string
     """
 
-    template = "SELECT u.username, u.id " + \
-        "FROM follows f, users u " + \
-        "WHERE f.requestee_id = {requestee} " + \
-        "AND f.requester_id = u.id"
+    followerID = Follow.query.filter_by(requestee_id=current_user.id).all()
+    followersx = []
+    for follow in followerID:
+        f = User.query.filter_by(id=follow.requester_id).first()
+        followersx.append([f.username, f.id])
 
-    query_str = template.format(requestee=current_user.id)
-    followers_list = db.engine.execute(query_str)
-
-    followersx = None
-    if (followers_list):
-        followersx = []
-        for row in followers_list:
-            followersx.append([row[0], row[1]])
 
     return render_template('user/followers.html', followers=followersx, user_profile=user, user_id=current_user.id)
 
