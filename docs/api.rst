@@ -47,3 +47,53 @@ Api Endpoints
                             header of request
    :statuscode 200: no error
    :statuscode 404: there's no user
+
+
+Post API
+----------
+
+.. http:get:: /api/posts
+
+    List all post which marked as public on the server.
+
+.. http:get:: /api/posts/(int:post_id)
+
+    Access a single post with `post_id`.
+
+.. http:get:: /api/posts/(int:post_id)/comments
+
+    Access the comments of the post with `post_id`.
+
+
+Author API
+----------
+
+.. http:get:: /api/author/(str:author_id)
+
+    Get the author's profiles.
+
+.. http:get:: /api/author/posts
+
+    Retrieval all visible posts to the currently authenticated user.
+
+.. http:get:: /api/author/(str:author_id)/posts
+
+    List all post which posted by `author_id`.
+
+
+Friend API
+-----------
+
+.. http:get:: /api/friends/(str:author_id)/(str:author_id)
+
+    Check whether two authors are friend or not.
+
+.. http:post:: /api/friends/(str:author_id)
+
+    Check whether an author is friends with other authors in a list of authors.
+
+.. http:post:: /api/friendrequest
+
+    Make a friend request.
+
+
