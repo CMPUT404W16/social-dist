@@ -51,6 +51,16 @@ class Role(db.Model):
 
 
 class User(db.Model):
+    """
+    User Model.
+
+    :param int id: Unique user id.
+    :param str username: Unique username.
+    :param int role_id: The id of the user's role.
+    :param str password: The password of the user.
+    :param bool authenticated: Whether the user is authenticated.
+    """
+    
     __tablename__ = 'users'
     id = db.Column(db.Integer(), unique=True, primary_key=True)
     username = db.Column(db.String(64), unique=True, index=True)
@@ -166,12 +176,20 @@ class Post(db.Model):
 
 
 class Comment(db.Model):
+    """
+    Comment Model.
+
+    :param int id: Unique post id.
+    :param str body: comment content.
+    :param DateTime timestamp: The post creation time.
+    :param int author_id: Author id.
+    :param str author: Author username.
+    :param int post_id: Referent to a post's id.
+    """
     __tablename__ = 'comments'
     id = db.Column(db.Integer, primary_key=True)
     body = db.Column(db.Text)
-    body_html = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-    disabled = db.Column(db.Boolean)
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     author = db.Column(db.String(64), db.ForeignKey('users.username'))
     post_id = db.Column(db.Integer, db.ForeignKey('posts.id'))
