@@ -8,6 +8,7 @@ from flask.ext.login import login_user, logout_user, current_user, login_require
 from .. import login_manager
 from flask import jsonify
 from urlparse import urlparse
+from validate_email import validate_email
 import socket, httplib, urllib, os
 
 
@@ -168,11 +169,8 @@ def register():
         name = apiForm.name.data
         ip_addr = request.remote_addr
         email = apiForm.email.data
-        auth = apiForm.auth.data
-
-        #print ip_addr
-
-        true_auth = "Test1"
+        username = apiForm.username.data
+        password = apiForm.password.data
 
         # check validity of ip address
         try:
@@ -188,37 +186,38 @@ def register():
             flash("Invalid Email Address")
             valid_info = False
 
-        # check if authentication code is right
-        if auth != true_auth:
-            flash("Invalid Authentication Code")
+        # check if email is unique in the table Node and NodeRequest
+
+        equery = Node.query.filter_by(email=email).all()
+        print equery
+
+        if len(equery) > 0: # means email already exists
+            flash("Invalid Email Address")
             valid_info = False
 
-        if valid_info == True: # valid information, send POST request
-            payload = urllib.urlencode({'name': name, 'ip_addr': ip_addr, 'email': email})
-            url = request.base_url
-            parsed = urlparse(url)
-            port = parsed.port
-            host = request.remote_addr
+        # check if username is unique in the table Node and NodeRequest
+        uquery = Node.query.filter_by(username=username).all()
 
-            so = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            ip = socket.gethostbyname(host)
-            so.connect((ip, port))
+        if len(uquery) > 0: # means username already exists
+            flash("Invalid Username")
+            valid_info = False
 
-            # Make request
-            so.send("POST /noderequest/new HTTP/1.1\r\n")
-            so.send("Host: %s\r\n" % host)
-            so.send("Connection: close\r\n")
-            so.send("Content-Type: application/x-www-form-urlencoded\r\n")
-            so.send("Content-Length: %d\r\n\r\n" % len(payload))
-            so.send(payload)
-            so.close()
+        if valid_info == True: # valid information, commit to db
+            # add the new information into request from the request
+            req = NodeRequest (name= name, username= username,
+                password= password, email= email, ip_addr= ip_addr)
+            req.set_password(password)
+            try:
+                db.session.add(req)
+                db.session.commit()
+            except Exception as e:
+                db.session.rollback()
+                print(e)
 
             flash("Request sent")
             return redirect(url_for('.index'))
         else: # invalid information, do not send request info
             return redirect(url_for('.index'))
-
-
 
     return render_template('request.html', apiForm=apiForm)
 

@@ -129,6 +129,9 @@ class User(db.Model):
         opt2 = Friend.query.filter_by(a_id=user.id, b_id=self.id).delete()
         Follow.query.filter_by(requester_id=self.id).delete()
 
+    def can(self, permissions):
+        return self.role is not None and \
+            (self.role.permissions & permissions) == permissions
 
 class UserRequest(db.Model):
     __tablename__ = 'user_requests'
@@ -251,6 +254,9 @@ class Node(db.Model):
 
     def verify_password(self, password):
         return check_password_hash(self.password, password)
+
+    def verify_access(self):
+        return not self.isRestricted
 
 class NodeRequest(db.Model):
     __tablename__ = "node_requests"
