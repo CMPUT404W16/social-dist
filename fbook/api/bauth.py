@@ -5,8 +5,10 @@ auth = HTTPBasicAuth()
 
 @auth.verify_password
 def verify_password(username, password):
-	print(username, password)
 	node = Node.query.filter_by(username=username).first()
-	if not node:
+	if node is None:
 		return False
-	return node.verify_password(password)
+	if node.verify_access():
+		return node.verify_password(password)
+	else:
+		return False

@@ -5,7 +5,6 @@ from bauth import auth
 class HelloWorld(Resource):
 	decorators = [auth.login_required]
 
-	# @auth.login_required
 	def get(self):
 		return {'hello': 'world'}
 

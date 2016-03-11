@@ -235,6 +235,9 @@ class Node(db.Model):
     def verify_password(self, password):
         return check_password_hash(self.password, password)
 
+    def verify_access(self):
+        return not self.isRestricted
+
 class NodeRequest(db.Model):
     __tablename__ = "node_requests"
     id = db.Column(db.Integer, primary_key=True)
