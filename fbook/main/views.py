@@ -118,7 +118,6 @@ def login():
 
     loginForm = LoginForm()
     signupForm = SignupForm()
-    inv = InvForm()
 
     # signup form
     if signupForm.validate_on_submit():
