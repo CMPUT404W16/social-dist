@@ -17,11 +17,8 @@ class StartingTestCase(unittest.TestCase):
 
         self.driver = webdriver.PhantomJS()
         self.baseURL = "http://localhost:5000/"
-<<<<<<< HEAD
+
         self.driver.set_window_size(1124, 850)
-=======
-        self.driver.set_window_size(1120, 550)
->>>>>>> 7b115004501e356a6bc1dd565824f2bf11347a0e
 
     def tearDown(self):
         self.driver.quit()
@@ -165,6 +162,8 @@ class StartingTestCase(unittest.TestCase):
         test2 = Friend.query.filter_by(b_id=self.user.id, a_id=self.friend.id).first()
 
         assert test1 or test2
+
+
 
 
 if __name__ == '__main__':
