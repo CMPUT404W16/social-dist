@@ -1,3 +1,9 @@
+.block {
+    background-color: #ff9900;
+    -moz-box-shadow: 10px 10px 5px #888888;
+    box-shadow: 10px 10px 5px #888888;
+}
+
 .profile-thumbnail {
     position: absolute;
 }

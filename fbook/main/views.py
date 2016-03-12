@@ -8,7 +8,6 @@ from flask.ext.login import login_user, logout_user, current_user, login_require
 from .. import login_manager
 from flask import jsonify
 from urlparse import urlparse
-from validate_email import validate_email
 import socket, httplib, urllib, os
 
 
