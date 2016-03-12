@@ -1,8 +1,9 @@
 from .api import api
 from ..db import db
-from .. models import Friend, User
+from .. models import Friend, User, Follow
 from flask_restful import Resource, reqparse
 from flask.ext.login import current_user
+from flask import request
 
 
 class friends(Resource):
@@ -27,21 +28,30 @@ class friends(Resource):
 
 		return data
 
-	#
-	# NOT DONE
-	#
 	# ask a service if anyone in the list is a friend
 	# POST to http://service/friends/<authorid>
 	def post(self, authorid):
 		parser = reqparse.RequestParser()
-		parser.add_argument('fid')
+		parser.add_argument('query')
+		parser.add_argument('author')
+		parser.add_argument('authors')
 		args = parser.parse_args();
+
+		friends = []
+		print(request.get_json()['authors'])
+		for author_id in request.get_json()['authors']:
+			a = Friend.query.filter_by(a_id=author_id, b_id=authorid).all()
+			b = Friend.query.filter_by(b_id=author_id, a_id=authorid).all()
+			if a or b:
+				friends.append(author_id)
 
 		data = {}
 
-		data['args'] = args['fid']
+		data['query'] = args['query']
+		data['author'] = authorid
+		data['authors'] = friends
 
-		return 
+		return data
 
 # Profile API calls
 # GET http://service/author/9de17f29c12e8f97bcbbd34cc908f1baba40658e
@@ -79,31 +89,29 @@ class profile(Resource):
 		return data
 
 #
-# NOT DONE
+# Send a friend request (follow)
 #
 class friend_request(Resource):
 	def post(self):
-		parser = reqparse.RequestParser()
-		parser.add_argument('fid')
-		args = parser.parse_args();
-
 		data = {}
 
-		data['query'] = 'friendrequest'
+		author = request.get_json()['author']
+		friend = request.get_json()['friend']
+		
+		
+		follow = Follow(requester_id=author['id'], requestee_id=friend['id'])
 
-		author = {}
-		author['id'] = current_user.id
-		author['host'] = current_user.host
-		author['displayname'] = current_user.username
+		following = Follow.query.filter_by(requester_id=friend['id'], requestee_id=author['id']).first()
+		if following:
+			new_friend = Friend(a_id=friend['id'],b_id=author['id'])
+			db.session.add(new_friend)
 
-		user = User.query.filter_by(id=args['fid']).first()
-		friend = {}
-		friend['id'] = user.id
-		friend['host'] = user.host
-		friend['displayname'] = user.username
+		db.session.add(follow)
+		db.session.commit()
 
-		return data
+		return data, 200
 
+# send two user id's return whether or not they are friends
 class friend(Resource):
 	def get(self, authorid1, authorid2):
 		data = {}
@@ -126,4 +134,4 @@ class friend(Resource):
 api.add_resource(profile, '/api/author/<string:authorid>')
 api.add_resource(friends, '/api/friends/<string:authorid>')
 api.add_resource(friend, '/api/friends/<string:authorid1>/<string:authorid2>')
-#api.add_resource(friend_request, '/api/friendrequest')
+api.add_resource(friend_request, '/api/friendrequest')

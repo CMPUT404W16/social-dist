@@ -14,7 +14,7 @@ class PostForm(Form):
 class LoginForm(Form):
 	name = StringField('Username', validators=[Required()])
 	password = PasswordField('Password', validators=[Required()])
-	submit = SubmitField('Login')
+	submitLogin = SubmitField('Login')
 
 # for singup
 class SignupForm(Form):

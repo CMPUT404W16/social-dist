@@ -72,7 +72,7 @@ Author API
 
     Get the author's profiles.
 
-  **Example request**:
+  **Example response**:
 
   {
     "displayname": "cody", 
@@ -111,7 +111,7 @@ Friend API
 
     Check whether two authors are friend or not.
 
-    **Example request**:
+    **Example response**:
 
     .. sourcecode:: http
 
@@ -129,7 +129,7 @@ Friend API
 
     Returns a list of author_id's friends.
 
-    **Example request**:
+    **Example response**:
 
     .. sourcecode:: http
 
@@ -145,8 +145,55 @@ Friend API
 
     Check whether an author is friends with other authors in a list of authors.
 
+    **Example post**:
+
+    .. sourcecode:: http
+
+    {
+      "query":"friends",
+      "author":"<authorid>",
+      "authors": [
+        "de305d54-75b4-431b-adb2-eb6b9e546013",
+        "ae345d54-75b4-431b-adb2-fb6b9e547891",
+        "...",
+        "...",
+        "..."
+      ]
+    }   
+
+    **Example response**:
+
+    .. sourcecode:: http 
+
+    {
+      "query":"friends",
+      "author":"9de17f29c12e8f97bcbbd34cc908f1baba40658e",
+      "authors": [
+        "de305d54-75b4-431b-adb2-eb6b9e546013",
+        "ae345d54-75b4-431b-adb2-fb6b9e547891",
+        "..."
+      ]
+    }
+
 .. http:post:: /api/friendrequest
 
     Make a friend request.
 
+    **Example post**:
 
+    .. sourcecode:: http
+
+    {
+      "query":"friendrequest",
+      "author": {
+        "id":"de305d54-75b4-431b-adb2-eb6b9e546013",
+        "host":"http://127.0.0.1:5454/",
+        "displayName":"Greg Johnson"
+      },
+      "friend": {
+        "id":"de305d54-75b4-431b-adb2-eb6b9e637281",
+        "host":"http://127.0.0.1:5454/",
+        "displayName":"Lara Croft",
+        "url":"http://127.0.0.1:5454/author/9de17f29c12e8f97bcbbd34cc908f1baba40658e"
+      }
+    }   

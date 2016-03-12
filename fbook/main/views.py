@@ -118,6 +118,7 @@ def login():
 
     loginForm = LoginForm()
     signupForm = SignupForm()
+    inv = InvForm()
 
     # signup form
     if signupForm.validate_on_submit():
@@ -155,9 +156,8 @@ def login():
                 flash("Incorrect Password")
         else:
             flash("User does not exist")
-
-
-    return render_template('login.html', loginForm=loginForm, signupForm=signupForm)
+    
+    return render_template('login.html', loginForm=loginForm, signupForm=signupForm, inv=inv)
 
 @main.route('/request', methods = ['GET', 'POST'])
 def register():
@@ -300,6 +300,7 @@ def show_followers(user):
     for follow in followerID:
         f = User.query.filter_by(id=follow.requester_id).first()
         followersx.append([f.username, f.id])
+
 
 
     return render_template('user/followers.html', followers=followersx, user_profile=user, user_id=current_user.id)

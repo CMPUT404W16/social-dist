@@ -17,8 +17,8 @@
 {% block page_content %}
 <br>
 <div class="login text-center">
-	<a href="#collapse1" data-toggle="collapse">
-     	<h1>Login</h1>
+	<a href="#collapse1" data-toggle="collapse" id="login">
+     	<h1 >Login</h1>
     </a>
     <div id="collapse1" class="collapse text-center">
     	{{ wtf.quick_form(loginForm) }}
@@ -27,7 +27,7 @@
 <br>
 <h4 class="text-center">Or</h4>
 <br>
-<div class="signup text-center">
+<div class="signup text-center" id="signup">
 	<a href="#collapse2" data-toggle="collapse">
      	<h1>Sign Up</h1>
     </a>
@@ -40,6 +40,7 @@
         <input type="submit" value="RequestAPI">
     </form>
 </div>
+
 {% endblock %}
 
 {% block scripts %}
