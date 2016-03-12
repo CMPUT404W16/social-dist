@@ -122,11 +122,11 @@ def login():
 
     # signup form
     if signupForm.validate_on_submit():
-        temp_user = User(username='admin_new', role_id=2, authenticated=1, host='localhost');
-        temp_user.set_password('p1')
-        temp_user.set_id()
-        db.session.add(temp_user)
-        db.session.commit()
+        # temp_user = User(username='admin_new', role_id=2, authenticated=1, host='localhost');
+        # temp_user.set_password('p1')
+        # temp_user.set_id()
+        # db.session.add(temp_user)
+        # db.session.commit()
         user = User.query.filter_by(username=signupForm.username.data).first()
         if user is None:
             ureq = UserRequest(username=signupForm.username.data)
