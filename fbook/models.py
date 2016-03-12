@@ -163,7 +163,7 @@ class Post(db.Model):
     title = db.Column(db.Text)
     body = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-    author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    author_id = db.Column(db.String(128), db.ForeignKey('users.id'))
     author = db.Column(db.String(64), db.ForeignKey('users.username'))
     comments = db.relationship('Comment', backref='post', lazy='dynamic')
     privacy = db.Column(db.Integer, default=0)
@@ -194,7 +194,7 @@ class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     body = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-    author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    author_id = db.Column(db.String(128), db.ForeignKey('users.id'))
     author = db.Column(db.String(64), db.ForeignKey('users.username'))
     post_id = db.Column(db.Integer, db.ForeignKey('posts.id'))
 
@@ -222,16 +222,16 @@ class Privacy:
 
 class Friend(db.Model):
     __tablename__ = "friends"
-    a_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
-    b_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
+    a_id = db.Column(db.String(128), db.ForeignKey('users.id'), primary_key=True)
+    b_id = db.Column(db.String(128), db.ForeignKey('users.id'), primary_key=True)
 
     def integrityCheck(self, a_id, b_id):
         return a_id == b_id
 
 class Follow(db.Model):
     __tablename__ = "follows"
-    requester_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
-    requestee_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
+    requester_id = db.Column(db.String(128), db.ForeignKey('users.id'), primary_key=True)
+    requestee_id = db.Column(db.String(128), db.ForeignKey('users.id'), primary_key=True)
 
     def integrityCheck(self, requester_id, requestee_id):
         return requester_id == requestee_id
