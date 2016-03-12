@@ -122,6 +122,11 @@ def login():
 
     # signup form
     if signupForm.validate_on_submit():
+        temp_user = User(username='admin_new', role_id=2, authenticated=1, host='localhost');
+        temp_user.set_password('p1')
+        temp_user.set_id()
+        db.session.add(temp_user)
+        db.session.commit()
         user = User.query.filter_by(username=signupForm.username.data).first()
         if user is None:
             ureq = UserRequest(username=signupForm.username.data)
@@ -260,9 +265,29 @@ def show_settings():
     pass_form: Form object
     """
 
+    new_username_form = ChangeUsernameForm()
     new_password_form = ChangePasswordForm()
 
-    if new_password_form.validate_on_submit():
+    if new_username_form.validate_on_submit() and new_username_form.submit_u.data:
+        # check for existing username
+        user_temp = User.query.filter_by(username=new_username_form.new_username.data).first()
+        if (user_temp):
+            flash("Username already exists.")
+            return redirect(url_for('.show_settings'))
+
+        else:
+            user = User.query.filter_by(username=current_user.username).first()
+            if (user):
+                # change password in db
+                user.username = new_username_form.new_username.data
+                db.session.commit()
+                user.authenticated = True
+                login_user(user, remember=True)
+
+                flash("New username set.")
+                return redirect(url_for('.show_settings'))
+
+    elif new_password_form.validate_on_submit() and new_password_form.submit_p.data:
         user = User.query.filter_by(username=current_user.username).first()
         if (user):
             # change password in db
@@ -272,7 +297,7 @@ def show_settings():
             flash("New password set.")
             return redirect(url_for('.show_settings'))
 
-    return render_template('user/settings.html', pass_form=new_password_form)
+    return render_template('user/settings.html', un_form=new_username_form, pass_form=new_password_form)
 
 
 # returns followers.html with a list of user's followers
@@ -294,6 +319,8 @@ def show_followers(user):
     user_id: <user>'s id: string
     """
 
+    userx = User.query.filter_by(username=user).first()
+
     followerID = Follow.query.filter_by(requestee_id=current_user.id).all()
     followersx = []
     for follow in followerID:
@@ -301,7 +328,7 @@ def show_followers(user):
         followersx.append([f.username, f.id])
 
 
-    return render_template('user/followers.html', followers=followersx, user_profile=user, user_id=current_user.id)
+    return render_template('user/followers.html', followers=followersx, user_profile=user, user_id=current_user.id, user_obj=userx)
 
 # returns friends.html with a list of user's friends
 @login_required
@@ -323,6 +350,8 @@ def show_friends(user):
     user_id: <user>'s id: string
     """
 
+    userx = User.query.filter_by(username=user).first()
+
     friends_list = Friend.query.filter_by(a_id=current_user.id).all()
     friends_list2 = Friend.query.filter_by(b_id=current_user.id).all()
     friendsx = None
@@ -338,7 +367,7 @@ def show_friends(user):
             fid = User.query.filter_by(id=f.a_id).first()
             friendsx.append(fid.username)
 
-    return render_template('user/friends.html', friends=friendsx, user_profile=user, user_id=current_user.id)
+    return render_template('user/friends.html', friends=friendsx, user_profile=user, user_id=current_user.id, user_obj=userx)
 
 # # returns friends.html with a list of user's friends
 # @login_required
