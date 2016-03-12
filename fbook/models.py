@@ -244,7 +244,7 @@ class Node(db.Model):
     username = db.Column(db.String(64), unique=True)
     password = db.Column(db.String(128))
     
-    #ip_addr = db.Column(postgresql.INET)
+    ip_addr = db.Column(postgresql.INET)
     email = db.Column(db.String(64), unique=True)
     isRestricted = db.Column(db.Boolean, default=False)
     verified_date = db.Column(db.DateTime, default=db.func.current_timestamp())
@@ -264,7 +264,7 @@ class NodeRequest(db.Model):
     name = db.Column(db.String(64))
     username = db.Column(db.String(64), unique=True)
     password = db.Column(db.String(128))
-    #ip_addr = db.Column(postgresql.INET)
+    ip_addr = db.Column(postgresql.INET)
     email = db.Column(db.String(64), unique=True)
 
     def set_password(self, password):
