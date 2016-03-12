@@ -46,6 +46,7 @@ class StartingTestCase(unittest.TestCase):
 
         assert self.user in db.session
         assert self.friend in db.session
+        driver.save_screenshot('test.png')
 
         self.driver.get(self.baseURL)
         self.driver.find_element_by_id("name").send_keys("test_user")
@@ -72,6 +73,7 @@ class StartingTestCase(unittest.TestCase):
     # As an author, I want un-befriend local and remote authors
     def unfriend(self):
         test_befriend();
+        driver.save_screenshot('test.png')
 
         self.driver.get(self.baseURL)
         self.driver.find_element_by_id("name").send_keys("test_user")
@@ -103,6 +105,7 @@ class StartingTestCase(unittest.TestCase):
 
         assert self.user in db.session
         assert self.friend in db.session
+        driver.save_screenshot('test.png')
 
         self.driver.get(self.baseURL)
         self.driver.find_element_by_id("name").send_keys("test_user")
@@ -131,6 +134,7 @@ class StartingTestCase(unittest.TestCase):
 
         assert self.user in db.session
         assert self.friend in db.session
+        driver.save_screenshot('test.png')
 
         self.driver.get(self.baseURL)
         self.driver.find_element_by_id("name").send_keys("test_user")
