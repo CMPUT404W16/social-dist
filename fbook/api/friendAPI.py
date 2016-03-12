@@ -4,9 +4,12 @@ from .. models import Friend, User, Follow
 from flask_restful import Resource, reqparse
 from flask.ext.login import current_user
 from flask import request
+from bauth import auth
+
 
 
 class friends(Resource):
+	decorators = [auth.login_required]
 	# a reponse of users friends
 	# ask a service http://service/friends/<authorid>
 	def get(self, authorid):
@@ -57,6 +60,7 @@ class friends(Resource):
 # GET http://service/author/9de17f29c12e8f97bcbbd34cc908f1baba40658e
 # Enables viewing of foreign author's profiles
 class profile(Resource):
+	decorators = [auth.login_required]
 	def get(self, authorid):
 		data = {}
 
@@ -92,6 +96,7 @@ class profile(Resource):
 # Send a friend request (follow)
 #
 class friend_request(Resource):
+	decorators = [auth.login_required]
 	def post(self):
 		data = {}
 
@@ -113,6 +118,7 @@ class friend_request(Resource):
 
 # send two user id's return whether or not they are friends
 class friend(Resource):
+	decorators = [auth.login_required]
 	def get(self, authorid1, authorid2):
 		data = {}
 		friends = False
