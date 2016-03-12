@@ -15,7 +15,7 @@ class NodeRequestModelView(ModelView):
 			return current_user.can(Permission.ADMINISTER)
 
 	can_edit = False
-	# can_create = False
+	can_create = False
 	column_labels = dict(
 		name = "Name",
 		username = "User Name",
