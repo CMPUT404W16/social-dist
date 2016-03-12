@@ -161,7 +161,7 @@ def login():
         else:
             flash("User does not exist")
     
-    return render_template('login.html', loginForm=loginForm, signupForm=signupForm, inv=inv)
+    return render_template('login.html', loginForm=loginForm, signupForm=signupForm)
 
 @main.route('/request', methods = ['GET', 'POST'])
 def register():
