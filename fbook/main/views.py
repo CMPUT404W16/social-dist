@@ -8,6 +8,7 @@ from flask.ext.login import login_user, logout_user, current_user, login_require
 from .. import login_manager
 from flask import jsonify
 from urlparse import urlparse
+from validate_email import validate_email
 import socket, httplib, urllib, os
 
 
@@ -122,6 +123,11 @@ def login():
 
     # signup form
     if signupForm.validate_on_submit():
+        # temp_user = User(username='admin_new', role_id=2, authenticated=1, host='localhost');
+        # temp_user.set_password('p1')
+        # temp_user.set_id()
+        # db.session.add(temp_user)
+        # db.session.commit()
         user = User.query.filter_by(username=signupForm.username.data).first()
         if user is None:
             ureq = UserRequest(username=signupForm.username.data)
@@ -168,11 +174,8 @@ def register():
         name = apiForm.name.data
         ip_addr = request.remote_addr
         email = apiForm.email.data
-        auth = apiForm.auth.data
-
-        #print ip_addr
-
-        true_auth = "Test1"
+        username = apiForm.username.data
+        password = apiForm.password.data
 
         # check validity of ip address
         try:
@@ -188,37 +191,38 @@ def register():
             flash("Invalid Email Address")
             valid_info = False
 
-        # check if authentication code is right
-        if auth != true_auth:
-            flash("Invalid Authentication Code")
+        # check if email is unique in the table Node and NodeRequest
+
+        equery = Node.query.filter_by(email=email).all()
+        print equery
+
+        if len(equery) > 0: # means email already exists
+            flash("Invalid Email Address")
             valid_info = False
 
-        if valid_info == True: # valid information, send POST request
-            payload = urllib.urlencode({'name': name, 'ip_addr': ip_addr, 'email': email})
-            url = request.base_url
-            parsed = urlparse(url)
-            port = parsed.port
-            host = request.remote_addr
+        # check if username is unique in the table Node and NodeRequest
+        uquery = Node.query.filter_by(username=username).all()
 
-            so = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            ip = socket.gethostbyname(host)
-            so.connect((ip, port))
+        if len(uquery) > 0: # means username already exists
+            flash("Invalid Username")
+            valid_info = False
 
-            # Make request
-            so.send("POST /noderequest/new HTTP/1.1\r\n")
-            so.send("Host: %s\r\n" % host)
-            so.send("Connection: close\r\n")
-            so.send("Content-Type: application/x-www-form-urlencoded\r\n")
-            so.send("Content-Length: %d\r\n\r\n" % len(payload))
-            so.send(payload)
-            so.close()
+        if valid_info == True: # valid information, commit to db
+            # add the new information into request from the request
+            req = NodeRequest (name= name, username= username,
+                password= password, email= email, ip_addr= ip_addr)
+            req.set_password(password)
+            try:
+                db.session.add(req)
+                db.session.commit()
+            except Exception as e:
+                db.session.rollback()
+                print(e)
 
             flash("Request sent")
             return redirect(url_for('.index'))
         else: # invalid information, do not send request info
             return redirect(url_for('.index'))
-
-
 
     return render_template('request.html', apiForm=apiForm)
 
@@ -261,9 +265,29 @@ def show_settings():
     pass_form: Form object
     """
 
+    new_username_form = ChangeUsernameForm()
     new_password_form = ChangePasswordForm()
 
-    if new_password_form.validate_on_submit():
+    if new_username_form.validate_on_submit() and new_username_form.submit_u.data:
+        # check for existing username
+        user_temp = User.query.filter_by(username=new_username_form.new_username.data).first()
+        if (user_temp):
+            flash("Username already exists.")
+            return redirect(url_for('.show_settings'))
+
+        else:
+            user = User.query.filter_by(username=current_user.username).first()
+            if (user):
+                # change password in db
+                user.username = new_username_form.new_username.data
+                db.session.commit()
+                user.authenticated = True
+                login_user(user, remember=True)
+
+                flash("New username set.")
+                return redirect(url_for('.show_settings'))
+
+    elif new_password_form.validate_on_submit() and new_password_form.submit_p.data:
         user = User.query.filter_by(username=current_user.username).first()
         if (user):
             # change password in db
@@ -273,7 +297,7 @@ def show_settings():
             flash("New password set.")
             return redirect(url_for('.show_settings'))
 
-    return render_template('user/settings.html', pass_form=new_password_form)
+    return render_template('user/settings.html', un_form=new_username_form, pass_form=new_password_form)
 
 
 # returns followers.html with a list of user's followers
@@ -295,6 +319,8 @@ def show_followers(user):
     user_id: <user>'s id: string
     """
 
+    userx = User.query.filter_by(username=user).first()
+
     followerID = Follow.query.filter_by(requestee_id=current_user.id).all()
     followersx = []
     for follow in followerID:
@@ -302,8 +328,7 @@ def show_followers(user):
         followersx.append([f.username, f.id])
 
 
-
-    return render_template('user/followers.html', followers=followersx, user_profile=user, user_id=current_user.id)
+    return render_template('user/followers.html', followers=followersx, user_profile=user, user_id=current_user.id, user_obj=userx)
 
 # returns friends.html with a list of user's friends
 @login_required
@@ -325,6 +350,8 @@ def show_friends(user):
     user_id: <user>'s id: string
     """
 
+    userx = User.query.filter_by(username=user).first()
+
     friends_list = Friend.query.filter_by(a_id=current_user.id).all()
     friends_list2 = Friend.query.filter_by(b_id=current_user.id).all()
     friendsx = None
@@ -340,7 +367,7 @@ def show_friends(user):
             fid = User.query.filter_by(id=f.a_id).first()
             friendsx.append(fid.username)
 
-    return render_template('user/friends.html', friends=friendsx, user_profile=user, user_id=current_user.id)
+    return render_template('user/friends.html', friends=friendsx, user_profile=user, user_id=current_user.id, user_obj=userx)
 
 # # returns friends.html with a list of user's friends
 # @login_required

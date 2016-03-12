@@ -19,6 +19,10 @@
         <a href={{ "/unfollow/"+user_profile }} class="btn btn-default" role="button">Unfollow</a>
     {% endif %}
     {% endif %}
+    <ul class="list-group" style="padding-top:1em">
+        <li class="list-group-item">ID: {{ user_obj.id }}</li>
+        <li class="list-group-item">Host: {{ user_obj.host }}</li>
+    </ul>
 </div>
 <ul class="nav nav-tabs">
     <li role="presentation"><a href="#">Posts</a></li>
