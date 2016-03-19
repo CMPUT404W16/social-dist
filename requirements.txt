@@ -30,6 +30,7 @@ pydns==2.3.6
 PyGreSQL==4.1.1
 python-dateutil==2.5.0
 pytz==2015.7
+requests==2.9.1
 selenium
 six==1.10.0
 SQLAlchemy==0.9.9
