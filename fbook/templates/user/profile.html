@@ -13,12 +13,16 @@
     <div class="btn-group" role="group" style="padding-top: 2em">
         <!-- <button type="button" class="btn btn-default">Add friend</button> -->
         <!-- <button type="button" class="btn btn-default" style="padding-left: 1.8em;padding-right: 1.8em";>Follow</button> -->
-        <a href={{ "/follow/"+user_profile }} class="btn btn-default" role="button">Follow</a>
+        <a href={{ "/follow/"+user_profile }} class="btn btn-default" role="button" id="follow_button">Follow</a>
     </div>
     {% else %}
         <a href={{ "/unfollow/"+user_profile }} class="btn btn-default" role="button">Unfollow</a>
     {% endif %}
     {% endif %}
+    <ul class="list-group" style="padding-top:1em">
+        <li class="list-group-item">ID: {{ user_obj.id }}</li>
+        <li class="list-group-item">Host: {{ user_obj.host }}</li>
+    </ul>
 </div>
 <ul class="nav nav-tabs">
     <li role="presentation"><a href="#">Posts</a></li>

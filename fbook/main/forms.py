@@ -3,18 +3,18 @@ from wtforms import StringField, SubmitField, PasswordField, validators, SelectF
 from wtforms.validators import Required, EqualTo
 from flask.ext.pagedown.fields import PageDownField
 
-
 class PostForm(Form):
     title = StringField('Title', validators=[Required()])
     body = PageDownField('What is on your mind?', validators=[Required()])
-    #mkdown = SelectField('Use markdown for this post?', choices=[(False, 'No'),(True, 'Yes')], default=False)
+    mkdown = SelectField('Use markdown for this post?', choices=[("False", 'No'),("True", 'Yes')], default=False)
+    privacy = SelectFiled('Public', choices=[("Public", 'Public'),("Only me", 'Only me'),("Only me and my friend",'Only me and my friend')], default=False)
     submit = SubmitField("Post")
 
 # form for logging in the user
 class LoginForm(Form):
 	name = StringField('Username', validators=[Required()])
 	password = PasswordField('Password', validators=[Required()])
-	submit = SubmitField('Login')
+	submitLogin = SubmitField('Login')
 
 # for singup
 class SignupForm(Form):
@@ -38,7 +38,15 @@ class ChangePasswordForm(Form):
     confirm_password = PasswordField('Confirm New Password',
         validators=[Required(), EqualTo('new_password',
         message='New password mismatch!')])
-    submit = SubmitField('Set')
+    submit_p = SubmitField('Set Password')
+
+# for for setting new password
+class ChangeUsernameForm(Form):
+    new_username = StringField('New Username', validators=[Required()])
+    confirm = StringField('Confirm New Username',
+        validators=[Required(), EqualTo('new_username',
+        message='New username mismatch!')])
+    submit_u = SubmitField('Set Username')
 
 class CommentForm(Form):
     body = StringField('', validators=[Required()])

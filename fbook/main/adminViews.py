@@ -15,7 +15,7 @@ class NodeRequestModelView(ModelView):
 			return current_user.can(Permission.ADMINISTER)
 
 	can_edit = False
-	# can_create = False
+	can_create = False
 	column_labels = dict(
 		name = "Name",
 		username = "User Name",
@@ -123,7 +123,7 @@ class UserRequestModelView(ModelView):
 			users = []
 			for req in query.all():
 				user = User(username=req.username,
-					password=req.password)
+					password=req.password, host=request.host)
 				# TODO Add role ID
 				user.set_id()
 				users.append(user)
@@ -152,7 +152,7 @@ class UserRequestModelView(ModelView):
 			req = UserRequest.query.get(id)
 
 			user = User(username=req.username,
-				password=req.password)
+				password=req.password, host=request.host)
 			# TODO Add role ID
 			user.set_id()
 		except Exception as e:

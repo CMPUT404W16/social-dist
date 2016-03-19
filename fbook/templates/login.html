@@ -1,48 +1,55 @@
-{% extends "base.html" %}
-{% import "bootstrap/wtf.html" as wtf %}
-
-{% block title %}FBook{% endblock %}
-
-{% block navbar %}
+{% extends "base.html" %} {% import "bootstrap/wtf.html" as wtf %} {% block title %}FBook{% endblock %} {% block navbar %}
 <div class="navbar navbar-inverse" role="navigation">
     <div class="container">
         <div class="navbar-header">
-            
+
             <a class="navbar-brand" href="{{ url_for('main.index') }}">Flasky</a>
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block page_content %}
+{% endblock %} {% block page_content %}
 <br>
-<div class="login text-center">
-	<a href="#collapse1" data-toggle="collapse">
-     	<h1>Login</h1>
-    </a>
-    <div id="collapse1" class="collapse text-center">
-    	{{ wtf.quick_form(loginForm) }}
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm-6 col-sm-offset-3">
+
+            <div class="panel panel-default" id="togglePanel">
+                <div class="panel-heading">
+                    <div class="btn-group btn-group-xs btn-toggle pull-right">
+                        <button class="btn btn-info" data-toggle="tab" data-target="#a">login</button>
+                        <button class="btn btn-default" data-toggle="tab" data-target="#b">sign up</button>
+                    </div>
+                    <h3 class="panel-title">
+                  	 Login / Sign Up
+                  	</h3>
+                </div>
+                <div class="panel-body tab-content">
+                    <div class="tab-pane active" id="a">
+                        <h3>Login</h3> {{ wtf.quick_form(loginForm) }}
+
+                    </div>
+                    <div class="tab-pane" id="b">
+                        <h3>Sign Up</h3> {{ wtf.quick_form(signupForm) }}
+                    </div>
+                </div>
+            </div>
+
+        </div>
     </div>
 </div>
-<br>
-<h4 class="text-center">Or</h4>
-<br>
-<div class="signup text-center">
-	<a href="#collapse2" data-toggle="collapse">
-     	<h1>Sign Up</h1>
-    </a>
-    <div id="collapse2" class="collapse text-center">
-    	{{ wtf.quick_form(signupForm) }}
+
+<div class="container">
+    </br>
+    <div class="row">
+        <form action="/request">
+            <input type="submit" value="Request an API from the server admin">
+        </form>
     </div>
 </div>
-<div>
-    <form action="/request">
-        <input type="submit" value="RequestAPI">
-    </form>
-</div>
-{% endblock %}
 
-{% block scripts %}
-{{ super() }}
-{{ pagedown.include_pagedown() }}
-{% endblock %}
+<!-- <form action="/test">
+    <input type="submit" value="testing auth">
+</form> -->
+
+{% endblock %} {% block scripts %} {{ super() }} {{ pagedown.include_pagedown() }} {% endblock %}
