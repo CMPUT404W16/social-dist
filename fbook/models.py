@@ -60,7 +60,7 @@ class User(db.Model):
     :param str password: The password of the user.
     :param bool authenticated: Whether the user is authenticated.
     """
-    
+
     __tablename__ = 'users'
     id = db.Column(db.String(128), unique=True, primary_key=True)
     username = db.Column(db.String(64), unique=True, index=True)
