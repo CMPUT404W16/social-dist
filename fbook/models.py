@@ -273,12 +273,12 @@ class NodeRequest(db.Model):
     def set_password(self, password):
         self.password = generate_password_hash(password)
 
-# class APIRequest:
-    # __tablename__ = "apiRequests"
-    # id = db.Column(db.Integer, primary_key=True)
 
-
-# class NodeAPI:
-    # __tablename__ = "nodeAPIs"
-    # node_id = db.Column(db.Integer, db.ForeignKey('nodes.id'), primary_key=True)
-    # request_id = db.Column(db.Integer, db.ForeignKey('apiRequests.id'), primary_key=True)
+class RemoteNode(db.Model):
+    __tablename__ = "remote_nodes"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64))
+    username = db.Column(db.String(64), unique=True)
+    password = db.Column(db.String(128))
+    service = db.Column(db.String(64))
+    prefix = db.Column(db.String(64))

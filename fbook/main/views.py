@@ -10,6 +10,7 @@ from flask import jsonify
 from urlparse import urlparse
 from validate_email import validate_email
 import socket, httplib, urllib, os
+# from ..api.apiWrapper import ApiHelper as ah
 
 
 @main.route('/', methods=['GET', 'POST'])
@@ -163,6 +164,13 @@ def login():
             flash("User does not exist")
     
     return render_template('login.html', loginForm=loginForm, signupForm=signupForm)
+
+# Can be used to test remote_api calls, uncomment form in template
+# @main.route('/test', methods=['GET', 'POST'])
+# def test():
+#     helper = ah()
+#     return helper.test()
+
 
 @main.route('/request', methods = ['GET', 'POST'])
 def register():

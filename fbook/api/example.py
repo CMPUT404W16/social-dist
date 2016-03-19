@@ -6,6 +6,7 @@ class HelloWorld(Resource):
 	decorators = [auth.login_required]
 
 	def get(self):
+		print 'request received'
 		return {'hello': 'world'}
 
 api.add_resource(HelloWorld, '/somepath')
