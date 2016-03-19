@@ -34,6 +34,7 @@ def create_app(conf):
     from api.api import api
     api.init_app(app)
 
+
     am.init_app(app)
 
     from .main import main as main_blueprint

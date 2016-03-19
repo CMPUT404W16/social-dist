@@ -62,11 +62,12 @@ class User(db.Model):
     """
 
     __tablename__ = 'users'
-    id = db.Column(db.Integer(), unique=True, primary_key=True)
+    id = db.Column(db.String(128), unique=True, primary_key=True)
     username = db.Column(db.String(64), unique=True, index=True)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     password = db.Column(db.String(128))
     authenticated = db.Column(db.Boolean, default=False)
+    host = db.Column(db.String(64))
 
     @property
     def is_authenticated(self):
@@ -81,7 +82,7 @@ class User(db.Model):
         return False
 
     def set_id(self):
-        self.id = int(str(uuid.uuid4().int)[0:8])
+        self.id = str(uuid.uuid4().hex)
 
     def get_id(self):
         return self.username
@@ -162,7 +163,7 @@ class Post(db.Model):
     title = db.Column(db.Text)
     body = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-    author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    author_id = db.Column(db.String(128), db.ForeignKey('users.id'))
     author = db.Column(db.String(64), db.ForeignKey('users.username'))
     comments = db.relationship('Comment', backref='post', lazy='dynamic')
     privacy = db.Column(db.Integer, default=0)
@@ -193,7 +194,7 @@ class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     body = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-    author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    author_id = db.Column(db.String(128), db.ForeignKey('users.id'))
     author = db.Column(db.String(64), db.ForeignKey('users.username'))
     post_id = db.Column(db.Integer, db.ForeignKey('posts.id'))
 
@@ -221,16 +222,16 @@ class Privacy:
 
 class Friend(db.Model):
     __tablename__ = "friends"
-    a_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
-    b_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
+    a_id = db.Column(db.String(128), db.ForeignKey('users.id'), primary_key=True)
+    b_id = db.Column(db.String(128), db.ForeignKey('users.id'), primary_key=True)
 
     def integrityCheck(self, a_id, b_id):
         return a_id == b_id
 
 class Follow(db.Model):
     __tablename__ = "follows"
-    requester_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
-    requestee_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
+    requester_id = db.Column(db.String(128), db.ForeignKey('users.id'), primary_key=True)
+    requestee_id = db.Column(db.String(128), db.ForeignKey('users.id'), primary_key=True)
 
     def integrityCheck(self, requester_id, requestee_id):
         return requester_id == requestee_id
@@ -242,6 +243,7 @@ class Node(db.Model):
     name = db.Column(db.String(64))
     username = db.Column(db.String(64), unique=True)
     password = db.Column(db.String(128))
+    
     ip_addr = db.Column(postgresql.INET)
     email = db.Column(db.String(64), unique=True)
     isRestricted = db.Column(db.Boolean, default=False)
@@ -249,6 +251,9 @@ class Node(db.Model):
 
     def __unicode__(self):
         return self.name
+
+    def set_password(self, password):
+        self.password = generate_password_hash(password)
 
     def verify_password(self, password):
         return check_password_hash(self.password, password)

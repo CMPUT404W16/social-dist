@@ -64,6 +64,7 @@ target/
 
 # Virtual Env
 env/
+venv/
 social-dst/
 
 logs/*
