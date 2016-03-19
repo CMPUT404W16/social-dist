@@ -7,7 +7,8 @@ from flask.ext.pagedown.fields import PageDownField
 class PostForm(Form):
     title = StringField('Title', validators=[Required()])
     body = PageDownField('What is on your mind?', validators=[Required()])
-    #mkdown = SelectField('Use markdown for this post?', choices=[(False, 'No'),(True, 'Yes')], default=False)
+    mkdown = SelectField('Use markdown for this post?', choices=[("False", 'No'),("True", 'Yes')], default=False)
+    privacy = SelectFiled('Public', choices=[("Public", 'Public'),("Only me", 'Only me'),("Only me and my friend",'Only me and my friend')], default=False)
     submit = SubmitField("Post")
 
 # form for logging in the user
