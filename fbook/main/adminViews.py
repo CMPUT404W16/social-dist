@@ -174,6 +174,15 @@ class UserRequestModelView(ModelView):
 
 class UserModelView(ModelView):
 
+	column_list = (
+			'id',
+			'username',
+			'role_id',
+			'password',
+			'authenticated',
+			'host'
+		)
+
 	def is_accessible(self):
 		if current_user.is_authenticated:
 			return current_user.can(Permission.ADMINISTER)

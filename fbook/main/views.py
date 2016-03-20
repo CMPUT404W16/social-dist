@@ -240,8 +240,8 @@ def register():
     return render_template('request.html', apiForm=apiForm)
 
 # <user> requires a username
-@login_required
 @main.route('/users/<user>', methods=['GET', 'POST'])
+@login_required
 def show_profile(user):
     """
     Profile page view function.
@@ -269,8 +269,8 @@ def show_profile(user):
         flash('ERROR user not found')
         return render_template('404.html')
 
-@login_required
 @main.route('/settings', methods=['GET', 'POST'])
+@login_required
 def show_settings():
     """
     Settings page view function.
@@ -321,8 +321,8 @@ def show_settings():
 
 
 # returns followers.html with a list of user's followers
-@login_required
 @main.route('/users/<user>/followers', methods=['GET'])
+@login_required
 def show_followers(user):
     """
     Followers page view function.
@@ -365,8 +365,8 @@ def show_followers(user):
     return render_template('user/followers.html', followers=followersx, user_profile=userx.username, user_id=current_user.id, user_obj=userx)
 
 # returns friends.html with a list of user's friends
-@login_required
 @main.route('/users/<user>/friends', methods=['GET'])
+@login_required
 def show_friends(user):
     """
     Friends page view function.
@@ -435,8 +435,8 @@ def show_friends(user):
 #     return render_template('user/friends.html', friends=friends_list)
 
 # current user follows user
-@login_required
 @main.route('/follow/<user>', methods=['GET', 'POST'])
+@login_required
 def follow(user):
     """
     User follow route action function.
@@ -471,8 +471,8 @@ def follow(user):
     return redirect("/users/"+requestee_idx)
 
 # current user befriends user
-@login_required
 @main.route('/befriend/<user>', methods=['GET', 'POST'])
+@login_required
 def befriend(user):
     """
     User befriend route action function.
@@ -496,8 +496,8 @@ def befriend(user):
 
     return redirect("/users/"+current_user.id+"/followers")
 
-@login_required
 @main.route('/unfollow/<user>', methods=['GET', 'POST'])
+@login_required
 def unfollow(user):
     """
     User unfollow route action function.
@@ -517,8 +517,8 @@ def unfollow(user):
 
     return redirect("/users/"+requestee_idx.id)
 
-@login_required
 @main.route('/logout', methods=['GET', 'POST'])
+@login_required
 def logout():
     """
     User logout route action function.
