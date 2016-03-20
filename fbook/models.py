@@ -164,7 +164,7 @@ class Post(db.Model):
     body = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     author_id = db.Column(db.String(128))
-    author = db.Column(db.String(64), db.ForeignKey('users.username'))
+    author = db.Column(db.String(64))
     comments = db.relationship('Comment', backref='post', lazy='dynamic')
     privacy = db.Column(db.Integer, default=0)
     markdown = db.Column(db.String, default="F")
@@ -186,7 +186,7 @@ class Comment(db.Model):
     body = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     author_id = db.Column(db.String(128))
-    author = db.Column(db.String(64), db.ForeignKey('users.username'))
+    author = db.Column(db.String(64))
     post_id = db.Column(db.Integer, db.ForeignKey('posts.id'))
 
 
