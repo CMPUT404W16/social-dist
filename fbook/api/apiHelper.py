@@ -36,7 +36,7 @@ class ApiHelper():
 			print 'No user id provided'
 
 	# def urlFollowers(params):
-		
+	
 
 	# FILL ME IN
 	urlFuncs = {
@@ -44,6 +44,26 @@ class ApiHelper():
 		'friends': urlFriends,
 		'author': urlAuthor,
 		# 'followers': urlFollowers
+	}
+
+	def filterPost(response):
+		return response
+
+	def filterFriends(response):
+		friend_ids = []
+		for res in response:
+			friends_ids += res['friends']
+
+		return friends_ids
+
+
+	def filterAuthors(response):
+		return response
+
+	filterFuncs = {
+		'posts' : filterPost,
+		'friends': filterFriends,
+		'author': filterAuthors,
 	}
 
 	def createHeaders(self, username, password):
@@ -63,11 +83,14 @@ class ApiHelper():
 				url = 'http://' + node.service + node.prefix + uri
 			else:
 				url = 'http://' + node.service + uri
+			print url
 			r = requests.get(url, headers=headers)
+			print r.text
 			if r.status_code == 200:
 				responses.append(r.json())
 
-		return responses
+		callback = self.filterFuncs[type]
+		return callback(responses)
 
 	# TODO
 	def post(self, type, id=None):
