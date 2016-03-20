@@ -93,6 +93,8 @@ class PostAPI(BasePostAPI):
             self.posts = Post.query.filter_by(privacy=0)
         else:
             self.posts = Post.query.filter_by(id=post_id)
+            # check post exist or not
+            self.posts.first_or_404()
 
         return self.generate_post_response(args.page, args.page_size)
 
@@ -116,6 +118,8 @@ class AuthorPost(BasePostAPI):
             #return all post visible to current authenticated user
             self.posts = Post.query.filter_by(0)
         else:
+            #check user exist or not.
+            user = User.query.filter_by(id=author_id).first_or_404()
             #return all post write by author_id and visible to current authenticated user
             self.posts = Post.query.filter_by(author_id=author_id)
 
