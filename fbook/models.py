@@ -167,16 +167,7 @@ class Post(db.Model):
     author = db.Column(db.String(64), db.ForeignKey('users.username'))
     comments = db.relationship('Comment', backref='post', lazy='dynamic')
     privacy = db.Column(db.Integer, default=0)
-    markdown = db.Column(db.Boolean, default=False)
-
-    @staticmethod
-    def on_changed_body(target, value, oldvalue, initiator):
-        allowed_tags = ['a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
-                        'em', 'i', 'li', 'ol', 'pre', 'strong', 'ul',
-                        'h1', 'h2', 'h3', 'p']
-        target.body_html = bleach.linkify(bleach.clean(
-            markdown(value, output_format='html'),
-            tags=allowed_tags, strip=True))
+    markdown = db.Column(db.String, default="F")
 
 
 class Comment(db.Model):
@@ -197,14 +188,6 @@ class Comment(db.Model):
     author_id = db.Column(db.String(128), db.ForeignKey('users.id'))
     author = db.Column(db.String(64), db.ForeignKey('users.username'))
     post_id = db.Column(db.Integer, db.ForeignKey('posts.id'))
-
-    @staticmethod
-    def on_changed_body(target, value, oldvalue, initiator):
-        allowed_tags = ['a', 'abbr', 'acronym', 'b', 'code', 'em', 'i',
-                        'strong']
-        target.body_html = bleach.linkify(bleach.clean(
-            markdown(value, output_format='html'),
-            tags=allowed_tags, strip=True))
 
 
 class Image(db.Model):
@@ -243,7 +226,7 @@ class Node(db.Model):
     name = db.Column(db.String(64))
     username = db.Column(db.String(64), unique=True)
     password = db.Column(db.String(128))
-    
+
     ip_addr = db.Column(postgresql.INET)
     email = db.Column(db.String(64), unique=True)
     isRestricted = db.Column(db.Boolean, default=False)
