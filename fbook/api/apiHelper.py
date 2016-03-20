@@ -4,6 +4,8 @@ from ..models import *
 
 class ApiHelper():
 
+	def __init__(self):
+		pass
 
 	def urlPost(params):
 		if params == None:
@@ -33,11 +35,15 @@ class ApiHelper():
 		else:
 			print 'No user id provided'
 
+	# def urlFollowers(params):
+		
+
 	# FILL ME IN
 	urlFuncs = {
 		'posts' : urlPost,
 		'friends': urlFriends,
-		'author': urlAuthor
+		'author': urlAuthor,
+		# 'followers': urlFollowers
 	}
 
 	def createHeaders(self, username, password):
@@ -49,6 +55,7 @@ class ApiHelper():
 		if callback != None:
 			uri = callback(params)
 		
+		responses = []
 		nodes = RemoteNode.query.all()
 		for node in nodes:
 			headers = self.createHeaders(node.username, node.password)
@@ -58,7 +65,11 @@ class ApiHelper():
 				url = 'http://' + node.service + uri
 			print url
 			r = requests.get(url, headers=headers)
-			return r.json
+			print r.text
+			if r.status_code == 200:
+				responses.append(r.json())
+
+		return responses
 
 	# TODO
 	def post(self, type, id=None):
@@ -66,7 +77,7 @@ class ApiHelper():
 
 	# Test functionality, uncomment caller in views
 	# def test(self):
-	# 	url = self.get('friends')
+	# 	# url = self.get('friends')
 	# 	# print url
 	# 	url = "http://floating-sands-69681.herokuapp.com/somepath"
 	# 	headers = self.createHeaders('akt', 'sad')

@@ -10,8 +10,9 @@ from flask import jsonify
 from urlparse import urlparse
 from validate_email import validate_email
 import socket, httplib, urllib, os
-# from ..api.apiWrapper import ApiHelper as ah
+from ..api.apiHelper import ApiHelper
 
+helper = ApiHelper()
 
 @main.route('/', methods=['GET', 'POST'])
 @login_required
@@ -168,8 +169,9 @@ def login():
 # Can be used to test remote_api calls, uncomment form in template
 # @main.route('/test', methods=['GET', 'POST'])
 # def test():
-#     helper = ah()
-#     return helper.test()
+#     helper = ApiHelper()
+#     # return helper.test()
+#     return helper.get('author', {'author_id': 'd10fe1f5-b426-48eb-840c-50fcd295014c'})
 
 
 @main.route('/request', methods = ['GET', 'POST'])
@@ -249,14 +251,19 @@ def show_profile(user):
     user_id: <user>'s id: string
     user_obj: User model object
     """
-
-    userx = User.query.filter_by(username=user).first_or_404()
-    if (userx):
+      
+    # d10fe1f5-b426-48eb-840c-50fcd295014c'
+    u = helper.get('author', {'author_id': user})
+    if (len(u) == 1):  
+        u = u[0] 
+        user = u['displayname']
+        userx = User(username=u['displayname'], id=u['id'], host=u['host'])
         idx = userx.id
 
-
-    return render_template('user/profile.html', user_profile=user, user_id=idx, user_obj=userx)
-
+        return render_template('user/profile.html', user_profile=user, user_id=idx, user_obj=userx)
+    else:
+        flash('ERROR user not found')
+        return render_template('404.html')
 
 @login_required
 @main.route('/settings', methods=['GET', 'POST'])
@@ -335,6 +342,20 @@ def show_followers(user):
     for follow in followerID:
         f = User.query.filter_by(id=follow.requester_id).first()
         followersx.append([f.username, f.id])
+
+    u = helper.get('author', {'author_id': user})
+    if (len(u) == 1):  
+        u = u[0] 
+        user = u['displayname']
+        userx = User(username=u['displayname'], id=u['id'], host=u['host'])
+        idx = userx.id
+
+        return render_template('user/profile.html', user_profile=user, user_id=idx, user_obj=userx)
+    else:
+        flash('ERROR user not found')
+        return render_template('404.html')
+
+    # u = helper.get()
 
 
     return render_template('user/followers.html', followers=followersx, user_profile=user, user_id=current_user.id, user_obj=userx)
