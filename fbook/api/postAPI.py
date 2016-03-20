@@ -102,7 +102,16 @@ class PostAPI(BasePostAPI):
         pass
 
     def post(self, post_id):
-        pass
+        parser = reqparse.RequestParser()
+        parser.add_argument('page', type=int, default=0)
+        parser.add_argument('page_size', type=int, default=50)
+
+        args = parser.parse_args()
+
+        self.posts = Post.query.filter_by(id=post_id)
+        self.posts.first_or_404()
+
+
 
 
 class AuthorPost(BasePostAPI):
