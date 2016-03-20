@@ -10,7 +10,6 @@ from config import config as app_conf
 manager = Manager(app)
 migrate = Migrate(app, db)
 
-
 def make_shell_context():
     return dict(app=app, db=db, User=User, Role=Role, Post=Post)
 manager.add_command("shell", Shell(make_context=make_shell_context))
