@@ -67,8 +67,28 @@ class BasePostAPI(Resource):
 
         return post
 
-    def generate_comment_response(self):
-        pass
+    def generate_comment_response(self, cu, page=0, page_size=50):
+        response = {"query": "comments",
+                    "size": page_size}
+
+        comments = cu.order_by(Comment.timestamp.desc()).paginate(page+1,
+                    page_size)
+        response['count'] = comments.total
+
+        total_page = comments.total / page_size
+
+        #check whether the page is the first page
+        if page != 0:
+            response['previous'] = self.API_URL + "?page=%s&size=%s" % (page-1,
+                    page_size)
+
+        if page != total_page-1 and total_page > 1:
+            response['next'] = self.API_URL + "?page=%s&size=%s" % (page+1,
+                    page_size)
+
+        response['comments'] = [self.generate_comment(x) for x in comments.items]
+
+        return response
 
     def generate_comment(self, cu):
         comments = {"comment": cu.body,
@@ -127,7 +147,21 @@ class AuthorPost(BasePostAPI):
 
 
 class CommentAPI(BasePostAPI):
-    pass
+
+    def get(self, post_id):
+        parser = reqparse.RequestParser()
+        parser.add_argument('page', type=int, default=0)
+        parser.add_argument('page_size', type=int, default=50)
+
+        args = parser.parse_args()
+
+        #check user exist or not.
+        cu = Post.query.filter_by(id=post_id).first_or_404()
+
+
+        return self.generate_comment_response(cu.comments, args.page, args.page_size)
+
+
 
 
 api.add_resource(PostAPI, '/api/posts', endpoint="public_post")
