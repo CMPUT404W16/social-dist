@@ -22,12 +22,22 @@ class ApiHelper():
 			return '/posts'
 
 	def urlFriends(params):
-		return '/friends/ec24ed8b3fa04d88917f42b09d64f49b'
+		if params['author_id']:
+			return '/friends/' + params['author_id']
+		else:
+			print 'No user id provided'    
+
+	def urlAuthor(params):
+		if params['author_id']:
+			return '/author/' + params['author_id']
+		else:
+			print 'No user id provided'
 
 	# FILL ME IN
 	urlFuncs = {
 		'posts' : urlPost,
-		'friends': urlFriends
+		'friends': urlFriends,
+		'author': urlAuthor
 	}
 
 	def createHeaders(self, username, password):
@@ -48,7 +58,7 @@ class ApiHelper():
 				url = 'http://' + node.service + uri
 			print url
 			r = requests.get(url, headers=headers)
-			print r.text
+			return r.json
 
 	# TODO
 	def post(self, type, id=None):
