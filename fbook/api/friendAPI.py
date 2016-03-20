@@ -63,36 +63,32 @@ class profile(Resource):
 	decorators = [auth.login_required]
 	def get(self, authorid):
 		data = {}
-		user = User.query.filter_by(id=authorid).first()
-		if user != None:
-			data["id"] = user.id
-			data["host"] = user.host
-			data["displayname"] = user.username
-			data["url"] = user.host+"/author/"+user.id
+		user = User.query.filter_by(id=authorid).first_or_404()
+		data["id"] = user.id
+		data["host"] = user.host
+		data["displayname"] = user.username
+		data["url"] = user.host+"/author/"+user.id
 
-			data["friends"] = []
-			friendsList = []
+		data["friends"] = []
+		friendsList = []
 
-			a = Friend.query.filter_by(a_id=authorid).all()
-			b = Friend.query.filter_by(b_id=authorid).all()
-			for friend in a:
-				user = User.query.filter_by(id=friend.b_id).first_or_404()
-				friendsList.append(user)
-			for friend in b:
-				user = User.query.filter_by(id=friend.a_id).first_or_404()
-				friendsList.append(user)
+		a = Friend.query.filter_by(a_id=authorid).all()
+		b = Friend.query.filter_by(b_id=authorid).all()
+		for friend in a:
+			user = User.query.filter_by(id=friend.b_id).first_or_404()
+			friendsList.append(user)
+		for friend in b:
+			user = User.query.filter_by(id=friend.a_id).first_or_404()
+			friendsList.append(user)
 
-			for friend in friendsList:
-				usr = {}
-				usr["id"] = friend.id
-				usr["host"] = friend.host
-				usr["displayname"] = friend.username
-				usr["url"] = user.host+"/author/"+user.id
-				data["friends"].append(usr)
-		else:
-			data = {'details': 'failed'}
-
-		print data
+		for friend in friendsList:
+			usr = {}
+			usr["id"] = friend.id
+			usr["host"] = friend.host
+			usr["displayname"] = friend.username
+			usr["url"] = user.host+"/author/"+user.id
+			data["friends"].append(usr)
+		
 		return data
 
 #
