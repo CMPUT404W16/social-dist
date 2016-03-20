@@ -27,8 +27,8 @@
 <ul class="nav nav-tabs">
     <li role="presentation"><a href="#">Posts</a></li>
     {% if (current_user.username == user_profile) %}
-    <li id="tab-friends" role="presentation"><a href={{ '/users/'+current_user.username+'/friends' }}>Friends</a></li>
-    <li id="tab-followers" role="presentation"><a href={{ '/users/'+current_user.username+'/followers' }}>Followers</a></li>
+    <li id="tab-friends" role="presentation"><a href={{ '/users/'+current_user.id+'/friends' }}>Friends</a></li>
+    <li id="tab-followers" role="presentation"><a href={{ '/users/'+current_user.id+'/followers' }}>Followers</a></li>
     {% endif %}
 </ul>
 
