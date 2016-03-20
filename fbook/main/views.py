@@ -339,7 +339,7 @@ def show_followers(user):
     user_id: <user>'s id: string
     """
 
-    userx = User.query.filter_by(username=user).first()
+    userx = User.query.filter_by(id=user).first()
 
     followerID = Follow.query.filter_by(requestee_id=current_user.id).all()
     followersx = []
@@ -347,22 +347,22 @@ def show_followers(user):
         f = User.query.filter_by(id=follow.requester_id).first()
         followersx.append([f.username, f.id])
 
-    u = helper.get('author', {'author_id': user})
-    if (len(u) == 1):  
-        u = u[0] 
-        user = u['displayname']
-        userx = User(username=u['displayname'], id=u['id'], host=u['host'])
-        idx = userx.id
+    # u = helper.get('author', {'author_id': user})
+    # if (len(u) == 1):  
+    #     u = u[0] 
+    #     user = u['displayname']
+    #     userx = User(username=u['displayname'], id=u['id'], host=u['host'])
+    #     idx = userx.id
 
-        return render_template('user/profile.html', user_profile=user, user_id=idx, user_obj=userx)
-    else:
-        flash('ERROR user not found')
-        return render_template('404.html')
+    #     return render_template('user/profile.html', user_profile=user, user_id=idx, user_obj=userx)
+    # else:
+    #     flash('ERROR user not found')
+    #     return render_template('404.html')
 
     # u = helper.get()
 
 
-    return render_template('user/followers.html', followers=followersx, user_profile=user, user_id=current_user.id, user_obj=userx)
+    return render_template('user/followers.html', followers=followersx, user_profile=userx.username, user_id=current_user.id, user_obj=userx)
 
 # returns friends.html with a list of user's friends
 @login_required
@@ -384,24 +384,48 @@ def show_friends(user):
     user_id: <user>'s id: string
     """
 
-    userx = User.query.filter_by(username=user).first()
+    userx = User.query.filter_by(id=user).first()
 
-    friends_list = Friend.query.filter_by(a_id=current_user.id).all()
-    friends_list2 = Friend.query.filter_by(b_id=current_user.id).all()
-    friendsx = None
-    if (friends_list):
-        friendsx = []
-        for f in friends_list:
-            fid = User.query.filter_by(id=f.b_id).first()
-            friendsx.append(fid.username)
-    if (friends_list2):
-        if (not friendsx):
-            friendsx = []
-        for f in friends_list2:
-            fid = User.query.filter_by(id=f.a_id).first()
-            friendsx.append(fid.username)
+    # friends_list = Friend.query.filter_by(a_id=current_user.id).all()
+    # friends_list2 = Friend.query.filter_by(b_id=current_user.id).all()
+    # friendsx = None
+    # if (friends_list):
+    #     friendsx = []
+    #     for f in friends_list:
+    #         fid = User.query.filter_by(id=f.b_id).first()
+    #         friendsx.append(fid.username)
+    # if (friends_list2):
+    #     if (not friendsx):
+    #         friendsx = []
+    #     for f in friends_list2:
+    #         fid = User.query.filter_by(id=f.a_id).first()
+    #         friendsx.append(fid.username)
 
-    return render_template('user/friends.html', friends=friendsx, user_profile=user, user_id=current_user.id, user_obj=userx)
+    # remote-user d10fe1f5-b426-48eb-840c-50fcd295014c'
+    # u = helper.get('author', {'author_id': user})
+    # if (len(u) == 1):  
+    #     u = u[0] 
+    #     user = u['displayname']
+    #     userx = User(username=u['displayname'], id=u['id'], host=u['host'])
+    #     idx = userx.id
+
+    #     return render_template('user/profile.html', user_profile=user, user_id=idx, user_obj=userx)
+    # else:
+    #     flash('ERROR user not found')
+    #     return render_template('404.html')
+
+    friendsList = helper.get('friends', {'author_id': user})
+
+    for user_id in friendsList:
+        profile = helper.get('author', {'author_id': user_id})
+
+        if (len(profile) == 1): 
+            profile = profile[0]
+            name = profile['displayname']
+            nameList.append(name)
+            
+
+    return render_template('user/friends.html', friends=namesList, user_profile=current_user.username, user_id=current_user.id, user_obj=userx)
 
 # # returns friends.html with a list of user's friends
 # @login_required
@@ -444,7 +468,7 @@ def follow(user):
 
     flash("You have just followed "+user)
 
-    return redirect("/users/"+user)
+    return redirect("/users/"+requestee_idx)
 
 # current user befriends user
 @login_required
@@ -470,7 +494,7 @@ def befriend(user):
 
     flash("You have just befriended "+user)
 
-    return redirect("/users/"+current_user.username+"/friends")
+    return redirect("/users/"+current_user.id+"/followers")
 
 @login_required
 @main.route('/unfollow/<user>', methods=['GET', 'POST'])
@@ -491,7 +515,7 @@ def unfollow(user):
 
     flash("You have just unfollowed "+user)
 
-    return redirect("/users/"+user)
+    return redirect("/users/"+requestee_idx.id)
 
 @login_required
 @main.route('/logout', methods=['GET', 'POST'])
