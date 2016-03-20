@@ -27,7 +27,7 @@ class BasePostAPI(Resource):
             response['previous'] = self.API_URL + "?page=%s&size=%s" % (page-1,
                     page_size)
 
-        if page != total_page-1:
+        if page != total_page-1 and total_page > 1:
             response['next'] = self.API_URL + "?page=%s&size=%s" % (page+1,
                     page_size)
 
@@ -41,7 +41,7 @@ class BasePostAPI(Resource):
                   "host":  user.host,
                   "displayname": user.username,
                   #"github": "",
-                  "url": user.host + "/author/%s" % user.id}
+                  "url": "%s/author/%s" % (user.host, user.id)}
 
         return author
 
@@ -75,6 +75,7 @@ class BasePostAPI(Resource):
                     "contentType": "text/plain",
                     "id": cu.id,
                     "published": cu.timestamp.isoformat(),
+                    "author": self.generate_author(cu.author_id),
                     }
         return comments
 
@@ -125,9 +126,10 @@ class CommentAPI(BasePostAPI):
     pass
 
 
-api.add_resource(PostAPI, '/api/posts')
-api.add_resource(PostAPI, '/api/posts/<string:post_id>')
-api.add_resource(AuthorPost, '/api/author/posts')
-api.add_resource(AuthorPost, '/api/author/<string:author_id>/posts')
-api.add_resource(CommentAPI, '/api/posts/<string:post_id>/comments')
-
+api.add_resource(PostAPI, '/api/posts', endpoint="public_post")
+api.add_resource(PostAPI, '/api/posts/<string:post_id>', endpoint="post_id")
+api.add_resource(AuthorPost, '/api/author/posts', endpoint="author_post")
+api.add_resource(AuthorPost, '/api/author/<string:author_id>/posts',
+        endpoint='author_post_id')
+api.add_resource(CommentAPI, '/api/posts/<string:post_id>/comments',
+        endpoint="post_comments")
