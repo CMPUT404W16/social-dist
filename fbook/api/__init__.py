@@ -1,1 +1,1 @@
-from . import api, example, bauth, friendAPI, apiHelper
+from . import api, example, bauth, friendAPI, apiHelper, postAPI
