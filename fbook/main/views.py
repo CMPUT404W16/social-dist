@@ -123,7 +123,7 @@ def login():
 
     # signup form
     if signupForm.validate_on_submit():
-        # temp_user = User(username='admin_new', role_id=2, authenticated=1, host='localhost');
+        # temp_user = User(username='admin', role_id=3, authenticated=1, host='localhost');
         # temp_user.set_password('p1')
         # temp_user.set_id()
         # db.session.add(temp_user)
@@ -253,6 +253,8 @@ def show_profile(user):
     userx = User.query.filter_by(username=user).first_or_404()
     if (userx):
         idx = userx.id
+
+
     return render_template('user/profile.html', user_profile=user, user_id=idx, user_obj=userx)
 
 
