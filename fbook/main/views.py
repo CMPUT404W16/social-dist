@@ -252,7 +252,7 @@ def show_profile(user):
     user_obj: User model object
     """
       
-    # d10fe1f5-b426-48eb-840c-50fcd295014c'
+    # remote-user d10fe1f5-b426-48eb-840c-50fcd295014c'
     u = helper.get('author', {'author_id': user})
     if (len(u) == 1):  
         u = u[0] 
