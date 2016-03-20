@@ -49,6 +49,9 @@ class ApiHelper():
 			print url
 			r = requests.get(url, headers=headers)
 			print r.text
+			# Parse and stack
+
+		# Return
 
 	# TODO
 	def post(self, type, id=None):
