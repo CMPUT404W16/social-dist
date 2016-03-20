@@ -24,7 +24,11 @@ def index():
     """
     form = PostForm()
     if form.validate_on_submit():
-        post = Post(title=form.title.data,body=form.body.data, author_id=current_user._get_current_object().id, author=current_user._get_current_object().username)
+        post = Post(title=form.title.data,
+                    body=form.body.data,
+                    author_id=current_user._get_current_object().id,
+                    author=current_user._get_current_object().username,
+                    markdown=form.mkdown.data)
         db.session.add(post)
         db.session.commit()
         return redirect(url_for('.index'))
@@ -162,7 +166,7 @@ def login():
                 flash("Incorrect Password")
         else:
             flash("User does not exist")
-    
+
     return render_template('login.html', loginForm=loginForm, signupForm=signupForm)
 
 # Can be used to test remote_api calls, uncomment form in template

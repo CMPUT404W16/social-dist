@@ -9,9 +9,14 @@
             <div class="post-body">
                 <a href="{{url_for('.post', id=post.id)}}">{{ post.title }}</a>
             </div>
+            {% if post.markdown == "F" %}
             <div class="post-body">{{ post.body }}</div>
+            {% endif %}
+            {% if post.markdown == "T" %}
+            <div class="post-body">{{ post.body | markdown }}</div>
+            {% endif %}
         </div>
-        
+
         <div class="post-footer">
             {% if current_user.id == post.author_id and show%}
             <a href="{{url_for('.edit', id=post.id)}}">
