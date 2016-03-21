@@ -1,7 +1,6 @@
 from flask import render_template, session, redirect, url_for, current_app, flash, abort, request
 from .. import db
 from ..models import *
-from ..email import send_email
 from . import main
 from .forms import *
 from flask.ext.login import login_user, logout_user, current_user, login_required, LoginManager
