@@ -29,15 +29,19 @@ def index():
                     body=form.body.data,
                     author_id=current_user._get_current_object().id,
                     author=current_user._get_current_object().username,
-                    markdown=form.mkdown.data)
+                    markdown=form.mkdown.data，
+                    privacy=form.privacy.data)
         db.session.add(post)
         db.session.commit()
         return redirect(url_for('.index'))
     posts = Post.query.order_by(Post.timestamp.desc()).all()
+    print posts
+    #posts = helper.get('posts')
+    #print posts
     return render_template('index.html',
-                           form=form, name=current_user.username,
+                           form=form,
+                           name=current_user.username,
                            posts=posts)
-
 
 
 @main.route('/post/<int:id>', methods=['GET', 'POST'])
@@ -60,7 +64,11 @@ def post(id):
         flash('Your comment has been created')
         return redirect(url_for('.post', id=post.id))
     comments = Comment.query.filter_by(post_id=post.id)
-    return render_template('post/post.html', posts=[post], form=form, comments=comments, show=True)
+    return render_template('post/post.html',
+                           posts=[post],
+                           form=form,
+                           comments=comments,
+                           show=True)
 
 
 @main.route('/edit/<int:id>', methods=['GET', 'POST'])
@@ -128,7 +136,8 @@ def login():
 
     # signup form
     if signupForm.validate_on_submit():
-        # temp_user = User(username='admin', role_id=3, authenticated=1, host='localhost');
+        # temp_user = User(username='admin', role_id=3,
+        #                  authenticated=1, host='localhost');
         # temp_user.set_password('p1')
         # temp_user.set_id()
         # db.session.add(temp_user)
@@ -255,11 +264,11 @@ def show_profile(user):
     user_id: <user>'s id: string
     user_obj: User model object
     """
-      
+
     # remote-user d10fe1f5-b426-48eb-840c-50fcd295014c'
     u = helper.get('author', {'author_id': user})
-    if (len(u) == 1):  
-        u = u[0] 
+    if (len(u) == 1):
+        u = u[0]
         user = u['displayname']
         userx = User(username=u['displayname'], id=u['id'], host=u['host'])
         idx = userx.id
@@ -348,8 +357,8 @@ def show_followers(user):
         followersx.append([f.username, f.id])
 
     u = helper.get('author', {'author_id': user})
-    if (len(u) == 1):  
-        u = u[0] 
+    if (len(u) == 1):
+        u = u[0]
         user = u['displayname']
         userx = User(username=u['displayname'], id=u['id'], host=u['host'])
         idx = userx.id
