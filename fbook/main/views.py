@@ -11,6 +11,7 @@ from urlparse import urlparse
 from validate_email import validate_email
 import socket, httplib, urllib, os
 from ..api.apiHelper import ApiHelper
+from binascii import *
 
 helper = ApiHelper()
 
@@ -30,7 +31,16 @@ def index():
                     author_id=current_user._get_current_object().id,
                     author=current_user._get_current_object().username,
                     markdown=form.mkdown.data)
+
+        print os.path.dirname(form.image.data)
+        raw_bytes = open(form.image.data,'rb').read()
+        str_one = b2a_base64(raw_bytes)
+        print str_one
+        print raw_bytes
+        image = Image(file=raw_bytes)
+
         db.session.add(post)
+        db.session.add(image)
         db.session.commit()
         return redirect(url_for('.index'))
     posts = Post.query.order_by(Post.timestamp.desc()).all()

@@ -1,7 +1,8 @@
 from flask.ext.wtf import Form
 from wtforms import StringField, SubmitField, PasswordField, validators, SelectField
 from wtforms.validators import Required, EqualTo
-
+from flask.ext.uploads import UploadSet, IMAGES
+from flask_wtf.file import FileField, FileAllowed
 
 class PostForm(Form):
     title = StringField('Title', validators=[Required()])
@@ -12,6 +13,7 @@ class PostForm(Form):
                           ("Only me", 'Only me'),
                           ("Only me and my friend",'Only me and my friend')],
                           default=False)
+    image = FileField('Image', validators=[FileAllowed(['jpg', 'png'], 'Images only!')])
     submit = SubmitField("Post")
 
 # form for logging in the user

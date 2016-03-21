@@ -194,7 +194,7 @@ class Image(db.Model):
     __tablename__ = 'images'
     id = db.Column(db.Integer, primary_key=True)
     post_id = db.Column(db.Integer, db.ForeignKey('posts.id'))
-    file = 0
+    file = db.Column(db.LargeBinary)
 
 
 class Privacy:
