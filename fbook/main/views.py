@@ -30,20 +30,24 @@ def index():
                     author_id=current_user._get_current_object().id,
                     author=current_user._get_current_object().username,
                     markdown=form.mkdown.data,
-                    privacy=form.privacy.data)  
-
+                    privacy=int(form.privacy.data))
+        post.set_id()
         db.session.add(post)
         db.session.commit()
         return redirect(url_for('.index'))
-    posts = Post.query.order_by(Post.timestamp.desc()).all()
-    print posts
-    #posts = helper.get('posts')
+    posts=[]
+    data = helper.get('posts')
+    print data
+    for item in data:
+        if type(item) is not dict:
+            continue
+        posts.extend(item['posts']) # switch to u'posts ?? or not??
+
     #print posts
     return render_template('index.html',
                            form=form,
                            name=current_user.username,
                            posts=posts)
-
 
 
 @main.route('/post/<string:id>', methods=['GET', 'POST'])
@@ -60,14 +64,19 @@ def post(id):
     if len(posts) == 0:
         abort(404)
 
-    posts = posts[0]['posts']
+    posts = posts[0].get("posts", None)
+
+    if posts is None:
+        abort(403, "Cannot retrive post from origin hosts.")
 
     form = CommentForm()
     if form.validate_on_submit():
+        post = Post.query.get_or_404(id)
         comment = Comment(body=form.body.data,
                           post=post,
                           author_id=current_user._get_current_object().id,
                           author=current_user._get_current_object().username)
+        comment.set_id()
         db.session.add(comment)
         db.session.commit()
         flash('Your comment has been created')
@@ -75,11 +84,12 @@ def post(id):
 
     #comments = Comment.query.filter_by(post_id=post.id)
     comments = posts[0]['comments']
+    print comments
     return render_template('post/post.html', posts=posts, form=form,
-                           comment=comments, show=True)
+                           comments=comments, show=True)
 
 
-@main.route('/edit/<int:id>', methods=['GET', 'POST'])
+@main.route('/edit/<id>', methods=['GET', 'POST'])
 @login_required
 def edit(id):
     """
@@ -103,7 +113,7 @@ def edit(id):
     form.body.data = post.body
     return render_template('post/edit_post.html', form=form)
 
-@main.route('/delete_post/<int:id>', methods=['POST', 'GET'])
+@main.route('/delete_post/<id>', methods=['POST', 'GET'])
 @login_required
 def delete_post(id):
     """
@@ -272,7 +282,7 @@ def show_profile(user):
     user_id: <user>'s id: string
     user_obj: User model object
     """
-      
+
     # remote-user e8d08d8e-c161-49e2-a60b-0e388f246a46'
     u = helper.get('author', {'author_id': user})
     if (len(u) == 1):
@@ -364,10 +374,10 @@ def show_followers(user):
         f = User.query.filter_by(id=follow.requester_id).first()
         followersx.append([f.username, f.id])
 
-   
+
     # u = helper.get('author', {'author_id': user})
-    # if (len(u) == 1):  
-    #     u = u[0] 
+    # if (len(u) == 1):
+    #     u = u[0]
     #     user = u['displayname']
     #     userx = User(username=u['displayname'], id=u['id'], host=u['host'])
     #     idx = userx.id
@@ -421,8 +431,8 @@ def show_friends(user):
 
     # remote-user d10fe1f5-b426-48eb-840c-50fcd295014c'
     # u = helper.get('author', {'author_id': user})
-    # if (len(u) == 1):  
-    #     u = u[0] 
+    # if (len(u) == 1):
+    #     u = u[0]
     #     user = u['displayname']
     #     userx = User(username=u['displayname'], id=u['id'], host=u['host'])
     #     idx = userx.id
@@ -439,12 +449,12 @@ def show_friends(user):
     for user_id in friendsList:
         profile = helper.get('author', {'author_id': user_id})
 
-        if (len(profile) == 1): 
+        if (len(profile) == 1):
             profile = profile[0]
             name = profile['displayname']
             uid = profile['id']
             nameList.append([name, uid])
-            
+
 
     return render_template('user/friends.html', friends=nameList, user_profile=current_user.username, user_id=current_user.id, user_obj=userx)
 
@@ -488,8 +498,8 @@ def follow(user):
     # db.session.commit()
 
     u = helper.get('author', {'author_id': user})
-    if (len(u) == 1):  
-        u = u[0] 
+    if (len(u) == 1):
+        u = u[0]
         user = u['displayname']
         userx = User(username=u['displayname'], id=u['id'], host=u['host'])
         idx = userx.id
@@ -503,7 +513,7 @@ def follow(user):
         "author": {
             "id": current_user.id,
             "host":current_user.host,
-            "displayName":current_user.username 
+            "displayName":current_user.username
         },
         "friend": {
             "id": userx.id,
@@ -542,8 +552,8 @@ def befriend(user):
     # db.session.commit()
 
     u = helper.get('author', {'author_id': user})
-    if (len(u) == 1):  
-        u = u[0] 
+    if (len(u) == 1):
+        u = u[0]
         user = u['displayname']
         userx = User(username=u['displayname'], id=u['id'], host=u['host'])
         idx = userx.id
@@ -557,7 +567,7 @@ def befriend(user):
         "author": {
             "id": current_user.id,
             "host":current_user.host,
-            "displayName":current_user.username 
+            "displayName":current_user.username
         },
         "friend": {
             "id": userx.id,

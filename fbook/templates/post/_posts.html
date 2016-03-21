@@ -4,25 +4,24 @@
         <div class="post-thumbnail">
         </div>
         <div class="post-content">
-            <div class="post-date">{{ moment(post.timestamp).fromNow() }}</div>
-            <div class="post-author"><a href="{{ url_for('.show_profile', user=post.author_id)}}">{{ post.author }}</a></div>
+            <div class="post-date">{{ post['published'] }}</div>
+            <div class="post-author"><a href="">{{ post['author']['displayname'] }}</a></div>
             <div class="post-body">
-                <a href="{{url_for('.post', id=post.id)}}">{{ post.title }}</a>
+                <a href="{{url_for('.post', id=post.id)}}">{{ post['title'] }}</a>
             </div>
-            {% if post.markdown == "F" %}
-            <div class="post-body">{{ post.body }}</div>
-            {% endif %}
-            {% if post.markdown == "T" %}
-            <div class="post-body">{{ post.body | markdown }}</div>
+            {% if post['contentType'] == "text/x-markdown" %}
+            <div class="post-body">{{ post['content'] |markdown }}</div>
+            {% else %}
+            <div class="post-body">{{ post['content']}}</div>
             {% endif %}
         </div>
 
         <div class="post-footer">
             {% if current_user.id == post.author_id and show%}
-            <a href="{{url_for('.edit', id=post.id)}}">
+            <a href="">
                 <span class="label label-primary">Edit</span>
             </a>
-            <a href="{{url_for('.delete_post', id=post.id)}}">
+            <a href="">
                 <span class="label label-primary">Delete</span>
             </a>
             {% endif %}
