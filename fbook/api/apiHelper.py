@@ -1,6 +1,7 @@
 import requests
 import base64
 from ..models import *
+from flask.ext.login import current_user
 
 class ApiHelper():
 
@@ -36,7 +37,9 @@ class ApiHelper():
 			print 'No user id provided'
 
 	# def urlFollowers(params):
-	
+
+	def urlFriendRequest(params):
+		return '/friendrequest'	
 
 	# FILL ME IN
 	urlFuncs = {
@@ -44,13 +47,14 @@ class ApiHelper():
 		'friends': urlFriends,
 		'author': urlAuthor,
 		# 'followers': urlFollowers
+		'friend_request': urlFriendRequest
 	}
 
 	def filterPost(response):
 		return response
 
 	def filterFriends(response):
-		friend_ids = []
+		friends_ids = []
 		for res in response:
 			friends_ids += res['friends']
 
@@ -93,8 +97,31 @@ class ApiHelper():
 		return callback(responses)
 
 	# TODO
-	def post(self, type, id=None):
-		pass
+	def post(self, type, body, host, params=None):
+		callback = self.urlFuncs[type]		
+		if callback != None:
+			uri = callback(params)
+		
+		responses = []
+		nodes = RemoteNode.query.all()
+		for node in nodes:
+			if node.service == host or node.service == current_user.host:
+
+				headers = self.createHeaders(node.username, node.password)
+				if node.prefix != None:
+					url = 'http://' + node.service + node.prefix + uri
+				else:
+					url = 'http://' + node.service + uri
+				print url
+
+				r = requests.post(url, headers=headers, json=body)
+				print r.text
+				if r.status_code == 200:
+					responses.append(r.json())
+
+		
+		return responses
+
 
 	# Test functionality, uncomment caller in views
 	# def test(self):
