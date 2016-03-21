@@ -112,7 +112,7 @@ class profile(Resource):
 			usr = {}
 			usr["id"] = friend.id
 			usr["host"] = friend.host
-			usr["displayname"] = friend.username
+			usr["displayname"] = friend.display
 			usr["url"] = user.host+"/author/"+user.id
 			data["friends"].append(usr)
 		
