@@ -77,14 +77,14 @@ class profile(Resource):
 		a = Friend.query.filter_by(a_id=authorid).all()
 		b = Friend.query.filter_by(b_id=authorid).all()
 		for friend in a:
-			u = helper.get('author', {'author_id': friend})
+			u = helper.get('author', {'author_id': friend.b_id})
 
 			if (len(u) == 1):
 				u = u[0]
 				user = User(username=u['displayname'], id=u['id'], host=u['host'])
 				friendsList.append(user)
 		for friend in b:
-			u = helper.get('author', {'author_id': friend})
+			u = helper.get('author', {'author_id': friend.a_id})
 
 			if (len(u) == 1):
 				u = u[0]
@@ -119,11 +119,15 @@ class friend_request(Resource):
 		friend = request.get_json()['friend']
 		
 		# try to add author to remote authors
-		# if author['host'] != friend['host']:
-		# 	check = RemoteUser.query.filter_by(id=author['id']).first()
-		# 	if check == None:
-		# 		userx = RemoteUser(display=author['displayname'], id=author['id'], host=author['host'])
-  #           	db.session.add(userx)
+
+		# try:
+		# 	if author['host'] != friend['host']:
+		# 		check = RemoteUser.query.filter_by(id=author['id']).first()
+		# 			if check == None:
+		# 				userx = RemoteUser(display=author['displayname'], id=author['id'], host=author['host'])
+		# 	        	db.session.add(userx)
+		# except Exception as e:
+		# 	print e
 
 		follow = Follow(requester_id=author['id'], requestee_id=friend['id'])
 

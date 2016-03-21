@@ -266,7 +266,7 @@ def register():
 
     return render_template('request.html', apiForm=apiForm)
 
-# <user> requires a username
+# <user> requires a id
 @main.route('/users/<user>', methods=['GET', 'POST'])
 @login_required
 def show_profile(user):
