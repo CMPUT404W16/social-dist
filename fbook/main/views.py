@@ -288,16 +288,18 @@ def show_profile(user):
 
 
 
-    if (len(u) == 1):
+    if (len(u) > 0):
         u = u[0]
 
 
         user = u['displayname']
 
-         # store in remote db
-        userx = RemoteUser(username=u['displayname'], id=u['id'], host=u['host'])
-        db.session.add(userx)
-        db.session.commit()
+        # store in remote db
+        check = RemoteUser.query.filter_by(id=u['id']).first()
+        userx = RemoteUser(display=u['displayname'], id=u['id'], host=u['host'])
+        if check == None:
+            db.session.add(userx)
+            db.session.commit()
 
         idx = userx.id
 
@@ -508,7 +510,7 @@ def follow(user):
     # db.session.commit()
 
     u = helper.get('author', {'author_id': user})
-    if (len(u) == 1):
+    if (len(u) > 0):
         u = u[0]
         user = u['displayname']
         userx = User(username=u['displayname'], id=u['id'], host=u['host'])
@@ -562,7 +564,7 @@ def befriend(user):
     # db.session.commit()
 
     u = helper.get('author', {'author_id': user})
-    if (len(u) == 1):
+    if (len(u) > 0):
         u = u[0]
         user = u['displayname']
         userx = User(username=u['displayname'], id=u['id'], host=u['host'])

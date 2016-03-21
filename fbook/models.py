@@ -274,9 +274,9 @@ class RemoteNode(db.Model):
 
 class RemoteUser(db.Model):
     __tablename__ = "remote_users"
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(128), primary_key=True)
     host = db.Column(db.String(64))
-    username = db.Column(db.String(64))
+    display = db.Column(db.String(64))
 
 
 
