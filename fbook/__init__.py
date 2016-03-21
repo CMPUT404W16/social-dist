@@ -19,6 +19,7 @@ mail = Mail()
 moment = Moment()
 pagedown = PageDown()
 md = Misaka()
+cors = CORS()
 
 
 def create_app(conf):
@@ -31,7 +32,7 @@ def create_app(conf):
     db.init_app(app)
     pagedown.init_app(app)
     md.init_app(app)
-    CORS(app)
+    cors.init_app(app)
     login_manager.init_app(app)
     login_manager.login_view = '/login'
     login_manager.login_message = ""
