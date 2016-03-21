@@ -87,7 +87,9 @@ class ApiHelper():
 				url = 'http://' + node.service + node.prefix + uri
 			else:
 				url = 'http://' + node.service + uri
+			print url
 			r = requests.get(url, headers=headers)
+			print r.text
 			if r.status_code == 200:
 				responses.append(r.json())
 
