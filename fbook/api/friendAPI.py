@@ -64,6 +64,7 @@ class profile(Resource):
 	decorators = [auth.login_required]
 	def get(self, authorid):
 		data = {}
+
 		user = User.query.filter_by(id=authorid).first_or_404()
 		
 		data["id"] = user.id
@@ -76,20 +77,7 @@ class profile(Resource):
 
 		a = Friend.query.filter_by(a_id=authorid).all()
 		b = Friend.query.filter_by(b_id=authorid).all()
-		# for friend in a:
-		# 	u = helper.get('author', {'author_id': friend.b_id})
-
-		# 	if (len(u) == 1):
-		# 		u = u[0]
-		# 		user = User(username=u['displayname'], id=u['id'], host=u['host'])
-		# 		friendsList.append(user)
-		# for friend in b:
-		# 	u = helper.get('author', {'author_id': friend.a_id})
-
-		# 	if (len(u) == 1):
-		# 		u = u[0]
-		# 		user = User(username=u['displayname'], id=u['id'], host=u['host'])
-		# 		friendsList.append(user)
+		
 		for friend in a:
 			user = User.query.filter_by(id=friend.b_id).first()
 			if user != None:
@@ -135,7 +123,7 @@ class friend_request(Resource):
 			if author['host'] != friend['host']:
 				check = RemoteUser.query.filter_by(id=author['id']).first()
 				if check == None:
-					userx = RemoteUser(display=author['displayname'], id=author['id'], host=author['host'])
+					userx = RemoteUser(username=author['displayname'], id=author['id'], host=author['host'])
 		        	db.session.add(userx)
 		except Exception as e:
 			print e
