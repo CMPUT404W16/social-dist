@@ -76,26 +76,37 @@ class profile(Resource):
 
 		a = Friend.query.filter_by(a_id=authorid).all()
 		b = Friend.query.filter_by(b_id=authorid).all()
-		for friend in a:
-			u = helper.get('author', {'author_id': friend.b_id})
-
-			if (len(u) == 1):
-				u = u[0]
-				user = User(username=u['displayname'], id=u['id'], host=u['host'])
-				friendsList.append(user)
-		for friend in b:
-			u = helper.get('author', {'author_id': friend.a_id})
-
-			if (len(u) == 1):
-				u = u[0]
-				user = User(username=u['displayname'], id=u['id'], host=u['host'])
-				friendsList.append(user)
 		# for friend in a:
-		# 	user = User.query.filter_by(id=friend.b_id).first_or_404()
-		# 	friendsList.append(user)
+		# 	u = helper.get('author', {'author_id': friend.b_id})
+
+		# 	if (len(u) == 1):
+		# 		u = u[0]
+		# 		user = User(username=u['displayname'], id=u['id'], host=u['host'])
+		# 		friendsList.append(user)
 		# for friend in b:
-		# 	user = User.query.filter_by(id=friend.a_id).first_or_404()
-		# 	friendsList.append(user)
+		# 	u = helper.get('author', {'author_id': friend.a_id})
+
+		# 	if (len(u) == 1):
+		# 		u = u[0]
+		# 		user = User(username=u['displayname'], id=u['id'], host=u['host'])
+		# 		friendsList.append(user)
+		for friend in a:
+			user = User.query.filter_by(id=friend.b_id).first()
+			if user != None:
+				friendsList.append(user)
+			else:
+				user = RemoteUser.query.filter_by(id=friend.b_id).first()
+				if user != None:
+					friendsList.append(user)
+
+		for friend in b:
+			user = User.query.filter_by(id=friend.a_id).first()
+			if user != None:
+				friendsList.append(user)
+			else:
+				user = RemoteUser.query.filter_by(id=friend.a_id).first()
+				if user != None:
+					friendsList.append(user)
 
 		for friend in friendsList:
 			usr = {}
@@ -120,14 +131,14 @@ class friend_request(Resource):
 		
 		# try to add author to remote authors
 
-		# try:
-		# 	if author['host'] != friend['host']:
-		# 		check = RemoteUser.query.filter_by(id=author['id']).first()
-		# 			if check == None:
-		# 				userx = RemoteUser(display=author['displayname'], id=author['id'], host=author['host'])
-		# 	        	db.session.add(userx)
-		# except Exception as e:
-		# 	print e
+		try:
+			if author['host'] != friend['host']:
+				check = RemoteUser.query.filter_by(id=author['id']).first()
+				if check == None:
+					userx = RemoteUser(display=author['displayname'], id=author['id'], host=author['host'])
+		        	db.session.add(userx)
+		except Exception as e:
+			print e
 
 		follow = Follow(requester_id=author['id'], requestee_id=friend['id'])
 
