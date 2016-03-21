@@ -20,6 +20,7 @@ pagedown = PageDown()
 md = Misaka()
 cors = CORS()
 
+
 def create_app(conf):
     app = Flask(__name__)
 
