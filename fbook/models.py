@@ -82,7 +82,7 @@ class User(db.Model):
         return False
 
     def set_id(self):
-        self.id = str(uuid.uuid4().hex)
+        self.id = str(uuid.uuid4())
 
     def get_id(self):
         return self.username
@@ -159,7 +159,7 @@ class Post(db.Model):
     """
 
     __tablename__ = 'posts'
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(128), primary_key=True)
     title = db.Column(db.Text)
     body = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
@@ -168,6 +168,9 @@ class Post(db.Model):
     comments = db.relationship('Comment', backref='post', lazy='dynamic')
     privacy = db.Column(db.Integer, default=0)
     markdown = db.Column(db.String, default="F")
+
+    def set_id(self):
+        self.id = str(uuid.uuid4())
 
 
 class Comment(db.Model):
@@ -182,18 +185,21 @@ class Comment(db.Model):
     :param int post_id: Referent to a post's id.
     """
     __tablename__ = 'comments'
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(128), primary_key=True)
     body = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     author_id = db.Column(db.String(128))
     author = db.Column(db.String(64))
-    post_id = db.Column(db.Integer, db.ForeignKey('posts.id'))
+    post_id = db.Column(db.String(128), db.ForeignKey('posts.id'))
+
+    def set_id(self):
+        self.id = str(uuid.uuid4())
 
 
 class Image(db.Model):
     __tablename__ = 'images'
     id = db.Column(db.Integer, primary_key=True)
-    post_id = db.Column(db.Integer, db.ForeignKey('posts.id'))
+    post_id = db.Column(db.String(128), db.ForeignKey('posts.id'))
     file = 0
 
 
