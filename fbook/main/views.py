@@ -286,10 +286,19 @@ def show_profile(user):
     # remote-user e8d08d8e-c161-49e2-a60b-0e388f246a46'
     u = helper.get('author', {'author_id': user})
 
+
+
     if (len(u) == 1):
         u = u[0]
+
+
         user = u['displayname']
-        userx = User(username=u['displayname'], id=u['id'], host=u['host'])
+
+         # store in remote db
+        userx = RemoteUser(username=u['displayname'], id=u['id'], host=u['host'])
+        db.session.add(userx)
+        db.session.commit()
+
         idx = userx.id
 
         return render_template('user/profile.html', user_profile=user, user_id=idx, user_obj=userx)
