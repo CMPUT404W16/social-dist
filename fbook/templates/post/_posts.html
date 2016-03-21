@@ -4,8 +4,8 @@
         <div class="post-thumbnail">
         </div>
         <div class="post-content">
-            <div class="post-date">{{ moment(post['published']).fromNow() }}</div>
-            <div class="post-author"><a href="{{ }}">{{ post['author']['displayname'] }}</a></div>
+            <div class="post-date">{{ post['published'] }}</div>
+            <div class="post-author"><a href="">{{ post['author']['displayname'] }}</a></div>
             <div class="post-body">
                 <a href="{{url_for('.post', id=post.id)}}">{{ post['title'] }}</a>
             </div>
@@ -18,10 +18,10 @@
 
         <div class="post-footer">
             {% if current_user.id == post.author_id and show%}
-            <a href="{{}}">
+            <a href="">
                 <span class="label label-primary">Edit</span>
             </a>
-            <a href="{{}}">
+            <a href="">
                 <span class="label label-primary">Delete</span>
             </a>
             {% endif %}

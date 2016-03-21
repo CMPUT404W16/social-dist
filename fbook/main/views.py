@@ -1,7 +1,6 @@
 from flask import render_template, session, redirect, url_for, current_app, flash, abort, request
 from .. import db
 from ..models import *
-from ..email import send_email
 from . import main
 from .forms import *
 from flask.ext.login import login_user, logout_user, current_user, login_required, LoginManager
@@ -31,14 +30,17 @@ def index():
                     author_id=current_user._get_current_object().id,
                     author=current_user._get_current_object().username,
                     markdown=form.mkdown.data,
-                    privacy=form.privacy.data)  
+                    privacy=form.privacy.data)
 
         db.session.add(post)
         db.session.commit()
         return redirect(url_for('.index'))
     posts=[]
     data = helper.get('posts')
+    print data
     for item in data:
+        if type(item) is not dict:
+            continue
         posts.extend(item['posts']) # switch to u'posts ?? or not??
 
     #print posts
@@ -274,7 +276,7 @@ def show_profile(user):
     user_id: <user>'s id: string
     user_obj: User model object
     """
-      
+
     # remote-user e8d08d8e-c161-49e2-a60b-0e388f246a46'
     u = helper.get('author', {'author_id': user})
     if (len(u) == 1):
@@ -366,10 +368,10 @@ def show_followers(user):
         f = User.query.filter_by(id=follow.requester_id).first()
         followersx.append([f.username, f.id])
 
-   
+
     # u = helper.get('author', {'author_id': user})
-    # if (len(u) == 1):  
-    #     u = u[0] 
+    # if (len(u) == 1):
+    #     u = u[0]
     #     user = u['displayname']
     #     userx = User(username=u['displayname'], id=u['id'], host=u['host'])
     #     idx = userx.id
@@ -423,8 +425,8 @@ def show_friends(user):
 
     # remote-user d10fe1f5-b426-48eb-840c-50fcd295014c'
     # u = helper.get('author', {'author_id': user})
-    # if (len(u) == 1):  
-    #     u = u[0] 
+    # if (len(u) == 1):
+    #     u = u[0]
     #     user = u['displayname']
     #     userx = User(username=u['displayname'], id=u['id'], host=u['host'])
     #     idx = userx.id
@@ -441,12 +443,12 @@ def show_friends(user):
     for user_id in friendsList:
         profile = helper.get('author', {'author_id': user_id})
 
-        if (len(profile) == 1): 
+        if (len(profile) == 1):
             profile = profile[0]
             name = profile['displayname']
             uid = profile['id']
             nameList.append([name, uid])
-            
+
 
     return render_template('user/friends.html', friends=nameList, user_profile=current_user.username, user_id=current_user.id, user_obj=userx)
 
@@ -490,8 +492,8 @@ def follow(user):
     # db.session.commit()
 
     u = helper.get('author', {'author_id': user})
-    if (len(u) == 1):  
-        u = u[0] 
+    if (len(u) == 1):
+        u = u[0]
         user = u['displayname']
         userx = User(username=u['displayname'], id=u['id'], host=u['host'])
         idx = userx.id
@@ -505,7 +507,7 @@ def follow(user):
         "author": {
             "id": current_user.id,
             "host":current_user.host,
-            "displayName":current_user.username 
+            "displayName":current_user.username
         },
         "friend": {
             "id": userx.id,
@@ -544,8 +546,8 @@ def befriend(user):
     # db.session.commit()
 
     u = helper.get('author', {'author_id': user})
-    if (len(u) == 1):  
-        u = u[0] 
+    if (len(u) == 1):
+        u = u[0]
         user = u['displayname']
         userx = User(username=u['displayname'], id=u['id'], host=u['host'])
         idx = userx.id
@@ -559,7 +561,7 @@ def befriend(user):
         "author": {
             "id": current_user.id,
             "host":current_user.host,
-            "displayName":current_user.username 
+            "displayName":current_user.username
         },
         "friend": {
             "id": userx.id,
