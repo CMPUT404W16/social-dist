@@ -44,7 +44,8 @@ def index():
                            posts=posts)
 
 
-@main.route('/post/<int:id>', methods=['GET', 'POST'])
+
+@main.route('/post/<string:id>', methods=['GET', 'POST'])
 def post(id):
     """
     Post page view function.
@@ -52,7 +53,14 @@ def post(id):
     Accept GET POST method
     ROUTING: /post/<int:id>
     """
-    post = Post.query.get_or_404(id)
+    #post = Post.query.get_or_404(id)
+    api = ApiHelper()
+    posts = api.get('posts', {"post_id": id})
+    if len(posts) == 0:
+        abort(404)
+
+    posts = posts[0]['posts']
+
     form = CommentForm()
     if form.validate_on_submit():
         comment = Comment(body=form.body.data,
@@ -63,12 +71,11 @@ def post(id):
         db.session.commit()
         flash('Your comment has been created')
         return redirect(url_for('.post', id=post.id))
-    comments = Comment.query.filter_by(post_id=post.id)
-    return render_template('post/post.html',
-                           posts=[post],
-                           form=form,
-                           comments=comments,
-                           show=True)
+
+    #comments = Comment.query.filter_by(post_id=post.id)
+    comments = posts[0]['comments']
+    return render_template('post/post.html', posts=posts, form=form,
+                           comment=comments, show=True)
 
 
 @main.route('/edit/<int:id>', methods=['GET', 'POST'])
