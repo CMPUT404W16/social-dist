@@ -6,6 +6,7 @@ from flask.ext.pagedown import PageDown
 from config import config
 from flask.ext.login import LoginManager
 from flask.ext.misaka import Misaka
+from flask.ext.cors import CORS
 
 from admin import am
 from .db import db
@@ -30,6 +31,7 @@ def create_app(conf):
     db.init_app(app)
     pagedown.init_app(app)
     md.init_app(app)
+    CORS(app)
     login_manager.init_app(app)
     login_manager.login_view = '/login'
     login_manager.login_message = ""
