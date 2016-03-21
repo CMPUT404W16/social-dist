@@ -133,6 +133,8 @@ class PostAPI(BasePostAPI):
         self.posts = Post.query.filter_by(id=post_id)
         self.posts.first_or_404()
 
+    def options(self):
+        return {'hello': 'world'}
 
 class AuthorPost(BasePostAPI):
 
