@@ -9,10 +9,10 @@ class PostForm(Form):
     body = StringField('What is on your mind?', validators=[Required()])
     mkdown = SelectField('Use markdown for this post?',
                          choices=[("F", 'No'),("T", 'Yes')], default="F")
-    privacy = SelectField('Public', choices=[(0, 'Public'),
-                          (1, 'Only me'),
-                          (2,'Only me and my friend')],
-                          default=0)
+    privacy = SelectField('Public', choices=[('0', 'Public'),
+                          ('1', 'Only me'),
+                          ('2','Only me and my friend')],
+                          default='0')
     image = FileField('Image', validators=[FileAllowed(['jpg', 'png'], 'Images only!')])
     submit = SubmitField("Post")
 
