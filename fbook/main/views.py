@@ -33,15 +33,7 @@ def index():
                     markdown=form.mkdown.data,
                     privacy=form.privacy.data)  
 
-        print os.path.dirname(form.image.data)
-        raw_bytes = open(form.image.data,'rb').read()
-        str_one = b2a_base64(raw_bytes)
-        print str_one
-        print raw_bytes
-        image = Image(file=raw_bytes)
-            
         db.session.add(post)
-        db.session.add(image)
         db.session.commit()
         return redirect(url_for('.index'))
     posts = Post.query.order_by(Post.timestamp.desc()).all()
