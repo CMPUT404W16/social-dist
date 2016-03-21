@@ -18,7 +18,7 @@ $("#tab-friends").attr('class', 'active');
     <tbody>
         {% for f in friends %}
         <tr>
-            <td><a href={{ '/users/'+f }}>{{ f }}</a></td>
+            <td><a href={{ '/users/'+f[1] }}>{{ f[0] }}</a></td>
             <!-- <td>{{ f[1] }}</td> -->
         </tr>
         {% endfor %}

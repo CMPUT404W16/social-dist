@@ -30,7 +30,8 @@ def index():
                     body=form.body.data,
                     author_id=current_user._get_current_object().id,
                     author=current_user._get_current_object().username,
-                    markdown=form.mkdown.data)
+                    markdown=form.mkdown.data,
+                    privacy=form.privacy.data)  
 
         print os.path.dirname(form.image.data)
         raw_bytes = open(form.image.data,'rb').read()
@@ -38,19 +39,23 @@ def index():
         print str_one
         print raw_bytes
         image = Image(file=raw_bytes)
-
+            
         db.session.add(post)
         db.session.add(image)
         db.session.commit()
         return redirect(url_for('.index'))
     posts = Post.query.order_by(Post.timestamp.desc()).all()
+    print posts
+    #posts = helper.get('posts')
+    #print posts
     return render_template('index.html',
-                           form=form, name=current_user.username,
+                           form=form,
+                           name=current_user.username,
                            posts=posts)
 
 
 
-@main.route('/post/<int:id>', methods=['GET', 'POST'])
+@main.route('/post/<string:id>', methods=['GET', 'POST'])
 def post(id):
     """
     Post page view function.
@@ -58,7 +63,14 @@ def post(id):
     Accept GET POST method
     ROUTING: /post/<int:id>
     """
-    post = Post.query.get_or_404(id)
+    #post = Post.query.get_or_404(id)
+    api = ApiHelper()
+    posts = api.get('posts', {"post_id": id})
+    if len(posts) == 0:
+        abort(404)
+
+    posts = posts[0]['posts']
+
     form = CommentForm()
     if form.validate_on_submit():
         comment = Comment(body=form.body.data,
@@ -69,8 +81,11 @@ def post(id):
         db.session.commit()
         flash('Your comment has been created')
         return redirect(url_for('.post', id=post.id))
-    comments = Comment.query.filter_by(post_id=post.id)
-    return render_template('post/post.html', posts=[post], form=form, comments=comments, show=True)
+
+    #comments = Comment.query.filter_by(post_id=post.id)
+    comments = posts[0]['comments']
+    return render_template('post/post.html', posts=posts, form=form,
+                           comment=comments, show=True)
 
 
 @main.route('/edit/<int:id>', methods=['GET', 'POST'])
@@ -138,7 +153,8 @@ def login():
 
     # signup form
     if signupForm.validate_on_submit():
-        # temp_user = User(username='admin', role_id=3, authenticated=1, host='localhost');
+        # temp_user = User(username='admin', role_id=3,
+        #                  authenticated=1, host='localhost');
         # temp_user.set_password('p1')
         # temp_user.set_id()
         # db.session.add(temp_user)
@@ -266,10 +282,10 @@ def show_profile(user):
     user_obj: User model object
     """
       
-    # remote-user d10fe1f5-b426-48eb-840c-50fcd295014c'
+    # remote-user e8d08d8e-c161-49e2-a60b-0e388f246a46'
     u = helper.get('author', {'author_id': user})
-    if (len(u) == 1):  
-        u = u[0] 
+    if (len(u) == 1):
+        u = u[0]
         user = u['displayname']
         userx = User(username=u['displayname'], id=u['id'], host=u['host'])
         idx = userx.id
@@ -349,7 +365,7 @@ def show_followers(user):
     user_id: <user>'s id: string
     """
 
-    userx = User.query.filter_by(username=user).first()
+    userx = User.query.filter_by(id=user).first()
 
     followerID = Follow.query.filter_by(requestee_id=current_user.id).all()
     followersx = []
@@ -357,22 +373,23 @@ def show_followers(user):
         f = User.query.filter_by(id=follow.requester_id).first()
         followersx.append([f.username, f.id])
 
-    u = helper.get('author', {'author_id': user})
-    if (len(u) == 1):  
-        u = u[0] 
-        user = u['displayname']
-        userx = User(username=u['displayname'], id=u['id'], host=u['host'])
-        idx = userx.id
+   
+    # u = helper.get('author', {'author_id': user})
+    # if (len(u) == 1):  
+    #     u = u[0] 
+    #     user = u['displayname']
+    #     userx = User(username=u['displayname'], id=u['id'], host=u['host'])
+    #     idx = userx.id
 
-        return render_template('user/profile.html', user_profile=user, user_id=idx, user_obj=userx)
-    else:
-        flash('ERROR user not found')
-        return render_template('404.html')
+    #     return render_template('user/profile.html', user_profile=user, user_id=idx, user_obj=userx)
+    # else:
+    #     flash('ERROR user not found')
+    #     return render_template('404.html')
 
     # u = helper.get()
 
 
-    return render_template('user/followers.html', followers=followersx, user_profile=user, user_id=current_user.id, user_obj=userx)
+    return render_template('user/followers.html', followers=followersx, user_profile=userx.username, user_id=current_user.id, user_obj=userx)
 
 # returns friends.html with a list of user's friends
 @main.route('/users/<user>/friends', methods=['GET'])
@@ -394,24 +411,51 @@ def show_friends(user):
     user_id: <user>'s id: string
     """
 
-    userx = User.query.filter_by(username=user).first()
+    userx = User.query.filter_by(id=user).first()
 
-    friends_list = Friend.query.filter_by(a_id=current_user.id).all()
-    friends_list2 = Friend.query.filter_by(b_id=current_user.id).all()
-    friendsx = None
-    if (friends_list):
-        friendsx = []
-        for f in friends_list:
-            fid = User.query.filter_by(id=f.b_id).first()
-            friendsx.append(fid.username)
-    if (friends_list2):
-        if (not friendsx):
-            friendsx = []
-        for f in friends_list2:
-            fid = User.query.filter_by(id=f.a_id).first()
-            friendsx.append(fid.username)
+    # friends_list = Friend.query.filter_by(a_id=current_user.id).all()
+    # friends_list2 = Friend.query.filter_by(b_id=current_user.id).all()
+    # friendsx = None
+    # if (friends_list):
+    #     friendsx = []
+    #     for f in friends_list:
+    #         fid = User.query.filter_by(id=f.b_id).first()
+    #         friendsx.append(fid.username)
+    # if (friends_list2):
+    #     if (not friendsx):
+    #         friendsx = []
+    #     for f in friends_list2:
+    #         fid = User.query.filter_by(id=f.a_id).first()
+    #         friendsx.append(fid.username)
 
-    return render_template('user/friends.html', friends=friendsx, user_profile=user, user_id=current_user.id, user_obj=userx)
+    # remote-user d10fe1f5-b426-48eb-840c-50fcd295014c'
+    # u = helper.get('author', {'author_id': user})
+    # if (len(u) == 1):  
+    #     u = u[0] 
+    #     user = u['displayname']
+    #     userx = User(username=u['displayname'], id=u['id'], host=u['host'])
+    #     idx = userx.id
+
+    #     return render_template('user/profile.html', user_profile=user, user_id=idx, user_obj=userx)
+    # else:
+    #     flash('ERROR user not found')
+    #     return render_template('404.html')
+
+    friendsList = helper.get('friends', {'author_id': user})
+
+    nameList = []
+
+    for user_id in friendsList:
+        profile = helper.get('author', {'author_id': user_id})
+
+        if (len(profile) == 1): 
+            profile = profile[0]
+            name = profile['displayname']
+            uid = profile['id']
+            nameList.append([name, uid])
+            
+
+    return render_template('user/friends.html', friends=nameList, user_profile=current_user.username, user_id=current_user.id, user_obj=userx)
 
 # # returns friends.html with a list of user's friends
 # @login_required
@@ -436,25 +480,53 @@ def follow(user):
     Redirects to <user>'s profile page.
     """
 
-    requestee_idx = User.query.filter_by(username=user).first().id
-    new_follow = Follow(requester_id=current_user.id,
-                        requestee_id=requestee_idx)
+    # requestee_idx = User.query.filter_by(username=user).first()
+    # new_follow = Follow(requester_id=current_user.id,
+    #                     requestee_id=requestee_idx)
 
-    following = Follow.query.filter_by(requester_id=requestee_idx,
-                        requestee_id=current_user.id).first()
+    # following = Follow.query.filter_by(requester_id=requestee_idx,
+    #                     requestee_id=current_user.id).first()
 
-    if following:
-        new_friend = Friend(a_id=current_user.id,
-                        b_id=requestee_idx)
-        db.session.add(new_friend)
+    # if following:
+    #     new_friend = Friend(a_id=current_user.id,
+    #                     b_id=requestee_idx)
+    #     db.session.add(new_friend)
 
 
-    db.session.add(new_follow)
-    db.session.commit()
+    # db.session.add(new_follow)
+    # db.session.commit()
+
+    u = helper.get('author', {'author_id': user})
+    if (len(u) == 1):  
+        u = u[0] 
+        user = u['displayname']
+        userx = User(username=u['displayname'], id=u['id'], host=u['host'])
+        idx = userx.id
+        userURL = u['url']
+    else:
+        flash('ERROR user not found')
+        return render_template('404.html')
+
+    body = {
+        "query":"friendrequest",
+        "author": {
+            "id": current_user.id,
+            "host":current_user.host,
+            "displayName":current_user.username 
+        },
+        "friend": {
+            "id": userx.id,
+            "host":userx.host,
+            "displayName":userx.username,
+            "url": userURL
+        }
+    }
+
+    helper.post('friend_request', body, userx.host)
 
     flash("You have just followed "+user)
 
-    return redirect("/users/"+user)
+    return redirect("/users/"+userx.id)
 
 # current user befriends user
 @main.route('/befriend/<user>', methods=['GET', 'POST'])
@@ -470,17 +542,45 @@ def befriend(user):
     redirects to <user>'s friends page.
     """
 
-    friend_idx = User.query.filter_by(username=user).first().id
-    new_friend = Friend(a_id=current_user.id,
-                        b_id=friend_idx)
-    new_follow = Follow(requester_id=current_user.id, requestee_id=friend_idx)
-    db.session.add(new_follow)
-    db.session.add(new_friend)
-    db.session.commit()
+    # friend_idx = User.query.filter_by(username=user).first().id
+    # new_friend = Friend(a_id=current_user.id,
+    #                     b_id=friend_idx)
+    # new_follow = Follow(requester_id=current_user.id, requestee_id=friend_idx)
+    # db.session.add(new_follow)
+    # db.session.add(new_friend)
+    # db.session.commit()
+
+    u = helper.get('author', {'author_id': user})
+    if (len(u) == 1):  
+        u = u[0] 
+        user = u['displayname']
+        userx = User(username=u['displayname'], id=u['id'], host=u['host'])
+        idx = userx.id
+        userURL = u['url']
+    else:
+        flash('ERROR user not found')
+        return render_template('404.html')
+
+    body = {
+        "query":"friendrequest",
+        "author": {
+            "id": current_user.id,
+            "host":current_user.host,
+            "displayName":current_user.username 
+        },
+        "friend": {
+            "id": userx.id,
+            "host":userx.host,
+            "displayName":userx.username,
+            "url": userURL
+        }
+    }
+
+    helper.post('friend_request', body, userx.host)
 
     flash("You have just befriended "+user)
 
-    return redirect("/users/"+current_user.username+"/friends")
+    return redirect("/users/"+current_user.id+"/followers")
 
 @main.route('/unfollow/<user>', methods=['GET', 'POST'])
 @login_required
@@ -495,13 +595,13 @@ def unfollow(user):
     Redirects to <user>'s profile page.
     """
 
-    requestee_idx = User.query.filter_by(username=user).first()
+    requestee_idx = User.query.filter_by(id=user).first()
     current_user.unfriend(requestee_idx)
     db.session.commit()
 
-    flash("You have just unfollowed "+user)
+    flash("You have just unfollowed "+requestee_idx.username)
 
-    return redirect("/users/"+user)
+    return redirect("/users/"+requestee_idx.id)
 
 @main.route('/logout', methods=['GET', 'POST'])
 @login_required
