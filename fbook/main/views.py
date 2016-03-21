@@ -34,9 +34,11 @@ def index():
         db.session.add(post)
         db.session.commit()
         return redirect(url_for('.index'))
-    posts = Post.query.order_by(Post.timestamp.desc()).all()
-    print posts
-    #posts = helper.get('posts')
+    posts=[]
+    data = helper.get('posts')
+    for item in data:
+        posts.extend(item['posts']) # switch to u'posts ?? or not??
+
     #print posts
     return render_template('index.html',
                            form=form,
@@ -44,7 +46,7 @@ def index():
                            posts=posts)
 
 
-@main.route('/post/<int:id>', methods=['GET', 'POST'])
+@main.route('/post/<id>', methods=['GET', 'POST'])
 def post(id):
     """
     Post page view function.
@@ -71,7 +73,7 @@ def post(id):
                            show=True)
 
 
-@main.route('/edit/<int:id>', methods=['GET', 'POST'])
+@main.route('/edit/<id>', methods=['GET', 'POST'])
 @login_required
 def edit(id):
     """
@@ -95,7 +97,7 @@ def edit(id):
     form.body.data = post.body
     return render_template('post/edit_post.html', form=form)
 
-@main.route('/delete_post/<int:id>', methods=['POST', 'GET'])
+@main.route('/delete_post/<id>', methods=['POST', 'GET'])
 @login_required
 def delete_post(id):
     """
