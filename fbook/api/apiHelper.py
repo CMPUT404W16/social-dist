@@ -90,13 +90,13 @@ class ApiHelper():
 			print url
 			r = requests.get(url, headers=headers)
 			print r.text
+
 			if r.status_code == 200:
 				responses.append(r.json())
 
 		callback = self.filterFuncs[type]
 		return callback(responses)
 
-	# TODO
 	def post(self, type, body, host, params=None):
 		callback = self.urlFuncs[type]		
 		if callback != None:

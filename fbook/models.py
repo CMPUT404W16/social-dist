@@ -271,3 +271,12 @@ class RemoteNode(db.Model):
     password = db.Column(db.String(128))
     service = db.Column(db.String(64))
     prefix = db.Column(db.String(64))
+
+class RemoteUser(db.Model):
+    __tablename__ = "remote_users"
+    id = db.Column(db.Integer, primary_key=True)
+    host = db.Column(db.String(64))
+    username = db.Column(db.String(64))
+
+
+
