@@ -42,7 +42,7 @@ class BasePostAPI(Resource):
         if user == None:
             user = RemoteUser.query.filter_by(id=id).first()
             if user == None:
-                u = helper('author', {'author_id': id})
+                u = helper.get('author', {'author_id': id})
                 if len(u) > 0:
                     u = u[0]
                     author = {
