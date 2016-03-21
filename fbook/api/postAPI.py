@@ -54,7 +54,7 @@ class BasePostAPI(Resource):
                 "visibility": "PUBLIC"
                 }
 
-        post["contentType"] = "text/x-markdown" if cu.markdown else "text/plain"
+        post["contentType"] = "text/x-markdown" if cu.markdown == "T" else "text/plain"
 
         #5 comments per page.
         comments = cu.comments.paginate(1, 5)
