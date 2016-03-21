@@ -1,6 +1,6 @@
 from .api import api
 from ..db import db
-from .. models import Friend, User, Follow
+from .. models import *
 from flask_restful import Resource, reqparse
 from flask.ext.login import current_user
 from flask import request
