@@ -9,10 +9,10 @@
             <div class="post-body">
                 <a href="{{url_for('.post', id=post.id)}}">{{ post['title'] }}</a>
             </div>
-            {% if post['contentType'] != "text/x-markdown" %}
-            <div class="post-body">{{ post['content'] }}</div>
+            {% if post['contentType'] == "text/x-markdown" %}
+            <div class="post-body">{{ post['content'] |markdown }}</div>
             {% else %}
-            <div class="post-body">{{ post['content'] | markdown }}</div>
+            <div class="post-body">{{ post['content']}}</div>
             {% endif %}
         </div>
 

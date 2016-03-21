@@ -8,13 +8,13 @@
             </a>
         </div>
         <div class="comment-content">
-            <div class="comment-date">{{ moment(comment.timestamp).fromNow() }}</div>
-            <div class="comment-author"><a href="">{{ comment.author }}</a></div>
+            <div class="comment-date">{{ comment['published'] }}</div>
+            <div class="comment-author"><a href="">{{ comment['author']['displayname'] }}</a></div>
             <div class="comment-body">
-                    {% if comment.body_html %}
-                        {{ comment.body_html | safe }}
+                    {% if comment['contentType'] == "text/x-markdown" %}
+                        {{ comment['content'] | markdown}}
                     {% else %}
-                        {{ comment.body }}
+                        {{ comment['content'] }}
                     {% endif %}
             </div>
         </div>

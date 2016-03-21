@@ -75,6 +75,7 @@ def post(id):
                           post=post,
                           author_id=current_user._get_current_object().id,
                           author=current_user._get_current_object().username)
+        comment.set_id()
         db.session.add(comment)
         db.session.commit()
         flash('Your comment has been created')
