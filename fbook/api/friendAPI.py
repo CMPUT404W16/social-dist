@@ -5,8 +5,9 @@ from flask_restful import Resource, reqparse
 from flask.ext.login import current_user
 from flask import request
 from bauth import auth
+from apiHelper import ApiHelper
 
-
+helper = ApiHelper()
 
 class friends(Resource):
 	decorators = [auth.login_required]
@@ -64,6 +65,7 @@ class profile(Resource):
 	def get(self, authorid):
 		data = {}
 		user = User.query.filter_by(id=authorid).first_or_404()
+		
 		data["id"] = user.id
 		data["host"] = user.host
 		data["displayname"] = user.username
@@ -75,11 +77,25 @@ class profile(Resource):
 		a = Friend.query.filter_by(a_id=authorid).all()
 		b = Friend.query.filter_by(b_id=authorid).all()
 		for friend in a:
-			user = User.query.filter_by(id=friend.b_id).first_or_404()
-			friendsList.append(user)
+			u = helper.get('author', {'author_id': friend})
+
+			if (len(u) == 1):
+				u = u[0]
+				user = User(username=u['displayname'], id=u['id'], host=u['host'])
+				friendsList.append(user)
 		for friend in b:
-			user = User.query.filter_by(id=friend.a_id).first_or_404()
-			friendsList.append(user)
+			u = helper.get('author', {'author_id': friend})
+
+			if (len(u) == 1):
+				u = u[0]
+				user = User(username=u['displayname'], id=u['id'], host=u['host'])
+				friendsList.append(user)
+		# for friend in a:
+		# 	user = User.query.filter_by(id=friend.b_id).first_or_404()
+		# 	friendsList.append(user)
+		# for friend in b:
+		# 	user = User.query.filter_by(id=friend.a_id).first_or_404()
+		# 	friendsList.append(user)
 
 		for friend in friendsList:
 			usr = {}

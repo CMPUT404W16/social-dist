@@ -88,13 +88,13 @@ class ApiHelper():
 			else:
 				url = 'http://' + node.service + uri
 			r = requests.get(url, headers=headers)
+
 			if r.status_code == 200:
 				responses.append(r.json())
 
 		callback = self.filterFuncs[type]
 		return callback(responses)
 
-	# TODO
 	def post(self, type, body, host, params=None):
 		callback = self.urlFuncs[type]		
 		if callback != None:
