@@ -119,11 +119,14 @@ class friend_request(Resource):
 		friend = request.get_json()['friend']
 		
 		# try to add author to remote authors
-		# if author['host'] != friend['host']:
-		# 	check = RemoteUser.query.filter_by(id=author['id']).first()
-		# 	if check == None:
-		# 		userx = RemoteUser(display=author['displayname'], id=author['id'], host=author['host'])
-  #           	db.session.add(userx)
+		try:
+			if author['host'] != friend['host']:
+				check = RemoteUser.query.filter_by(id=author['id']).first()
+					if check == None:
+						userx = RemoteUser(display=author['displayname'], id=author['id'], host=author['host'])
+			        	db.session.add(userx)
+		except Exception as e:
+			print e
 
 		follow = Follow(requester_id=author['id'], requestee_id=friend['id'])
 
