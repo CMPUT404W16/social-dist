@@ -31,7 +31,7 @@ def index():
                     author=current_user._get_current_object().username,
                     markdown=form.mkdown.data,
                     privacy=int(form.privacy.data))
-
+        post.set_id()
         db.session.add(post)
         db.session.commit()
         return redirect(url_for('.index'))
