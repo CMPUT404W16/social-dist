@@ -64,7 +64,10 @@ def post(id):
     if len(posts) == 0:
         abort(404)
 
-    posts = posts[0]['posts']
+    posts = posts[0].get("posts", None)
+
+    if posts is None:
+        abort(403, "Cannot retrive post from origin hosts.")
 
     form = CommentForm()
     if form.validate_on_submit():
