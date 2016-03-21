@@ -102,6 +102,8 @@ class BasePostAPI(Resource):
 
 class PostAPI(BasePostAPI):
 
+    decorators = [auth.login_required]
+
     def get(self, post_id=None):
         parser = reqparse.RequestParser()
         parser.add_argument('page', type=int, default=0)
@@ -134,6 +136,8 @@ class PostAPI(BasePostAPI):
 
 class AuthorPost(BasePostAPI):
 
+    decorators = [auth.login_required]
+
     def get(self, author_id=None):
         parser = reqparse.RequestParser()
         parser.add_argument('page', type=int, default=0)
@@ -154,6 +158,8 @@ class AuthorPost(BasePostAPI):
 
 
 class CommentAPI(BasePostAPI):
+
+    decorators = [auth.login_required]
 
     def get(self, post_id):
         parser = reqparse.RequestParser()
