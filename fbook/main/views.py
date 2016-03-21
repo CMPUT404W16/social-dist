@@ -71,6 +71,7 @@ def post(id):
 
     form = CommentForm()
     if form.validate_on_submit():
+        post = Post.query.get_or_404(id)
         comment = Comment(body=form.body.data,
                           post=post,
                           author_id=current_user._get_current_object().id,
@@ -83,8 +84,9 @@ def post(id):
 
     #comments = Comment.query.filter_by(post_id=post.id)
     comments = posts[0]['comments']
+    print comments
     return render_template('post/post.html', posts=posts, form=form,
-                           comment=comments, show=True)
+                           comments=comments, show=True)
 
 
 @main.route('/edit/<id>', methods=['GET', 'POST'])

@@ -12,9 +12,9 @@
             <div class="comment-author"><a href="">{{ comment['author']['displayname'] }}</a></div>
             <div class="comment-body">
                     {% if comment['contentType'] == "text/x-markdown" %}
-                        {{ comment['content'] | markdown}}
+                        {{ comment['comment'] | markdown}}
                     {% else %}
-                        {{ comment['content'] }}
+                        {{ comment['comment'] }}
                     {% endif %}
             </div>
         </div>
