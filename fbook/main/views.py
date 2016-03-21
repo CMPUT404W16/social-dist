@@ -296,7 +296,7 @@ def show_profile(user):
 
         # store in remote db
         check = RemoteUser.query.filter_by(id=u['id']).first()
-        userx = RemoteUser(display=u['displayname'], id=u['id'], host=u['host'])
+        userx = RemoteUser(username=u['displayname'], id=u['id'], host=u['host'])
         if check == None:
             db.session.add(userx)
             db.session.commit()
