@@ -29,7 +29,7 @@ def index():
                     body=form.body.data,
                     author_id=current_user._get_current_object().id,
                     author=current_user._get_current_object().username,
-                    markdown=form.mkdown.data，
+                    markdown=form.mkdown.data,
                     privacy=form.privacy.data)
         db.session.add(post)
         db.session.commit()
