@@ -51,6 +51,9 @@ class BasePostAPI(Resource):
                         "displayname": u['displayname'],
                         "url": "%s/author/%s" % (u['host'], u['id'])
                     }
+                    remote = RemoteUser(id=u['id'], host=u['host'], username=u['displayname'])
+                    db.session.add(remote)
+                    db.session.commit()
                 else:
                     author = {
                         'id': id,
@@ -62,7 +65,7 @@ class BasePostAPI(Resource):
                 author = {
                     "id": user.id,
                     "host": user.host,
-                    "displayname": user.display,
+                    "displayname": user.username,
                     "url":"%s/author/%s" % (user.host, user.id)
                 } 
         else:
