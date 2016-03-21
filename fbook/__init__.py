@@ -11,7 +11,6 @@ from flask.ext.cors import CORS
 from admin import am
 from .db import db
 
-
 # for login
 login_manager = LoginManager()
 bootstrap = Bootstrap()
