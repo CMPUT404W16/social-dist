@@ -131,7 +131,8 @@ class PostAPI(BasePostAPI):
         self.posts = Post.query.filter_by(id=post_id)
         self.posts.first_or_404()
 
-
+    def options(self, post_id=None):
+        return self.get(post_id)
 
 
 class AuthorPost(BasePostAPI):
