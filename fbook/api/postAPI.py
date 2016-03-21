@@ -1,11 +1,13 @@
 from .api import api
 from ..db import db
-from .. models import Post, User, Comment
+from .. models import Post, User, Comment, RemoteUser
 from flask_restful import Resource, reqparse
 from flask.ext.login import current_user
 from flask import request
 from bauth import auth
+from apiHelper import ApiHelper
 
+helper = ApiHelper()
 
 class BasePostAPI(Resource):
     decorators = [auth.login_required]
@@ -37,11 +39,38 @@ class BasePostAPI(Resource):
 
     def generate_author(self, id):
         user = User.query.filter_by(id=id).first()
-        author = {"id": user.id,
-                  "host":  user.host,
-                  "displayname": user.username,
-                  #"github": "",
-                  "url": "%s/author/%s" % (user.host, user.id)}
+        if user == None:
+            user = RemoteUser.query.filter_by(id=id).first()
+            if user == None:
+                u = helper('author', {'author_id': id})
+                if len(u) > 0:
+                    u = u[0]
+                    author = {
+                        "id": u['id'],
+                        "host": u['host'],
+                        "displayname": u['displayname'],
+                        "url": "%s/author/%s" % (u['host'], u['id'])
+                    }
+                else:
+                    author = {
+                        'id': id,
+                        'host': 'Unknown',
+                        'displayname': 'Unknown',
+                        'url': 'Unknown'
+                    }
+            else:
+                author = {
+                    "id": user.id,
+                    "host": user.host,
+                    "displayname": user.display,
+                    "url":"%s/author/%s" % (user.host, user.id)
+                } 
+        else:
+            author = {"id": user.id,
+                      "host":  user.host,
+                      "displayname": user.username,
+                      #"github": "",
+                      "url": "%s/author/%s" % (user.host, user.id)}
 
         return author
 
