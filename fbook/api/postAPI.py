@@ -3,9 +3,12 @@ from ..db import db
 from .. models import Post, User, Comment, RemoteUser
 from flask_restful import Resource, reqparse
 from flask.ext.login import current_user
-from flask import request
+from flask import request, abort
 from bauth import auth
 from apiHelper import ApiHelper
+import json
+import dateutil.parser
+import datetime
 
 helper = ApiHelper()
 
@@ -67,7 +70,7 @@ class BasePostAPI(Resource):
                     "host": user.host,
                     "displayname": user.username,
                     "url":"%s/author/%s" % (user.host, user.id)
-                } 
+                }
         else:
             author = {"id": user.id,
                       "host":  user.host,
@@ -200,10 +203,41 @@ class CommentAPI(BasePostAPI):
         #check user exist or not.
         cu = Post.query.filter_by(id=post_id).first_or_404()
 
-
         return self.generate_comment_response(cu.comments, args.page, args.page_size)
 
+    def post(self, post_id):
+        post = Post.query.get_or_404(post_id)
 
+        parser = reqparse.RequestParser()
+        parser.add_argument("author", type=dict, required=True)
+        parser.add_argument("comment", type=str, required=True)
+        parser.add_argument("contentType", default='text/plain', type=str)
+        parser.add_argument("published", default='text/plain', type=str)
+
+        args = parser.parse_args()
+
+        author_id = args.author.get("id", None)
+        author_name = args.author.get("displayName", None)
+
+        if author_id is None or author_name is None:
+            abort(400, "Missing author_id or displayName.")
+
+        # parse time
+        try:
+            date = dateutil.parser.parse(args.published)
+        except ValueError:
+            date = datetime.datetime.utcnow()
+
+        comment = Comment(body=args.comment,
+                          post=post,
+                          timestamp=date,
+                          author_id=author_id,
+                          author=author_name)
+        comment.set_id()
+        db.session.add(comment)
+        db.session.commit()
+
+        return self.get(post_id)
 
 
 api.add_resource(PostAPI, '/api/posts', endpoint="public_post")
