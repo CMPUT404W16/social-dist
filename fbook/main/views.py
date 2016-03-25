@@ -32,18 +32,66 @@ def index():
                     markdown=form.mkdown.data,
                     privacy=int(form.privacy.data))
         post.set_id()
+        
+        print form.image.data
+        realpath = os.path.realpath(form.image.data)
+        MYDIR = os.path.dirname(form.image.data)
+        print MYDIR
+        print realpath
+
+        blob_value = open(form.image.data, "rb").read()
+        #print blob_value
+        image = Image(file=blob_value)
+        image.set_id()
+
+        image_posts = Image_Posts(post_id = post.get_id(), 
+            image_id = image.get_id()
+            )
+        image_posts.set_id()
+        db.session.add(image_posts)
+        db.session.add(image)
+        
         db.session.add(post)
         db.session.commit()
         return redirect(url_for('.index'))
+
     posts=[]
     data = helper.get('posts')
-    print data
+
+    #print data
     for item in data:
         if type(item) is not dict:
             continue
         posts.extend(item['posts']) # switch to u'posts ?? or not??
 
-    #print posts
+    post_ids=[]
+    # print posts
+    # go through the list of posts and check to see if there is an image in them
+    for i in range(len(posts)): 
+        for k, v in posts[i].items():
+            if k == 'id':
+                #print v # the post_ids
+                post_ids.append(v)
+    
+    # post_image is the dict where key is post_id and value is image_id
+    post_image={}
+    for post_id in post_ids:
+        query = Image_Posts.query.filter_by(post_id=post_id).all()
+        if len(query) > 0: # there is an image with this post
+            for i in query:
+                post_image[post_id]=i.__dict__['image_id']
+
+    print post_image
+    # serve images based on post ids
+    for post_id, image_id in post_image.items():
+        query = Image.query.filter_by(id=image_id).all()
+        if len(query) > 0:
+            for i in query:
+                # serve the image give i.__dict__['file'] contains the bytes of the image
+                # print i.__dict__['file']
+                print "serving image"
+
+
     return render_template('index.html',
                            form=form,
                            name=current_user.username,
