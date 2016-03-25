@@ -154,12 +154,12 @@ def login():
 
     # signup form
     if signupForm.validate_on_submit():
-        # temp_user = User(username='admin', role_id=3,
-        #                  authenticated=1, host='localhost');
-        # temp_user.set_password('p1')
+        # temp_user = User(username='admin', role_id=2)
         # temp_user.set_id()
+        # temp_user.set_password('p')
         # db.session.add(temp_user)
         # db.session.commit()
+
         user = User.query.filter_by(username=signupForm.username.data).first()
         if user is None:
             ureq = UserRequest(username=signupForm.username.data)
@@ -326,6 +326,7 @@ def show_settings():
 
     new_username_form = ChangeUsernameForm()
     new_password_form = ChangePasswordForm()
+    new_profpic_form = SetProfileImageForm()
 
     if new_username_form.validate_on_submit() and new_username_form.submit_u.data:
         # check for existing username
@@ -355,8 +356,18 @@ def show_settings():
 
             flash("New password set.")
             return redirect(url_for('.show_settings'))
+    elif new_profpic_form.validate_on_submit and new_profpic_form.submit.data:
+        flash("Test upload")
 
-    return render_template('user/settings.html', un_form=new_username_form, pass_form=new_password_form)
+        user = User.query.filter_by(username=current_user.username).first()
+        if (user):
+            # save image and reference image to current user
+            flash("Trying to upload image")
+
+        return redirect(url_for('.show_settings'))
+
+    return render_template('user/settings.html', un_form=new_username_form, \
+    pass_form=new_password_form, pp_form=new_profpic_form)
 
 
 # returns followers.html with a list of user's followers

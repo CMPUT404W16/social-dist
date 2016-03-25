@@ -2,7 +2,7 @@ from flask.ext.wtf import Form
 from wtforms import StringField, SubmitField, PasswordField, validators, SelectField
 from wtforms.validators import Required, EqualTo
 from flask.ext.uploads import UploadSet, IMAGES
-from flask_wtf.file import FileField, FileAllowed
+from flask_wtf.file import FileField, FileAllowed, FileRequired
 
 class PostForm(Form):
     title = StringField('Title', validators=[Required()])
@@ -53,6 +53,12 @@ class ChangeUsernameForm(Form):
         validators=[Required(), EqualTo('new_username',
         message='New username mismatch!')])
     submit_u = SubmitField('Set Username')
+
+# uploads an image and set this image as the user's profile image
+class SetProfileImageForm(Form):
+    img = FileField("New profile picture:", validators=[FileRequired(),
+        FileAllowed(['jpg', 'png'], 'Images only!')])
+    submit = SubmitField('Set Profile Picture')
 
 class CommentForm(Form):
     body = StringField('', validators=[Required()])

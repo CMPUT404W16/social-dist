@@ -277,6 +277,3 @@ class RemoteUser(db.Model):
     id = db.Column(db.String(128), primary_key=True)
     host = db.Column(db.String(64))
     username = db.Column(db.String(64))
-
-
-
