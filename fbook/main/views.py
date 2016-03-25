@@ -11,6 +11,7 @@ from validate_email import validate_email
 import socket, httplib, urllib, os
 from ..api.apiHelper import ApiHelper
 from binascii import *
+from base64 import b64encode, b64decode
 
 helper = ApiHelper()
 
@@ -48,6 +49,7 @@ def index():
             image_id = image.get_id()
             )
         image_posts.set_id()
+
         db.session.add(image_posts)
         db.session.add(image)
         
@@ -83,6 +85,7 @@ def index():
 
     print post_image
     # serve images based on post ids
+    image = []
     for post_id, image_id in post_image.items():
         query = Image.query.filter_by(id=image_id).all()
         if len(query) > 0:
@@ -90,12 +93,15 @@ def index():
                 # serve the image give i.__dict__['file'] contains the bytes of the image
                 # print i.__dict__['file']
                 print "serving image"
+                image.append(b64encode(i.__dict__['file']))
 
-
+    #print image
     return render_template('index.html',
                            form=form,
                            name=current_user.username,
-                           posts=posts)
+                           posts=posts,
+                           image=image[0]
+                           )
 
 
 @main.route('/post/<string:id>', methods=['GET', 'POST'])
@@ -133,8 +139,24 @@ def post(id):
     #comments = Comment.query.filter_by(post_id=post.id)
     comments = posts[0]['comments']
     print comments
+
+    image = []
+    image_id = []
+    query = Image_Posts.query.filter_by(post_id=id).all()
+    if len(query) > 0: # there is an image with this post
+        for i in query:
+            image_id.append(i.__dict__['image_id'])
+
+    image_query = Image.query.filter_by(id=image_id[0]).all()
+    if len(image_query) > 0:
+        for i in image_query:
+            # serve the image give i.__dict__['file'] contains the bytes of the image
+            # print i.__dict__['file']
+            print "serving image"
+            image.append(b64encode(i.__dict__['file']))    
+
     return render_template('post/post.html', posts=posts, form=form,
-                           comments=comments, show=True)
+                           comments=comments, image=image[0], show=True)
 
 
 @main.route('/edit/<id>', methods=['GET', 'POST'])

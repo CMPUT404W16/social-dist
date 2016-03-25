@@ -11,8 +11,10 @@
             </div>
             {% if post['contentType'] != "text/x-markdown" %}
             <div class="post-body">{{ post['content'] }}</div>
+            <img src="data:;base64,{{ image }}"/>
             {% else %}
             <div class="post-body">{{ post['content'] | markdown}}</div>
+            <img src="data:;base64,{{ image }}"/>
             {% endif %}
         </div>
 
