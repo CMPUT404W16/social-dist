@@ -174,6 +174,21 @@ class UserRequestModelView(ModelView):
 
 class UserModelView(ModelView):
 
+	column_list = (
+			'id',
+			'username',
+			'role_id',
+			'password',
+			'authenticated',
+			'host'
+		)
+
+	def is_accessible(self):
+		if current_user.is_authenticated:
+			return current_user.can(Permission.ADMINISTER)
+
+class RemoteNodeModelView(ModelView):
+
 	def is_accessible(self):
 		if current_user.is_authenticated:
 			return current_user.can(Permission.ADMINISTER)
@@ -183,6 +198,5 @@ am.add_view(NodeModelView(Node, db.session, name="Node", category="Nodes", endpo
 am.add_view(NodeRequestModelView(NodeRequest, db.session, name="Node Request", category="Nodes", endpoint="NodeRequest"))
 am.add_view(UserModelView(User, db.session, name="User", category="Users", endpoint="User"))
 am.add_view(UserRequestModelView(UserRequest, db.session, name="User Requests", category="Users", endpoint="UserRequest"))
-
-
+am.add_view(RemoteNodeModelView(RemoteNode, db.session, name="Remote Nodes"))
 

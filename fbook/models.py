@@ -82,7 +82,7 @@ class User(db.Model):
         return False
 
     def set_id(self):
-        self.id = str(uuid.uuid4().hex)
+        self.id = str(uuid.uuid4())
 
     def get_id(self):
         return self.username
@@ -159,24 +159,22 @@ class Post(db.Model):
     """
 
     __tablename__ = 'posts'
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(128), primary_key=True)
     title = db.Column(db.Text)
     body = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-    author_id = db.Column(db.String(128), db.ForeignKey('users.id'))
-    author = db.Column(db.String(64), db.ForeignKey('users.username'))
+    author_id = db.Column(db.String(128))
+    author = db.Column(db.String(64))
     comments = db.relationship('Comment', backref='post', lazy='dynamic')
     privacy = db.Column(db.Integer, default=0)
-    markdown = db.Column(db.Boolean, default=False)
+    markdown = db.Column(db.String, default="F")
 
-    @staticmethod
-    def on_changed_body(target, value, oldvalue, initiator):
-        allowed_tags = ['a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
-                        'em', 'i', 'li', 'ol', 'pre', 'strong', 'ul',
-                        'h1', 'h2', 'h3', 'p']
-        target.body_html = bleach.linkify(bleach.clean(
-            markdown(value, output_format='html'),
-            tags=allowed_tags, strip=True))
+    def set_id(self):
+        self.id = str(uuid.uuid4())
+
+    def get_id(self):
+        return self.id
+
 
 
 class Comment(db.Model):
@@ -191,27 +189,37 @@ class Comment(db.Model):
     :param int post_id: Referent to a post's id.
     """
     __tablename__ = 'comments'
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(128), primary_key=True)
     body = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-    author_id = db.Column(db.String(128), db.ForeignKey('users.id'))
-    author = db.Column(db.String(64), db.ForeignKey('users.username'))
-    post_id = db.Column(db.Integer, db.ForeignKey('posts.id'))
+    author_id = db.Column(db.String(128))
+    author = db.Column(db.String(64))
+    post_id = db.Column(db.String(128), db.ForeignKey('posts.id'))
 
-    @staticmethod
-    def on_changed_body(target, value, oldvalue, initiator):
-        allowed_tags = ['a', 'abbr', 'acronym', 'b', 'code', 'em', 'i',
-                        'strong']
-        target.body_html = bleach.linkify(bleach.clean(
-            markdown(value, output_format='html'),
-            tags=allowed_tags, strip=True))
+    def set_id(self):
+        self.id = str(uuid.uuid4())
 
 
 class Image(db.Model):
     __tablename__ = 'images'
-    id = db.Column(db.Integer, primary_key=True)
-    post_id = db.Column(db.Integer, db.ForeignKey('posts.id'))
-    file = 0
+    id = db.Column(db.String(128), primary_key=True)
+    file = db.Column(db.LargeBinary)
+    
+    def set_id(self):
+        self.id = str(uuid.uuid4())
+
+    def get_id(self):
+        return self.id
+
+
+class Image_Posts(db.Model):
+    __tablename__ = 'image_posts'
+    id = db.Column(db.String(128), primary_key=True)
+    post_id = db.Column(db.String(128), db.ForeignKey('posts.id'))
+    image_id = db.Column(db.String(128), db.ForeignKey('images.id'))
+
+    def set_id(self):
+        self.id = str(uuid.uuid4())
 
 
 class Privacy:
@@ -222,16 +230,16 @@ class Privacy:
 
 class Friend(db.Model):
     __tablename__ = "friends"
-    a_id = db.Column(db.String(128), db.ForeignKey('users.id'), primary_key=True)
-    b_id = db.Column(db.String(128), db.ForeignKey('users.id'), primary_key=True)
+    a_id = db.Column(db.String(128), primary_key=True)
+    b_id = db.Column(db.String(128), primary_key=True)
 
     def integrityCheck(self, a_id, b_id):
         return a_id == b_id
 
 class Follow(db.Model):
     __tablename__ = "follows"
-    requester_id = db.Column(db.String(128), db.ForeignKey('users.id'), primary_key=True)
-    requestee_id = db.Column(db.String(128), db.ForeignKey('users.id'), primary_key=True)
+    requester_id = db.Column(db.String(128), primary_key=True)
+    requestee_id = db.Column(db.String(128), primary_key=True)
 
     def integrityCheck(self, requester_id, requestee_id):
         return requester_id == requestee_id
@@ -243,7 +251,7 @@ class Node(db.Model):
     name = db.Column(db.String(64))
     username = db.Column(db.String(64), unique=True)
     password = db.Column(db.String(128))
-    
+
     ip_addr = db.Column(postgresql.INET)
     email = db.Column(db.String(64), unique=True)
     isRestricted = db.Column(db.Boolean, default=False)
@@ -282,3 +290,12 @@ class RemoteNode(db.Model):
     password = db.Column(db.String(128))
     service = db.Column(db.String(64))
     prefix = db.Column(db.String(64))
+
+class RemoteUser(db.Model):
+    __tablename__ = "remote_users"
+    id = db.Column(db.String(128), primary_key=True)
+    host = db.Column(db.String(64))
+    username = db.Column(db.String(64))
+
+
+

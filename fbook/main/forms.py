@@ -1,13 +1,19 @@
 from flask.ext.wtf import Form
 from wtforms import StringField, SubmitField, PasswordField, validators, SelectField
 from wtforms.validators import Required, EqualTo
-from flask.ext.pagedown.fields import PageDownField
+from flask.ext.uploads import UploadSet, IMAGES
+from flask_wtf.file import FileField, FileAllowed
 
 class PostForm(Form):
     title = StringField('Title', validators=[Required()])
-    body = PageDownField('What is on your mind?', validators=[Required()])
-    mkdown = SelectField('Use markdown for this post?', choices=[("False", 'No'),("True", 'Yes')], default=False)
-    privacy = SelectFiled('Public', choices=[("Public", 'Public'),("Only me", 'Only me'),("Only me and my friend",'Only me and my friend')], default=False)
+    body = StringField('What is on your mind?', validators=[Required()])
+    mkdown = SelectField('Use markdown for this post?',
+                         choices=[("F", 'No'),("T", 'Yes')], default="F")
+    privacy = SelectField('Public', choices=[('0', 'Public'),
+                          ('1', 'Only me'),
+                          ('2','Only me and my friend')],
+                          default='0')
+    image = FileField('Image', validators=[FileAllowed(['jpg', 'png'], 'Images only!')])
     submit = SubmitField("Post")
 
 # form for logging in the user

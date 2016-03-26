@@ -1,12 +1,13 @@
 from .api import api
 from ..db import db
-from .. models import Friend, User, Follow
+from .. models import *
 from flask_restful import Resource, reqparse
 from flask.ext.login import current_user
 from flask import request
 from bauth import auth
+from apiHelper import ApiHelper
 
-
+helper = ApiHelper()
 
 class friends(Resource):
 	decorators = [auth.login_required]
@@ -64,7 +65,8 @@ class profile(Resource):
 	def get(self, authorid):
 		data = {}
 
-		user = User.query.filter_by(id=authorid).first()
+		user = User.query.filter_by(id=authorid).first_or_404()
+		
 		data["id"] = user.id
 		data["host"] = user.host
 		data["displayname"] = user.username
@@ -75,12 +77,24 @@ class profile(Resource):
 
 		a = Friend.query.filter_by(a_id=authorid).all()
 		b = Friend.query.filter_by(b_id=authorid).all()
+		
 		for friend in a:
 			user = User.query.filter_by(id=friend.b_id).first()
-			friendsList.append(user)
+			if user != None:
+				friendsList.append(user)
+			else:
+				user = RemoteUser.query.filter_by(id=friend.b_id).first()
+				if user != None:
+					friendsList.append(user)
+
 		for friend in b:
 			user = User.query.filter_by(id=friend.a_id).first()
-			friendsList.append(user)
+			if user != None:
+				friendsList.append(user)
+			else:
+				user = RemoteUser.query.filter_by(id=friend.a_id).first()
+				if user != None:
+					friendsList.append(user)
 
 		for friend in friendsList:
 			usr = {}
@@ -89,7 +103,7 @@ class profile(Resource):
 			usr["displayname"] = friend.username
 			usr["url"] = user.host+"/author/"+user.id
 			data["friends"].append(usr)
-
+		
 		return data
 
 #
@@ -103,7 +117,17 @@ class friend_request(Resource):
 		author = request.get_json()['author']
 		friend = request.get_json()['friend']
 		
-		
+		# try to add author to remote authors
+
+		try:
+			if author['host'] != friend['host']:
+				check = RemoteUser.query.filter_by(id=author['id']).first()
+				if check == None:
+					userx = RemoteUser(username=author['displayname'], id=author['id'], host=author['host'])
+		        	db.session.add(userx)
+		except Exception as e:
+			print e
+
 		follow = Follow(requester_id=author['id'], requestee_id=friend['id'])
 
 		following = Follow.query.filter_by(requester_id=friend['id'], requestee_id=author['id']).first()
