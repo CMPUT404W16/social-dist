@@ -54,13 +54,6 @@ class ChangeUsernameForm(Form):
         message='New username mismatch!')])
     submit_u = SubmitField('Set Username')
 
-# uploads an image and set this image as the user's profile image
-class SetProfileImageForm(Form):
-    images = UploadSet('images', IMAGES)
-    img = FileField("New profile picture:", validators=[FileRequired(),
-        FileAllowed(images, 'Images only!')])
-    submit = SubmitField('Set Profile Picture')
-
 class CommentForm(Form):
     body = StringField('', validators=[Required()])
     submit = SubmitField('Submit')

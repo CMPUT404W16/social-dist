@@ -411,7 +411,6 @@ def show_settings():
 
     new_username_form = ChangeUsernameForm()
     new_password_form = ChangePasswordForm()
-    new_profpic_form = SetProfileImageForm()
 
     if new_username_form.validate_on_submit() and new_username_form.submit_u.data:
         # check for existing username
@@ -441,17 +440,27 @@ def show_settings():
 
             flash("New password set.")
             return redirect(url_for('.show_settings'))
-    elif new_profpic_form.validate_on_submit and new_profpic_form.submit.data:
-        # check if image is transferred
-        if (new_profpic_form.img.data):
+
+    return render_template('user/settings.html', un_form=new_username_form, \
+    pass_form=new_password_form)
+
+# upload and set new profile image
+@main.route('/upload_pimage', methods=['POST'])
+@login_required
+def upload_pimage():
+    # check for profile image upload
+    if (request.method=='POST' and 'pimage' in request.files):
+        image_upload = request.files['pimage']
+        if (image_upload):
+            flash("Image found")
             user = User.query.filter_by(username=current_user.username).first()
             if (user):
                 # save image and reference image to current user
-                flash("Trying to upload and set image.")
+                flash("Trying to set image.")
 
-                blob = open(new_profpic_form.img.data, "rb").read()
+                image_upload = image_upload.read()
 
-                new_image = Image(file=blob)
+                new_image = Image(file=image_upload)
                 new_image.set_id()
                 db.session.add(new_image)
                 db.session.commit()
@@ -474,13 +483,9 @@ def show_settings():
 
                 flash("Image successfully uploaded and set.")
         else:
-            flash("Error: No image was selected or found.")
+            flash("Error: No image was selected, found, or transferred.")
 
-        return redirect(url_for('.show_settings'))
-
-    return render_template('user/settings.html', un_form=new_username_form, \
-    pass_form=new_password_form, pp_form=new_profpic_form)
-
+    return redirect(url_for('.show_settings'))
 
 # returns followers.html with a list of user's followers
 @main.route('/users/<user>/followers', methods=['GET'])
