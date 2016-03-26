@@ -67,7 +67,7 @@ def index():
         posts.extend(item['posts']) # switch to u'posts ?? or not??
 
     post_ids=[]
-    # print posts
+    print posts
     # go through the list of posts and check to see if there is an image in them
     for i in range(len(posts)): 
         for k, v in posts[i].items():
@@ -107,7 +107,8 @@ def index():
         return render_template('index.html',
                            form=form,
                            name=current_user.username,
-                           posts=posts
+                           posts=posts,
+                           image=None
                            )
         
 
