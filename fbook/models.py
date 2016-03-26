@@ -227,12 +227,16 @@ class ProfileImageMap(db.Model):
     __tablename__ = 'profile_image_map'
     id = db.Column(db.String(128), primary_key=True)
     user_id = db.Column(db.String(128), db.ForeignKey('users.id'), unique=True)
+    image_id = db.Column(db.String(128), db.ForeignKey('images.id'))
 
     def set_id(self):
         self.id = str(uuid.uuid4())
 
-    def get_id(self):
-        return self.id
+    def get_user_id(self):
+        return self.user_id
+
+    def get_image_id(self):
+        return self.image_id
 
 class Privacy:
     PUBLIC = 0

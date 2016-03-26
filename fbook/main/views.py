@@ -33,7 +33,7 @@ def index():
                     markdown=form.mkdown.data,
                     privacy=int(form.privacy.data))
         post.set_id()
-        
+
         print form.image.data
         realpath = os.path.realpath(form.image.data)
         MYDIR = os.path.dirname(form.image.data)
@@ -46,14 +46,14 @@ def index():
             image = Image(file=blob_value)
             image.set_id()
 
-            image_posts = Image_Posts(post_id = post.get_id(), 
+            image_posts = Image_Posts(post_id = post.get_id(),
                 image_id = image.get_id()
                 )
             image_posts.set_id()
 
             db.session.add(image_posts)
             db.session.add(image)
-        
+
         db.session.add(post)
         db.session.commit()
         return redirect(url_for('.index'))
@@ -70,12 +70,12 @@ def index():
     post_ids=[]
     print posts
     # go through the list of posts and check to see if there is an image in them
-    for i in range(len(posts)): 
+    for i in range(len(posts)):
         for k, v in posts[i].items():
             if k == 'id':
                 #print v # the post_ids
                 post_ids.append(v)
-    
+
     # post_image is the dict where key is post_id and value is image_id
     post_image={}
     for post_id in post_ids:
@@ -111,7 +111,7 @@ def index():
                            posts=posts,
                            image={}
                            )
-        
+
 
 @main.route('/post/<string:id>', methods=['GET', 'POST'])
 def post(id):
@@ -163,7 +163,7 @@ def post(id):
                 # serve the image give i.__dict__['file'] contains the bytes of the image
                 # print i.__dict__['file']
                 print "serving image"
-                image[id] = (b64encode(i.__dict__['file']))    
+                image[id] = (b64encode(i.__dict__['file']))
 
         return render_template('post/post.html', posts=posts, form=form,
                                comments=comments, image=image, show=True)
