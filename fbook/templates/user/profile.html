@@ -6,7 +6,8 @@
     <p>Current user: {{ current_user.username }}</p>
     <p>On profile: {{ user_profile }}, {{ user_id }}</p>
     <div id="profile-img">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png" alt="profile image">
+        <!-- <img src="https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png" alt="profile image"> -->
+        Profile image
     </div>
     {% if (current_user.username != user_profile) %}
     {% if (not current_user.is_follower(user_id)) %}
