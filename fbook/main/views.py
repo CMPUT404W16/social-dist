@@ -385,7 +385,16 @@ def show_profile(user):
 
         idx = userx.id
 
-        return render_template('user/profile.html', user_profile=user, user_id=idx, user_obj=userx)
+        profile_image = None
+        pi_map = ProfileImageMap.query.filter_by(user_id=idx).first()
+        pimage = None
+        if (pi_map):
+            pimage = Image.query.filter_by(id=pi_map.image_id).first()
+            if (pimage):
+                profile_image = b64encode(pimage.__dict__['file'])
+
+        return render_template('user/profile.html', user_profile=user,
+                                user_id=idx, user_obj=userx, upi=profile_image)
     else:
         flash('ERROR user not found')
         return render_template('404.html')
