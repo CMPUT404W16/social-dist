@@ -175,6 +175,10 @@ class Post(db.Model):
     def set_id(self):
         self.id = str(uuid.uuid4())
 
+    def get_id(self):
+        return self.id
+
+
 
 class Comment(db.Model):
     """
@@ -201,18 +205,34 @@ class Comment(db.Model):
 
 class Image(db.Model):
     __tablename__ = 'images'
-    id = db.Column(db.Integer, primary_key=True)
-    post_id = db.Column(db.String(128), db.ForeignKey('posts.id'))
+    id = db.Column(db.String(128), primary_key=True)
     file = db.Column(db.LargeBinary)
+
+    def set_id(self):
+        self.id = str(uuid.uuid4())
+
+    def get_id(self):
+        return self.id
+
+class Image_Posts(db.Model):
+    __tablename__ = 'image_posts'
+    id = db.Column(db.String(128), primary_key=True)
+    post_id = db.Column(db.String(128), db.ForeignKey('posts.id'))
+    image_id = db.Column(db.String(128), db.ForeignKey('images.id'))
+
+    def set_id(self):
+        self.id = str(uuid.uuid4())
 
 class ProfileImageMap(db.Model):
     __tablename__ = 'profile_image_map'
     id = db.Column(db.String(128), primary_key=True)
     user_id = db.Column(db.String(128), db.ForeignKey('users.id'), unique=True)
-    image_id = db.Column(db.String(128), db.ForeignKey('images.id'))
 
     def set_id(self):
         self.id = str(uuid.uuid4())
+
+    def get_id(self):
+        return self.id
 
 class Privacy:
     PUBLIC = 0
