@@ -40,18 +40,19 @@ def index():
         print MYDIR
         print realpath
 
-        blob_value = open(form.image.data, "rb").read()
-        #print blob_value
-        image = Image(file=blob_value)
-        image.set_id()
+        if(form.image.data): # only if an image to be uploaded has been chosen
+            blob_value = open(form.image.data, "rb").read()
+            #print blob_value
+            image = Image(file=blob_value)
+            image.set_id()
 
-        image_posts = Image_Posts(post_id = post.get_id(), 
-            image_id = image.get_id()
-            )
-        image_posts.set_id()
+            image_posts = Image_Posts(post_id = post.get_id(), 
+                image_id = image.get_id()
+                )
+            image_posts.set_id()
 
-        db.session.add(image_posts)
-        db.session.add(image)
+            db.session.add(image_posts)
+            db.session.add(image)
         
         db.session.add(post)
         db.session.commit()
@@ -85,7 +86,7 @@ def index():
 
     print post_image
     # serve images based on post ids
-    image = []
+    image = {}
     for post_id, image_id in post_image.items():
         query = Image.query.filter_by(id=image_id).all()
         if len(query) > 0:
@@ -93,7 +94,7 @@ def index():
                 # serve the image give i.__dict__['file'] contains the bytes of the image
                 # print i.__dict__['file']
                 print "serving image"
-                image.append(b64encode(i.__dict__['file']))
+                image[post_id] = (b64encode(i.__dict__['file']))
 
     #print image
     if len(image) > 0:
@@ -101,14 +102,14 @@ def index():
                            form=form,
                            name=current_user.username,
                            posts=posts,
-                           image=image[0]
+                           image=image
                            )
     else:
         return render_template('index.html',
                            form=form,
                            name=current_user.username,
                            posts=posts,
-                           image=None
+                           image={}
                            )
         
 
@@ -148,7 +149,7 @@ def post(id):
     comments = posts[0]['comments']
     print comments
 
-    image = []
+    image = {}
     image_id = []
     query = Image_Posts.query.filter_by(post_id=id).all()
     if len(query) > 0: # there is an image with this post
@@ -162,13 +163,13 @@ def post(id):
                 # serve the image give i.__dict__['file'] contains the bytes of the image
                 # print i.__dict__['file']
                 print "serving image"
-                image.append(b64encode(i.__dict__['file']))    
+                image[id] = (b64encode(i.__dict__['file']))    
 
         return render_template('post/post.html', posts=posts, form=form,
-                               comments=comments, image=image[0], show=True)
+                               comments=comments, image=image, show=True)
     else:
         return render_template('post/post.html', posts=posts, form=form,
-                               comments=comments, image=None, show=True)
+                               comments=comments, image={}, show=True)
 
 @main.route('/edit/<id>', methods=['GET', 'POST'])
 @login_required

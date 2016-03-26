@@ -10,11 +10,23 @@
                 <a href="{{url_for('.post', id=post.id)}}">{{ post['title'] }}</a>
             </div>
             {% if post['contentType'] != "text/x-markdown" %}
-            <div class="post-body">{{ post['content'] }}</div>
-            <img src="data:;base64,{{ image }}" alt=""/>
+                <div class="post-body">{{ post['content'] }}</div>
+                {% for post_id, image_data in image.items() %}                        
+                    {% if post_id == post['id'] %}
+                    <div class="post-image">
+                        <img src="data:;base64, {{image_data}}" alt=""/>
+                    </div>
+                    {% endif %}
+                {% endfor %}
             {% else %}
-            <div class="post-body">{{ post['content'] | markdown}}</div>
-            <img src="data:;base64,{{ image }}" alt=""/>
+                <div class="post-body">{{ post['content'] | markdown}}</div>
+                {% for post_id, image_data in image.items() %}            
+                    {% if post_id == post['id'] %}
+                    <div class="post-image">
+                        <img src="data:;base64, {{image_data}}" alt=""/>
+                    </div>
+                    {% endif %}
+                {% endfor %}
             {% endif %}
         </div>
 
