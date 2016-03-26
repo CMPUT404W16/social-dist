@@ -439,20 +439,42 @@ def show_settings():
             flash("New password set.")
             return redirect(url_for('.show_settings'))
     elif new_profpic_form.validate_on_submit and new_profpic_form.submit.data:
-        user = User.query.filter_by(username=current_user.username).first()
-        if (user):
-            # save image and reference image to current user
-            flash("Trying to upload image")
-            if (new_profpic_form.img.data):
-                new_pimage = ProfileImage(user_id=user.id, image=bin(0))
-                new_pimage.set_id()
+        # check if image is transferred
+        if (new_profpic_form.img.data):
+            user = User.query.filter_by(username=current_user.username).first()
+            if (user):
+                # save image and reference image to current user
+                flash("Trying to upload and set image")
 
-                db.session.add(new_pimage)
+                blob = open(new_profpic_form.img.data, "rb").read()
+
+                new_image = Image(file=blob)
+                new_image.set_id()
+                db.session.add(new_image)
                 db.session.commit()
 
-                flash("image uploaded")
-            else:
-                flash("No data found")
+                # check for old profile image map
+                temp_pi = ProfileImageMap.query.filter_by(
+                            user_id=current_user.get_uuid()).first()
+                print ("LOOK HERE!")
+                print (current_user.id)
+                # old profile img selection found
+                if (temp_pi):
+                    flash("Old selection found, setting new.")
+                    print ("Found old")
+                    db.session.delete(temp_pi)
+                    db.session.commit()
+
+                new_pi_map = ProfileImageMap(user_id=current_user.get_uuid(),
+                                            image_id=new_image.get_id())
+                new_pi_map.set_id()
+
+                db.session.add(new_pi_map)
+                db.session.commit()
+
+                flash("Image successfully uploaded and set.")
+        else:
+            flash("Error: No image was selected or found.")
 
         return redirect(url_for('.show_settings'))
 
