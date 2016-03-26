@@ -96,13 +96,20 @@ def index():
                 image.append(b64encode(i.__dict__['file']))
 
     #print image
-    return render_template('index.html',
+    if len(image) > 0:
+        return render_template('index.html',
                            form=form,
                            name=current_user.username,
                            posts=posts,
                            image=image[0]
                            )
-
+    else:
+        return render_template('index.html',
+                           form=form,
+                           name=current_user.username,
+                           posts=posts
+                           )
+        
 
 @main.route('/post/<string:id>', methods=['GET', 'POST'])
 def post(id):
@@ -147,17 +154,20 @@ def post(id):
         for i in query:
             image_id.append(i.__dict__['image_id'])
 
-    image_query = Image.query.filter_by(id=image_id[0]).all()
-    if len(image_query) > 0:
-        for i in image_query:
-            # serve the image give i.__dict__['file'] contains the bytes of the image
-            # print i.__dict__['file']
-            print "serving image"
-            image.append(b64encode(i.__dict__['file']))    
+    if len(image_id) > 0: # there is an image
+        image_query = Image.query.filter_by(id=image_id[0]).all()
+        if len(image_query) > 0:
+            for i in image_query:
+                # serve the image give i.__dict__['file'] contains the bytes of the image
+                # print i.__dict__['file']
+                print "serving image"
+                image.append(b64encode(i.__dict__['file']))    
 
-    return render_template('post/post.html', posts=posts, form=form,
-                           comments=comments, image=image[0], show=True)
-
+        return render_template('post/post.html', posts=posts, form=form,
+                               comments=comments, image=image[0], show=True)
+    else:
+        return render_template('post/post.html', posts=posts, form=form,
+                               comments=comments, image=None, show=True)
 
 @main.route('/edit/<id>', methods=['GET', 'POST'])
 @login_required
