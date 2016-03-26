@@ -56,8 +56,9 @@ class ChangeUsernameForm(Form):
 
 # uploads an image and set this image as the user's profile image
 class SetProfileImageForm(Form):
+    images = UploadSet('images', IMAGES)
     img = FileField("New profile picture:", validators=[FileRequired(),
-        FileAllowed(['jpg', 'png'], 'Images only!')])
+        FileAllowed(images, 'Images only!')])
     submit = SubmitField('Set Profile Picture')
 
 class CommentForm(Form):

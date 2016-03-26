@@ -357,12 +357,20 @@ def show_settings():
             flash("New password set.")
             return redirect(url_for('.show_settings'))
     elif new_profpic_form.validate_on_submit and new_profpic_form.submit.data:
-        flash("Test upload")
-
         user = User.query.filter_by(username=current_user.username).first()
         if (user):
             # save image and reference image to current user
             flash("Trying to upload image")
+            if (new_profpic_form.img.data):
+                new_pimage = ProfileImage(user_id=user.id, image=bin(0))
+                new_pimage.set_id()
+
+                db.session.add(new_pimage)
+                db.session.commit()
+
+                flash("image uploaded")
+            else:
+                flash("No data found")
 
         return redirect(url_for('.show_settings'))
 
