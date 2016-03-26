@@ -236,12 +236,6 @@ def login():
 
     # signup form
     if signupForm.validate_on_submit():
-        # temp_user = User(username='admin', role_id=2)
-        # temp_user.set_id()
-        # temp_user.set_password('p')
-        # db.session.add(temp_user)
-        # db.session.commit()
-
         user = User.query.filter_by(username=signupForm.username.data).first()
         if user is None:
             ureq = UserRequest(username=signupForm.username.data)
@@ -453,7 +447,7 @@ def show_settings():
             user = User.query.filter_by(username=current_user.username).first()
             if (user):
                 # save image and reference image to current user
-                flash("Trying to upload and set image")
+                flash("Trying to upload and set image.")
 
                 blob = open(new_profpic_form.img.data, "rb").read()
 
@@ -465,12 +459,9 @@ def show_settings():
                 # check for old profile image map
                 temp_pi = ProfileImageMap.query.filter_by(
                             user_id=current_user.get_uuid()).first()
-                print ("LOOK HERE!")
-                print (current_user.id)
                 # old profile img selection found
                 if (temp_pi):
                     flash("Old selection found, setting new.")
-                    print ("Found old")
                     db.session.delete(temp_pi)
                     db.session.commit()
 
