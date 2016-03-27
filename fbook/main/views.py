@@ -444,6 +444,15 @@ def show_settings():
     return render_template('user/settings.html', un_form=new_username_form, \
     pass_form=new_password_form)
 
+def image_allowed(image):
+    allowed_extensions = ['png', 'jpg', 'jpeg']
+    f_ext = image.filename.rsplit('.')[1]
+    flash("Image is of type: "+str(f_ext))
+    if (f_ext in allowed_extensions):
+        return True
+    else:
+        return False
+
 # upload and set new profile image
 @main.route('/upload_pimage', methods=['POST'])
 @login_required
@@ -452,36 +461,41 @@ def upload_pimage():
     if (request.method=='POST' and 'pimage' in request.files):
         image_upload = request.files['pimage']
         if (image_upload):
-            flash("Image found")
-            user = User.query.filter_by(username=current_user.username).first()
-            if (user):
-                # save image and reference image to current user
-                flash("Trying to set image.")
+            flash("File found")
+            if (image_allowed(image_upload)):
+                user = User.query.filter_by(
+                        username=current_user.username).first()
+                if (user):
+                    # save image and reference image to current user
+                    flash("Trying to set image.")
 
-                image_upload = image_upload.read()
+                    image_upload = image_upload.read()
 
-                new_image = Image(file=image_upload)
-                new_image.set_id()
-                db.session.add(new_image)
-                db.session.commit()
-
-                # check for old profile image map
-                temp_pi = ProfileImageMap.query.filter_by(
-                            user_id=current_user.get_uuid()).first()
-                # old profile img selection found
-                if (temp_pi):
-                    flash("Old selection found, setting new.")
-                    db.session.delete(temp_pi)
+                    new_image = Image(file=image_upload)
+                    new_image.set_id()
+                    db.session.add(new_image)
                     db.session.commit()
 
-                new_pi_map = ProfileImageMap(user_id=current_user.get_uuid(),
-                                            image_id=new_image.get_id())
-                new_pi_map.set_id()
+                    # check for old profile image map
+                    temp_pi = ProfileImageMap.query.filter_by(
+                                user_id=current_user.get_uuid()).first()
+                    # old profile img selection found
+                    if (temp_pi):
+                        flash("Old selection found, setting new.")
+                        db.session.delete(temp_pi)
+                        db.session.commit()
 
-                db.session.add(new_pi_map)
-                db.session.commit()
+                    new_pi_map = ProfileImageMap(user_id=current_user.get_uuid(),
+                                                image_id=new_image.get_id())
+                    new_pi_map.set_id()
 
-                flash("Image successfully uploaded and set.")
+                    db.session.add(new_pi_map)
+                    db.session.commit()
+
+                    flash("Image successfully uploaded and set.")
+            else:
+                flash("Error: image extension not allowed. Allowed types: \
+                .png, .jpg, .jpeg.")
         else:
             flash("Error: No image was selected, found, or transferred.")
 
