@@ -123,6 +123,9 @@ class friend_request(Resource):
 		args = parser.parse_args();
 		author = args['author']
 		friend = args['friend']
+		print args
+		print author
+		print friend
 		# try to add author to remote authors
 
 		try:
