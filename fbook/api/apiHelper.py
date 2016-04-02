@@ -114,9 +114,12 @@ class ApiHelper():
 					url = 'http://' + node.service + node.prefix + uri
 				else:
 					url = 'http://' + node.service + uri
+				print node.service
+				if node.service == 'socialp2p.herokuapp.com':
+					url = url + '/'
 
 				print url
-				r = requests.post(url+'/', headers=headers, json=body)
+				r = requests.post(url, headers=headers, json=body)
 				print r.text
 				if r.status_code == 200:
 					responses.append(r.json())
