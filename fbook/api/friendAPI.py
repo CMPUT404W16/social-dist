@@ -123,8 +123,8 @@ class friend_request(Resource):
 		req = request.get_json(force=True)
 		author = req['author']
 		friend = req['friend']
-		print "author:" +author
-		print "friend:"+friend
+		print author
+		print friend
 
 		#try to add author to remote authors
 
