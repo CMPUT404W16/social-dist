@@ -54,6 +54,14 @@ class ChangeUsernameForm(Form):
         message='New username mismatch!')])
     submit_u = SubmitField('Set Username')
 
+# add github username
+class GithubUsernameForm(Form):
+    gitName = StringField('Github Username', validators=[Required()])
+    confirm = StringField('Confirm Github Username',
+        validators=[Required(), EqualTo('gitName',
+        message='Github Username mismatch!')])
+    submit_g = SubmitField('Set Github')
+
 class CommentForm(Form):
     body = StringField('', validators=[Required()])
     submit = SubmitField('Submit')
