@@ -113,20 +113,18 @@ class friend_request(Resource):
 	decorators = [auth.login_required]
 	def post(self):
 		data = {}
-		print "here"
-		print request.headers
-		print "data:" +request.data
-		print "json:" +request.get_json(force=True)
-		parser = reqparse.RequestParser()
-		parser.add_argument("author", type=dict, required=True, help='author not provided')
-		parser.add_argument("friend", type=dict, required=True, help='friend not provided')
-		args = parser.parse_args();
-		author = args.author
-		friend = args.friend
 		
-		print "args:"+args
-		print "author" +author
-		print "friend"+friend
+		# parser = reqparse.RequestParser()
+		# parser.add_argument("author", type=dict, required=True, help='author not provided')
+		# parser.add_argument("friend", type=dict, required=True, help='friend not provided')
+		# args = parser.parse_args();
+		# author = args.author
+		# friend = args.friend
+		req = request.get_json(force=True)
+		author = req['author']
+		friend = req['friend']
+		print "author:" +author
+		print "friend:"+friend
 
 		#try to add author to remote authors
 
