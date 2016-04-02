@@ -461,7 +461,7 @@ def show_friends(user):
     for user_id in friendsList:
         profile = helper.get('author', {'author_id': user_id})
 
-        if (len(profile) == 1):
+        if (len(profile) > 0):
             profile = profile[0]
             name = profile['displayname']
             uid = profile['id']
