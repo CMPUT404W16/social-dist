@@ -113,14 +113,14 @@ class friend_request(Resource):
 	decorators = [auth.login_required]
 	def post(self):
 		data = {}
-
+		print "here"
 		parser = reqparse.RequestParser()
 		parser.add_argument("author", type=dict, required=True)
 		parser.add_argument("friend", type=dict, required=True)
 		args = parser.parse_args();
-		author = args['author']
-		friend = args['friend']
-		print "here"
+		author = args.author
+		friend = args.friend
+		
 		print args
 		print author
 		print friend
