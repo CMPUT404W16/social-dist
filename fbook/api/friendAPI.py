@@ -132,7 +132,7 @@ class friend_request(Resource):
 			if author['host'] != friend['host']:
 				check = RemoteUser.query.filter_by(id=author['id']).first()
 				if check == None:
-					userx = RemoteUser(username=author['displayname'], id=author['id'], host=author['host'])
+					userx = RemoteUser(username=author['displayname'], id=author['id'], host=author['host']).first()
 		        	db.session.add(userx)
 		except Exception as e:
 			print e
