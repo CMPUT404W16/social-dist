@@ -510,6 +510,7 @@ def follow(user):
     # db.session.commit()
 
     u = helper.get('author', {'author_id': user})
+
     if (len(u) > 0):
         u = u[0]
         user = u['displayname']
