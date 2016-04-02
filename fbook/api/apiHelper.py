@@ -107,7 +107,7 @@ class ApiHelper():
 		nodes = RemoteNode.query.all()
 		for node in nodes:
 
-			if "http://" + node.service + "/" == host or "http://" + node.service + "/" == current_user.host:
+			if "http://" + node.service + "/" == host or node.service == current_user.host:
 
 				headers = self.createHeaders(node.username, node.password)
 				if node.prefix != None:
@@ -120,7 +120,7 @@ class ApiHelper():
 
 				print url
 				r = requests.post(url, headers=headers, json=body)
-				#print r.text
+				print r.text
 				if r.status_code == 200:
 					responses.append(r.json())
 
