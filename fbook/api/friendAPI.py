@@ -116,7 +116,7 @@ class friend_request(Resource):
 		print "here"
 		print request.headers
 		print request.data
-		print request.get_json()
+		print request.get_json(force=True)
 		parser = reqparse.RequestParser()
 		parser.add_argument("author", type=dict, required=True, help='author not provided')
 		parser.add_argument("friend", type=dict, required=True, help='friend not provided')
