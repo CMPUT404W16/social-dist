@@ -7,12 +7,12 @@
     <p>On profile: {{ user_profile }}, {{ user_id }}</p>
     <div id="profile-img">
         {% if (upi) %}
-        Found profile image
-        <br>
+        <!-- Found profile image
+        <br> -->
         <img src="data:;base64,{{ upi }}">
         {% else %}
-        <!-- <img src="https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png" alt="profile image"> -->
-        Profile image
+        <img src="https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png" alt="profile image">
+        <!-- Profile image -->
         {% endif %}
     </div>
     {% if (current_user.username != user_profile) %}
