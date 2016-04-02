@@ -536,7 +536,12 @@ def show_followers(user):
     followersx = []
     for follow in followerID:
         f = User.query.filter_by(id=follow.requester_id).first()
-        followersx.append([f.username, f.id])
+        if f:
+            followersx.append([f.username, f.id])
+        else:
+            f = RemoteUser.query.filter_by(id=follow.requester_id).first()
+            if f:
+                followersx.append([f.username, f.id])
 
 
     # u = helper.get('author', {'author_id': user})
