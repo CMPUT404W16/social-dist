@@ -5,7 +5,7 @@
         </div>
         <div class="post-content">
             <div class="post-date">{{ post['published'] }}</div>
-            <div class="post-author"><a href="">{{ post['author']['displayname'] }}</a></div>
+            <div class="post-author"><a href="{{'/users/' + post['author']['id'] }}">{{ post['author']['displayname'] }}</a></div>
             <div class="post-body">
                 <a href="{{url_for('.post', id=post.id)}}">{{ post['title'] }}</a>
             </div>
