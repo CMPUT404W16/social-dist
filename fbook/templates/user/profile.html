@@ -9,9 +9,9 @@
         {% if (upi) %}
         <!-- Found profile image
         <br> -->
-        <img src="data:;base64,{{ upi }}">
+        <img src="data:;base64,{{ upi }}" style="max-width:10em;max-height:10em;border:0.1em solid white;border-radius:0.4em;">
         {% else %}
-        <img src="https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png" alt="profile image">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png" alt="profile image" style="max-width:10em;max-height:10em;border:0.1em solid white;border-radius:0.4em;">
         <!-- Profile image -->
         {% endif %}
     </div>
