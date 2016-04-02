@@ -115,8 +115,8 @@ class friend_request(Resource):
 		data = {}
 		print "here"
 		print request.headers
-		print request.data
-		print request.get_json(force=True)
+		print "data:" +request.data
+		print "json:" +request.get_json(force=True)
 		parser = reqparse.RequestParser()
 		parser.add_argument("author", type=dict, required=True, help='author not provided')
 		parser.add_argument("friend", type=dict, required=True, help='friend not provided')
@@ -124,9 +124,9 @@ class friend_request(Resource):
 		author = args.author
 		friend = args.friend
 		
-		print args
-		print author
-		print friend
+		print "args:"+args
+		print "author" +author
+		print "friend"+friend
 
 		#try to add author to remote authors
 
