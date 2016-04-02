@@ -87,7 +87,7 @@ class ApiHelper():
 				url = 'http://' + node.service + node.prefix + uri
 			else:
 				url = 'http://' + node.service + uri
-			print url
+			#print url
 			r = requests.get(url, headers=headers)
 
 			#print r.text
@@ -106,7 +106,10 @@ class ApiHelper():
 		responses = []
 		nodes = RemoteNode.query.all()
 		for node in nodes:
-			if node.service == host or node.service == current_user.host:
+			print "current host: " + current_user.host
+			print "host: " + node.serivce
+
+			if "http://" + node.service + "/" == host or "http://" + node.service + "/" == current_user.host:
 
 				headers = self.createHeaders(node.username, node.password)
 				if node.prefix != None:
@@ -114,8 +117,9 @@ class ApiHelper():
 				else:
 					url = 'http://' + node.service + uri
 
+				#print url
 				r = requests.post(url, headers=headers, json=body)
-				print r.text
+				#print r.text
 				if r.status_code == 200:
 					responses.append(r.json())
 
