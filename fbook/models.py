@@ -68,7 +68,7 @@ class User(db.Model):
     password = db.Column(db.String(128))
     authenticated = db.Column(db.Boolean, default=False)
     host = db.Column(db.String(64))
-    #github = db.Column(db.String(64), default='')
+    github = db.Column(db.String(64), default='')
 
     @property
     def is_authenticated(self):
