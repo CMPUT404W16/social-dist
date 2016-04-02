@@ -113,7 +113,7 @@ class friend_request(Resource):
 	decorators = [auth.login_required]
 	def post(self):
 		data = {}
-		print request
+		print request.data
 		print request.get_json(force=True)
 		author = request.get_json()['author']
 		friend = request.get_json()['friend']
