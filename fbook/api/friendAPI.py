@@ -115,8 +115,8 @@ class friend_request(Resource):
 		data = {}
 		print "here"
 		parser = reqparse.RequestParser()
-		parser.add_argument("author", type=dict, required=True)
-		parser.add_argument("friend", type=dict, required=True)
+		parser.add_argument("author", type=dict, required=True, help='author not provided')
+		parser.add_argument("friend", type=dict, required=True, help='friend not provided')
 		args = parser.parse_args();
 		author = args.author
 		friend = args.friend
