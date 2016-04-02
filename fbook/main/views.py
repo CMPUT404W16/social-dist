@@ -411,6 +411,7 @@ def show_settings():
 
     new_username_form = ChangeUsernameForm()
     new_password_form = ChangePasswordForm()
+    github_form = GithubUsernameForm()
 
     if new_username_form.validate_on_submit() and new_username_form.submit_u.data:
         # check for existing username
@@ -440,9 +441,18 @@ def show_settings():
 
             flash("New password set.")
             return redirect(url_for('.show_settings'))
+    elif github_form.validate_on_submit() and github_form.submit_g.data:
+        # change github in db
+        user = User.query.filter_by(username=current_user.username).first()
+        if (user):
+            # change password in db
+            user.github = github_form.gitName.data
+            db.session.commit()
 
-    return render_template('user/settings.html', un_form=new_username_form, \
-    pass_form=new_password_form)
+            flash("Github Username set.")
+            return redirect(url_for('.show_settings'))
+
+    return render_template('user/settings.html', un_form=new_username_form, pass_form=new_password_form, git_form=github_form)
 
 def image_allowed(image):
     allowed_extensions = ['png', 'jpg', 'jpeg']
