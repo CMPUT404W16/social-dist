@@ -243,6 +243,7 @@ class CommentAPI(BasePostAPI):
 
 
 api.add_resource(PostAPI, '/api/posts', endpoint="public_post")
+api.add_resource(PostAPI, '/api/posts/')
 api.add_resource(PostAPI, '/api/posts/<string:post_id>', endpoint="post_id")
 api.add_resource(AuthorPost, '/api/author/posts', endpoint="author_post")
 api.add_resource(AuthorPost, '/api/author/<string:author_id>/posts',

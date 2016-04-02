@@ -33,7 +33,7 @@ def index():
                     markdown=form.mkdown.data,
                     privacy=int(form.privacy.data))
         post.set_id()
-        
+
         print form.image.data
         realpath = os.path.realpath(form.image.data)
         MYDIR = os.path.dirname(form.image.data)
@@ -46,14 +46,14 @@ def index():
             image = Image(file=blob_value)
             image.set_id()
 
-            image_posts = Image_Posts(post_id = post.get_id(), 
+            image_posts = Image_Posts(post_id = post.get_id(),
                 image_id = image.get_id()
                 )
             image_posts.set_id()
 
             db.session.add(image_posts)
             db.session.add(image)
-        
+
         db.session.add(post)
         db.session.commit()
         return redirect(url_for('.index'))
@@ -70,12 +70,12 @@ def index():
     post_ids=[]
     print posts
     # go through the list of posts and check to see if there is an image in them
-    for i in range(len(posts)): 
+    for i in range(len(posts)):
         for k, v in posts[i].items():
             if k == 'id':
                 #print v # the post_ids
                 post_ids.append(v)
-    
+
     # post_image is the dict where key is post_id and value is image_id
     post_image={}
     for post_id in post_ids:
@@ -111,7 +111,7 @@ def index():
                            posts=posts,
                            image={}
                            )
-        
+
 
 @main.route('/post/<string:id>', methods=['GET', 'POST'])
 def post(id):
@@ -163,7 +163,7 @@ def post(id):
                 # serve the image give i.__dict__['file'] contains the bytes of the image
                 # print i.__dict__['file']
                 print "serving image"
-                image[id] = (b64encode(i.__dict__['file']))    
+                image[id] = (b64encode(i.__dict__['file']))
 
         return render_template('post/post.html', posts=posts, form=form,
                                comments=comments, image=image, show=True)
@@ -236,12 +236,6 @@ def login():
 
     # signup form
     if signupForm.validate_on_submit():
-        # temp_user = User(username='admin', role_id=3,
-        #                  authenticated=1, host='localhost');
-        # temp_user.set_password('p1')
-        # temp_user.set_id()
-        # db.session.add(temp_user)
-        # db.session.commit()
         user = User.query.filter_by(username=signupForm.username.data).first()
         if user is None:
             ureq = UserRequest(username=signupForm.username.data)
@@ -385,7 +379,16 @@ def show_profile(user):
 
         idx = userx.id
 
-        return render_template('user/profile.html', user_profile=user, user_id=idx, user_obj=userx)
+        profile_image = None
+        pi_map = ProfileImageMap.query.filter_by(user_id=idx).first()
+        pimage = None
+        if (pi_map):
+            pimage = Image.query.filter_by(id=pi_map.image_id).first()
+            if (pimage):
+                profile_image = b64encode(pimage.__dict__['file'])
+
+        return render_template('user/profile.html', user_profile=user,
+                                user_id=idx, user_obj=userx, upi=profile_image)
     else:
         flash('ERROR user not found')
         return render_template('404.html')
@@ -451,6 +454,62 @@ def show_settings():
 
     return render_template('user/settings.html', un_form=new_username_form, pass_form=new_password_form, git_form=github_form)
 
+def image_allowed(image):
+    allowed_extensions = ['png', 'jpg', 'jpeg']
+    f_ext = image.filename.rsplit('.')[1]
+    flash("Image is of type: "+str(f_ext))
+    if (f_ext in allowed_extensions):
+        return True
+    else:
+        return False
+
+# upload and set new profile image
+@main.route('/upload_pimage', methods=['POST'])
+@login_required
+def upload_pimage():
+    # check for profile image upload
+    if (request.method=='POST' and 'pimage' in request.files):
+        image_upload = request.files['pimage']
+        if (image_upload):
+            flash("File found")
+            if (image_allowed(image_upload)):
+                user = User.query.filter_by(
+                        username=current_user.username).first()
+                if (user):
+                    # save image and reference image to current user
+                    flash("Trying to set image.")
+
+                    image_upload = image_upload.read()
+
+                    new_image = Image(file=image_upload)
+                    new_image.set_id()
+                    db.session.add(new_image)
+                    db.session.commit()
+
+                    # check for old profile image map
+                    temp_pi = ProfileImageMap.query.filter_by(
+                                user_id=current_user.get_uuid()).first()
+                    # old profile img selection found
+                    if (temp_pi):
+                        flash("Old selection found, setting new.")
+                        db.session.delete(temp_pi)
+                        db.session.commit()
+
+                    new_pi_map = ProfileImageMap(user_id=current_user.get_uuid(),
+                                                image_id=new_image.get_id())
+                    new_pi_map.set_id()
+
+                    db.session.add(new_pi_map)
+                    db.session.commit()
+
+                    flash("Image successfully uploaded and set.")
+            else:
+                flash("Error: image extension not allowed. Allowed types: \
+                .png, .jpg, .jpeg.")
+        else:
+            flash("Error: No image was selected, found, or transferred.")
+
+    return redirect(url_for('.show_settings'))
 
 # returns followers.html with a list of user's followers
 @main.route('/users/<user>/followers', methods=['GET'])

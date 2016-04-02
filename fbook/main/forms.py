@@ -2,7 +2,7 @@ from flask.ext.wtf import Form
 from wtforms import StringField, SubmitField, PasswordField, validators, SelectField
 from wtforms.validators import Required, EqualTo
 from flask.ext.uploads import UploadSet, IMAGES
-from flask_wtf.file import FileField, FileAllowed
+from flask_wtf.file import FileField, FileAllowed, FileRequired
 
 class PostForm(Form):
     title = StringField('Title', validators=[Required()])

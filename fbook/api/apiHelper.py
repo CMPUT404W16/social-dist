@@ -28,7 +28,7 @@ class ApiHelper():
 		if params['author_id']:
 			return '/friends/' + params['author_id']
 		else:
-			print 'No user id provided'    
+			print 'No user id provided'
 
 	def urlAuthor(params):
 		if params['author_id']:
@@ -39,7 +39,7 @@ class ApiHelper():
 	# def urlFollowers(params):
 
 	def urlFriendRequest(params):
-		return '/friendrequest'	
+		return '/friendrequest'
 
 	# FILL ME IN
 	urlFuncs = {
@@ -75,10 +75,10 @@ class ApiHelper():
 		return {'Authorization': 'Basic ' + authDetails}
 
 	def get(self, type, params=None):
-		callback = self.urlFuncs[type]		
+		callback = self.urlFuncs[type]
 		if callback != None:
 			uri = callback(params)
-		
+
 		responses = []
 		nodes = RemoteNode.query.all()
 		for node in nodes:
@@ -99,10 +99,10 @@ class ApiHelper():
 		return callback(responses)
 
 	def post(self, type, body, host, params=None):
-		callback = self.urlFuncs[type]		
+		callback = self.urlFuncs[type]
 		if callback != None:
 			uri = callback(params)
-		
+
 		responses = []
 		nodes = RemoteNode.query.all()
 		for node in nodes:
@@ -121,7 +121,6 @@ class ApiHelper():
 				if r.status_code == 200:
 					responses.append(r.json())
 
-		
 		return responses
 
 
