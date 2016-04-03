@@ -35,9 +35,9 @@ def index():
         post.set_id()
         db.session.add(post)
         db.session.commit()
-        print 'form data'
+
         if form.image.data: # only if an image to be uploaded has been chosen
-            print 'image data'
+            
             try:
                 blob_value = request.files['image'].read()
                 image = Image(file=blob_value)
@@ -67,12 +67,12 @@ def index():
     post_ids=[]
     #print posts
     # go through the list of posts and check to see if there is an image in them
-    for i in range(len(posts)): 
+    for i in range(len(posts)):
         for k, v in posts[i].items():
             if k == 'id':
                 #print v # the post_ids
                 post_ids.append(v)
-    
+
     # post_image is the dict where key is post_id and value is image_id
     post_image={}
     for post_id in post_ids:
@@ -120,8 +120,8 @@ def image(id):
 
     query = Image.query.filter_by(id = id).all()
     image = b64encode(query[0].__dict__['file'])
-    return render_template('image/image.html', image=image, show=True)        
 
+    return render_template('image/image.html', image=image, show=True)
 
 @main.route('/post/<string:id>', methods=['GET', 'POST'])
 def post(id):
@@ -172,7 +172,6 @@ def post(id):
             for i in image_query:
                 # serve the image give i.__dict__['file'] contains the bytes of the image
                 # print i.__dict__['file']
-                # print "serving image"
                 image[id] = (b64encode(i.__dict__['file']))    
 
         return render_template('post/post.html', posts=posts, form=form,
@@ -246,12 +245,6 @@ def login():
 
     # signup form
     if signupForm.validate_on_submit():
-        # temp_user = User(username='admin', role_id=3,
-        #                  authenticated=1, host='localhost');
-        # temp_user.set_password('p1')
-        # temp_user.set_id()
-        # db.session.add(temp_user)
-        # db.session.commit()
         user = User.query.filter_by(username=signupForm.username.data).first()
         if user is None:
             ureq = UserRequest(username=signupForm.username.data)
@@ -318,11 +311,12 @@ def register():
             print(e)
 
         # check validity of email
+        
         is_valid = validate_email(email, verify=True)
         if is_valid == False:
             flash("Invalid Email Address")
             valid_info = False
-
+        
         # check if email is unique in the table Node and NodeRequest
 
         equery = Node.query.filter_by(email=email).all()
@@ -395,7 +389,16 @@ def show_profile(user):
 
         idx = userx.id
 
-        return render_template('user/profile.html', user_profile=user, user_id=idx, user_obj=userx)
+        profile_image = None
+        pi_map = ProfileImageMap.query.filter_by(user_id=idx).first()
+        pimage = None
+        if (pi_map):
+            pimage = Image.query.filter_by(id=pi_map.image_id).first()
+            if (pimage):
+                profile_image = b64encode(pimage.__dict__['file'])
+
+        return render_template('user/profile.html', user_profile=user,
+                                user_id=idx, user_obj=userx, upi=profile_image)
     else:
         flash('ERROR user not found')
         return render_template('404.html')
@@ -418,6 +421,7 @@ def show_settings():
 
     new_username_form = ChangeUsernameForm()
     new_password_form = ChangePasswordForm()
+    github_form = GithubUsernameForm()
 
     if new_username_form.validate_on_submit() and new_username_form.submit_u.data:
         # check for existing username
@@ -447,9 +451,75 @@ def show_settings():
 
             flash("New password set.")
             return redirect(url_for('.show_settings'))
+    elif github_form.validate_on_submit() and github_form.submit_g.data:
+        # change github in db
+        user = User.query.filter_by(username=current_user.username).first()
+        if (user):
+            # change password in db
+            user.github = github_form.gitName.data
+            db.session.commit()
 
-    return render_template('user/settings.html', un_form=new_username_form, pass_form=new_password_form)
+            flash("Github Username set.")
+            return redirect(url_for('.show_settings'))
 
+    return render_template('user/settings.html', un_form=new_username_form, pass_form=new_password_form, git_form=github_form)
+
+def image_allowed(image):
+    allowed_extensions = ['png', 'jpg', 'jpeg']
+    f_ext = image.filename.rsplit('.')[1]
+    flash("Image is of type: "+str(f_ext))
+    if (f_ext in allowed_extensions):
+        return True
+    else:
+        return False
+
+# upload and set new profile image
+@main.route('/upload_pimage', methods=['POST'])
+@login_required
+def upload_pimage():
+    # check for profile image upload
+    if (request.method=='POST' and 'pimage' in request.files):
+        image_upload = request.files['pimage']
+        if (image_upload):
+            flash("File found")
+            if (image_allowed(image_upload)):
+                user = User.query.filter_by(
+                        username=current_user.username).first()
+                if (user):
+                    # save image and reference image to current user
+                    flash("Trying to set image.")
+
+                    image_upload = image_upload.read()
+
+                    new_image = Image(file=image_upload)
+                    new_image.set_id()
+                    db.session.add(new_image)
+                    db.session.commit()
+
+                    # check for old profile image map
+                    temp_pi = ProfileImageMap.query.filter_by(
+                                user_id=current_user.get_uuid()).first()
+                    # old profile img selection found
+                    if (temp_pi):
+                        flash("Old selection found, setting new.")
+                        db.session.delete(temp_pi)
+                        db.session.commit()
+
+                    new_pi_map = ProfileImageMap(user_id=current_user.get_uuid(),
+                                                image_id=new_image.get_id())
+                    new_pi_map.set_id()
+
+                    db.session.add(new_pi_map)
+                    db.session.commit()
+
+                    flash("Image successfully uploaded and set.")
+            else:
+                flash("Error: image extension not allowed. Allowed types: \
+                .png, .jpg, .jpeg.")
+        else:
+            flash("Error: No image was selected, found, or transferred.")
+
+    return redirect(url_for('.show_settings'))
 
 # returns followers.html with a list of user's followers
 @main.route('/users/<user>/followers', methods=['GET'])
@@ -476,7 +546,12 @@ def show_followers(user):
     followersx = []
     for follow in followerID:
         f = User.query.filter_by(id=follow.requester_id).first()
-        followersx.append([f.username, f.id])
+        if f:
+            followersx.append([f.username, f.id])
+        else:
+            f = RemoteUser.query.filter_by(id=follow.requester_id).first()
+            if f:
+                followersx.append([f.username, f.id])
 
 
     # u = helper.get('author', {'author_id': user})
@@ -553,7 +628,7 @@ def show_friends(user):
     for user_id in friendsList:
         profile = helper.get('author', {'author_id': user_id})
 
-        if (len(profile) == 1):
+        if (len(profile) > 0):
             profile = profile[0]
             name = profile['displayname']
             uid = profile['id']
@@ -602,6 +677,7 @@ def follow(user):
     # db.session.commit()
 
     u = helper.get('author', {'author_id': user})
+
     if (len(u) > 0):
         u = u[0]
         user = u['displayname']
@@ -682,6 +758,8 @@ def befriend(user):
     }
 
     helper.post('friend_request', body, userx.host)
+    helper.post
+
 
     flash("You have just befriended "+user)
 

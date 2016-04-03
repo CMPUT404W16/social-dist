@@ -2,7 +2,7 @@ from flask.ext.wtf import Form
 from wtforms import StringField, SubmitField, PasswordField, validators, SelectField
 from wtforms.validators import Required, EqualTo
 from flask.ext.uploads import UploadSet, IMAGES
-from flask_wtf.file import FileField, FileAllowed
+from flask_wtf.file import FileField, FileAllowed, FileRequired
 
 class PostForm(Form):
     title = StringField('Title', validators=[Required()])
@@ -53,6 +53,14 @@ class ChangeUsernameForm(Form):
         validators=[Required(), EqualTo('new_username',
         message='New username mismatch!')])
     submit_u = SubmitField('Set Username')
+
+# add github username
+class GithubUsernameForm(Form):
+    gitName = StringField('Github Username', validators=[Required()])
+    confirm = StringField('Confirm Github Username',
+        validators=[Required(), EqualTo('gitName',
+        message='Github Username mismatch!')])
+    submit_g = SubmitField('Set Github')
 
 class CommentForm(Form):
     body = StringField('', validators=[Required()])

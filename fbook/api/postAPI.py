@@ -146,6 +146,7 @@ class PostAPI(BasePostAPI):
 
         if post_id is None:
             self.posts = Post.query.filter_by(privacy=0)
+            # self.posts = Post.query
         else:
             self.posts = Post.query.filter_by(id=post_id)
             # check post exist or not
@@ -181,7 +182,8 @@ class AuthorPost(BasePostAPI):
 
         if author_id is None:
             #return all post visible to current authenticated user
-            self.posts = Post.query.filter_by(0)
+            # self.posts = Post.query.filter_by(0)
+            self.posts = Post.query
         else:
             #check user exist or not.
             user = User.query.filter_by(id=author_id).first_or_404()
@@ -241,6 +243,7 @@ class CommentAPI(BasePostAPI):
 
 
 api.add_resource(PostAPI, '/api/posts', endpoint="public_post")
+api.add_resource(PostAPI, '/api/posts/')
 api.add_resource(PostAPI, '/api/posts/<string:post_id>', endpoint="post_id")
 api.add_resource(AuthorPost, '/api/author/posts', endpoint="author_post")
 api.add_resource(AuthorPost, '/api/author/<string:author_id>/posts',

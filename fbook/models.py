@@ -68,6 +68,7 @@ class User(db.Model):
     password = db.Column(db.String(128))
     authenticated = db.Column(db.Boolean, default=False)
     host = db.Column(db.String(64))
+    github = db.Column(db.String(64), nullable=True)
 
     @property
     def is_authenticated(self):
@@ -86,6 +87,9 @@ class User(db.Model):
 
     def get_id(self):
         return self.username
+
+    def get_uuid(self):
+        return self.id
 
     def set_password(self, password):
         self.password = generate_password_hash(password)
@@ -204,13 +208,12 @@ class Image(db.Model):
     __tablename__ = 'images'
     id = db.Column(db.String(128), primary_key=True)
     file = db.Column(db.LargeBinary)
-    
+
     def set_id(self):
         self.id = str(uuid.uuid4())
 
     def get_id(self):
         return self.id
-
 
 class Image_Posts(db.Model):
     __tablename__ = 'image_posts'
@@ -221,6 +224,20 @@ class Image_Posts(db.Model):
     def set_id(self):
         self.id = str(uuid.uuid4())
 
+class ProfileImageMap(db.Model):
+    __tablename__ = 'profile_image_map'
+    id = db.Column(db.String(128), primary_key=True)
+    user_id = db.Column(db.String(128), db.ForeignKey('users.id'), unique=True)
+    image_id = db.Column(db.String(128), db.ForeignKey('images.id'))
+
+    def set_id(self):
+        self.id = str(uuid.uuid4())
+
+    def get_user_id(self):
+        return self.user_id
+
+    def get_image_id(self):
+        return self.image_id
 
 class Privacy:
     PUBLIC = 0
@@ -296,6 +313,3 @@ class RemoteUser(db.Model):
     id = db.Column(db.String(128), primary_key=True)
     host = db.Column(db.String(64))
     username = db.Column(db.String(64))
-
-
-

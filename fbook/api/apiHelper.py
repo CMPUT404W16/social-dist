@@ -28,7 +28,7 @@ class ApiHelper():
 		if params['author_id']:
 			return '/friends/' + params['author_id']
 		else:
-			print 'No user id provided'    
+			print 'No user id provided'
 
 	def urlAuthor(params):
 		if params['author_id']:
@@ -39,7 +39,7 @@ class ApiHelper():
 	# def urlFollowers(params):
 
 	def urlFriendRequest(params):
-		return '/friendrequest'	
+		return '/friendrequest'
 
 	# FILL ME IN
 	urlFuncs = {
@@ -75,10 +75,10 @@ class ApiHelper():
 		return {'Authorization': 'Basic ' + authDetails}
 
 	def get(self, type, params=None):
-		callback = self.urlFuncs[type]		
+		callback = self.urlFuncs[type]
 		if callback != None:
 			uri = callback(params)
-		
+
 		responses = []
 		nodes = RemoteNode.query.all()
 		for node in nodes:
@@ -87,7 +87,7 @@ class ApiHelper():
 				url = 'http://' + node.service + node.prefix + uri
 			else:
 				url = 'http://' + node.service + uri
-			print url
+			#print url
 			r = requests.get(url, headers=headers)
 
 			#print r.text
@@ -99,27 +99,31 @@ class ApiHelper():
 		return callback(responses)
 
 	def post(self, type, body, host, params=None):
-		callback = self.urlFuncs[type]		
+		callback = self.urlFuncs[type]
 		if callback != None:
 			uri = callback(params)
-		
+
 		responses = []
 		nodes = RemoteNode.query.all()
 		for node in nodes:
-			if node.service == host or node.service == current_user.host:
+
+			if "http://" + node.service + "/" == host or node.service == current_user.host:
 
 				headers = self.createHeaders(node.username, node.password)
 				if node.prefix != None:
 					url = 'http://' + node.service + node.prefix + uri
 				else:
 					url = 'http://' + node.service + uri
+				print node.service
+				if node.service == 'socialp2p.herokuapp.com':
+					url = url + '/'
 
+				print url
 				r = requests.post(url, headers=headers, json=body)
 				print r.text
 				if r.status_code == 200:
 					responses.append(r.json())
 
-		
 		return responses
 
 
