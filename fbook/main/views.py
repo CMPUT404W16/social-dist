@@ -10,11 +10,12 @@ from urlparse import urlparse
 from validate_email import validate_email
 import socket, httplib, urllib, os
 from ..api.apiHelper import ApiHelper
+from ..gitapi.gitfetch import GitAPI
 from binascii import *
 from base64 import b64encode, b64decode
 
 helper = ApiHelper()
-
+git_helper = GitAPI()
 @main.route('/', methods=['GET', 'POST'])
 @login_required
 def index():
@@ -24,6 +25,12 @@ def index():
     Accept GET POST method
     ROUTING: /
     """
+
+    try:
+        git_username = current_user._get_current_object().github
+        github = git_helper.fetch_events(git_username)
+    except:
+        github = []
     form = PostForm()
     if form.validate_on_submit():
         post = Post(title=form.title.data,
@@ -61,23 +68,23 @@ def index():
     posts=[]
     data = helper.get('posts')
 
-    #print data
+    # print data
     for item in data:
         if type(item) is not dict:
             continue
-        posts.extend(item['posts']) # switch to u'posts ?? or not??
+        posts.extend(item['posts'])
 
-    post_ids=[]
+    post_ids = []
     print posts
-    # go through the list of posts and check to see if there is an image in them
+    # go through the list of posts and check to see if there are images in them
     for i in range(len(posts)):
         for k, v in posts[i].items():
             if k == 'id':
-                #print v # the post_ids
+                # print v # the post_ids
                 post_ids.append(v)
 
     # post_image is the dict where key is post_id and value is image_id
-    post_image={}
+    post_image = {}
     for post_id in post_ids:
         query = Image_Posts.query.filter_by(post_id=post_id).all()
         if len(query) > 0: # there is an image with this post
@@ -102,7 +109,8 @@ def index():
                            form=form,
                            name=current_user.username,
                            posts=posts,
-                           image=image
+                           image=image,
+                           github=github
                            )
     else:
         return render_template('index.html',
@@ -110,6 +118,7 @@ def index():
                            name=current_user.username,
                            posts=posts,
                            image={}
+                           github=github
                            )
 
 
