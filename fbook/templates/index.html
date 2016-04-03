@@ -14,7 +14,43 @@
     {% endif %}
 </div>
 <div>
-    {{ wtf.quick_form(form) }}
+	<form action="/" method="POST" enctype="multipart/form-data">
+		
+		<!--{{ wtf.quick_form(form) }}-->
+		<div class="form-group">
+			<label for="title" class="control-label">Title</label>
+			<input type="text" class="form-control" name="title" id="title" value>
+		</div>
+
+		<div class="form-group">
+			<label for="body" class="control-label">What is on your mind?</label>
+			<input type="text" class="form-control" name="body" id="body">
+		</div>
+
+		<div class="form-group">
+			<label for="mkdown" class="control-label">Use markdown for this post?</label>
+			<select class="form-control" id="mkdown" name="mkdown">
+				<option selected value="F">No</option>
+				<option value="T">Yes</option>
+			</select>
+		</div>
+
+		<div class="form-group">
+			<label for="privacy" class="control-label">Public</label>
+			<select class="form-control" id="privacy" name="privacy">
+				<option selected value="0">Public</option>
+				<option value="1">Only Me</option>
+				<option value="2">Only Me and My friends</option>
+			</select>
+		</div>
+		
+		<div class="form-group">
+			<label for="image" class="control-label">Image</label>
+	    	<input type="file" class="form-control" name="image" id="image">
+	    </div>
+
+    	<input class="btn btn-default" id="submit" name="submit" type="submit" value="Post">
+	</form>
 </div>
  {% include 'post/_posts.html' %}
 {% endblock %}
