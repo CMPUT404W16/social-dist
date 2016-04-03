@@ -748,6 +748,8 @@ def befriend(user):
     }
 
     helper.post('friend_request', body, userx.host)
+    helper.post
+
 
     flash("You have just befriended "+user)
 
