@@ -22,7 +22,7 @@ class LoginForm(Form):
 	password = PasswordField('Password', validators=[Required()])
 	submitLogin = SubmitField('Login')
 
-# for singup
+# for signup
 class SignupForm(Form):
 	username = StringField('Username')
 	password = PasswordField('New Password', validators=[Required(), EqualTo('confirm', message='Passwords must match')])

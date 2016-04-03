@@ -25,7 +25,7 @@ def index():
     ROUTING: /
     """
     form = PostForm()
-    if form.validate_on_submit():
+    if request.method=='POST':
         post = Post(title=form.title.data,
                     body=form.body.data,
                     author_id=current_user._get_current_object().id,
@@ -33,29 +33,26 @@ def index():
                     markdown=form.mkdown.data,
                     privacy=int(form.privacy.data))
         post.set_id()
-        
-        print form.image.data
-        realpath = os.path.realpath(form.image.data)
-        MYDIR = os.path.dirname(form.image.data)
-        print MYDIR
-        print realpath
-
-        if(form.image.data): # only if an image to be uploaded has been chosen
-            blob_value = open(form.image.data, "rb").read()
-            #print blob_value
-            image = Image(file=blob_value)
-            image.set_id()
-
-            image_posts = Image_Posts(post_id = post.get_id(), 
-                image_id = image.get_id()
-                )
-            image_posts.set_id()
-
-            db.session.add(image_posts)
-            db.session.add(image)
-        
         db.session.add(post)
         db.session.commit()
+        print 'form data'
+        if form.image.data: # only if an image to be uploaded has been chosen
+            print 'image data'
+            try:
+                blob_value = request.files['image'].read()
+                image = Image(file=blob_value)
+                image.set_id()
+                db.session.add(image)
+                db.session.commit()
+                image_posts = Image_Posts(post_id = post.get_id(), 
+                    image_id = image.get_id()
+                    )
+                image_posts.set_id()
+                db.session.add(image_posts)
+                db.session.commit()
+            except: 
+                flash ("Unable to locate image")
+        
         return redirect(url_for('.index'))
 
     posts=[]
@@ -68,7 +65,7 @@ def index():
         posts.extend(item['posts']) # switch to u'posts ?? or not??
 
     post_ids=[]
-    print posts
+    #print posts
     # go through the list of posts and check to see if there is an image in them
     for i in range(len(posts)): 
         for k, v in posts[i].items():
@@ -84,7 +81,7 @@ def index():
             for i in query:
                 post_image[post_id]=i.__dict__['image_id']
 
-    print post_image
+    # print post_image
     # serve images based on post ids
     image = {}
     for post_id, image_id in post_image.items():
@@ -93,7 +90,7 @@ def index():
             for i in query:
                 # serve the image give i.__dict__['file'] contains the bytes of the image
                 # print i.__dict__['file']
-                print "serving image"
+                # print "serving image"
                 image[post_id] = (b64encode(i.__dict__['file']))
 
     #print image
@@ -111,7 +108,20 @@ def index():
                            posts=posts,
                            image={}
                            )
-        
+
+
+@main.route('/image/<string:id>', methods=['GET', 'POST'])
+def image(id):
+    #api = ApiHelper()
+    #images = api.get('images', {"image_id": id})
+    #if len(images) == 0:
+    #    abort(404)
+    image = Image.query.get_or_404(id)
+
+    query = Image.query.filter_by(id = id).all()
+    image = b64encode(query[0].__dict__['file'])
+    return render_template('image/image.html', image=image, show=True)        
+
 
 @main.route('/post/<string:id>', methods=['GET', 'POST'])
 def post(id):
@@ -162,7 +172,7 @@ def post(id):
             for i in image_query:
                 # serve the image give i.__dict__['file'] contains the bytes of the image
                 # print i.__dict__['file']
-                print "serving image"
+                # print "serving image"
                 image[id] = (b64encode(i.__dict__['file']))    
 
         return render_template('post/post.html', posts=posts, form=form,
