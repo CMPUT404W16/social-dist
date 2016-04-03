@@ -1,0 +1,15 @@
+{% extends "user/profile.html" %}
+
+{% block child_content %}
+<script type="text/javascript">
+$("#tab-posts").attr('class', 'active');
+</script>
+<div class="page-header">
+  <h1>Your Posts</h1>
+</div>
+<!-- populate author's posts here -->
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+{% endblock %}
