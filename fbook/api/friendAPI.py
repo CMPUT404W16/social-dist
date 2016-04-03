@@ -9,8 +9,9 @@ from apiHelper import ApiHelper
 
 helper = ApiHelper()
 
+
 class friends(Resource):
-	decorators = [auth.login_required]
+    decorators = [auth.login_required]
 	# a reponse of users friends
 	# ask a service http://service/friends/<authorid>
 	def get(self, authorid):
@@ -25,8 +26,8 @@ class friends(Resource):
 		for friend in b:
 			friendsList.append(friend.a_id)
 
-		
-		
+
+
 		data['query'] = 'friends'
 		data['friends'] = friendsList
 
@@ -66,7 +67,7 @@ class profile(Resource):
 		data = {}
 
 		user = User.query.filter_by(id=authorid).first_or_404()
-		
+
 		data["id"] = user.id
 		data["host"] = user.host
 		data["displayname"] = user.username
@@ -77,7 +78,7 @@ class profile(Resource):
 
 		a = Friend.query.filter_by(a_id=authorid).all()
 		b = Friend.query.filter_by(b_id=authorid).all()
-		
+
 		for friend in a:
 			user = User.query.filter_by(id=friend.b_id).first()
 			if user != None:
@@ -103,7 +104,7 @@ class profile(Resource):
 			usr["displayname"] = friend.username
 			usr["url"] = user.host+"/author/"+user.id
 			data["friends"].append(usr)
-		
+
 		return data
 
 #
@@ -113,7 +114,7 @@ class friend_request(Resource):
 	decorators = [auth.login_required]
 	def post(self):
 		data = {}
-		
+
 		# parser = reqparse.RequestParser()
 		# parser.add_argument("author", type=dict, required=True, help='author not provided')
 		# parser.add_argument("friend", type=dict, required=True, help='friend not provided')
@@ -163,7 +164,7 @@ class friend(Resource):
 			friends = True
 
 		friendsList = [authorid1, authorid2]
-		
+
 		data['query'] = 'friends'
 		data['authors'] = friendsList
 		data['friends'] = friends
