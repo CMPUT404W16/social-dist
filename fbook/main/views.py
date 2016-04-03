@@ -50,6 +50,9 @@ def index():
                     image_posts.set_id()
                     db.session.add(image_posts)
                     db.session.commit()
+                else:
+                    flash("Error: image extension not allowed. Allowed types: \
+                .png, .jpg, .jpeg.")
             except: 
                 flash ("Unable to read image")
         
