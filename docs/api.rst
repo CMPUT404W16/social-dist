@@ -10,14 +10,106 @@ Post API
 
     List all post which marked as public on the server.
 
+    **Response see**
+    https://github.com/abramhindle/CMPUT404-project-socialdistribution/blob/master/example-article.json
+
+    :query page: Page number, default is 0
+    :query size: How much item per page, default is 50
+    :statuscode 200: no error
+    :statuscode 404: there's no author
+
 .. http:get:: /api/posts/(int:post_id)
 
     Access a single post with `post_id`.
+
+    **Response see**
+    https://github.com/abramhindle/CMPUT404-project-socialdistribution/blob/master/example-article.json
+
+    :query page: Page number, default is 0
+    :query size: How much item per page, default is 50
+    :statuscode 200: no error
+    :statuscode 404: there's no author
 
 .. http:get:: /api/posts/(int:post_id)/comments
 
     Access the comments of the post with `post_id`.
 
+    **Example Response**
+
+    .. sourcecode:: http
+
+      HTTP/1.1 200 OK
+      Vary: Accept
+      Content-Type: application/json
+
+      {
+          "comments": [
+              {
+                  "author": {
+                      "displayname": "admin",
+                      "host": "floating-sands-69681.herokuapp.com",
+                      "id": "c9f68593-a6e3-41af-913d-07dc01bfd6f5",
+                      "url": "floating-sands-69681.herokuapp.com/author/c9f68593-a6e3-41af-913d-07dc01bfd6f5"
+                  },
+                  "comment": "hello",
+                  "contentType": "text/plain",
+                  "id": "f195831c-8093-4fc7-b0b4-7ab5e53dd172",
+                  "published": "2016-03-23T23:36:55.388974"
+              },
+              {
+                  "author": {
+                      "displayname": "admin",
+                      "host": "floating-sands-69681.herokuapp.com",
+                      "id": "c9f68593-a6e3-41af-913d-07dc01bfd6f5",
+                      "url": "floating-sands-69681.herokuapp.com/author/c9f68593-a6e3-41af-913d-07dc01bfd6f5"
+                  },
+                  "comment": "hello",
+                  "contentType": "text/plain",
+                  "id": "d037b08e-fb49-4bcf-8037-6d3f69ae696d",
+                  "published": "2016-03-23T23:36:54.311290"
+              }
+          ],
+          "count": 2,
+          "query": "comments",
+          "size": 50
+      }
+
+    :query page: Page number, default is 0
+    :query size: How much item per page, default is 50
+    :statuscode 200: no error
+    :statuscode 404: there's no author
+
+.. http:post:: /api/posts/(string:post_id)/comments
+
+    Post the comments of the post with `post_id`.
+
+    **Example Request**
+
+    .. sourcecode:: http
+
+        POST /api/posts/123213
+        Host: example.com
+        Content-Type: application/json
+
+        {
+            author: {
+                "id":"de305d54-75b4-431b-adb2-eb6b9e546013",
+                "host":"http://127.0.0.1:5454/",
+                "displayName":"Greg Johnson",
+                "url":"http://127.0.0.1:5454/author/9de17f29c12e8f97bcbbd34cc908f1baba40658e",
+                "github": "http://github.com/gjohnson"
+            },
+            "comment": "Haha!",
+            "contentType":"text/x-markdown",
+            "published":"2015-03-09T13:07:04+00:00"
+        }
+
+    **The response same as GET method**
+
+    :query page: Page number, default is 0
+    :query size: How much item per page, default is 50
+    :statuscode 200: no error
+    :statuscode 404: there's no author
 
 Author API
 ----------
@@ -173,8 +265,8 @@ Friend API
 
     .. sourcecode:: http
 
-        HTTP/1.1 200 OK
-        Vary: Accept
+        POST /api/friendrequest HTTP/1.1
+        Host: example.com
         Content-Type: application/json
 
         {

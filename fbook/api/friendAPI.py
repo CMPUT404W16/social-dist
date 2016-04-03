@@ -113,17 +113,26 @@ class friend_request(Resource):
 	decorators = [auth.login_required]
 	def post(self):
 		data = {}
-
-		author = request.get_json()['author']
-		friend = request.get_json()['friend']
 		
-		# try to add author to remote authors
+		# parser = reqparse.RequestParser()
+		# parser.add_argument("author", type=dict, required=True, help='author not provided')
+		# parser.add_argument("friend", type=dict, required=True, help='friend not provided')
+		# args = parser.parse_args();
+		# author = args.author
+		# friend = args.friend
+		req = request.get_json(force=True)
+		author = req['author']
+		friend = req['friend']
+		print author
+		print friend
+
+		#try to add author to remote authors
 
 		try:
 			if author['host'] != friend['host']:
 				check = RemoteUser.query.filter_by(id=author['id']).first()
 				if check == None:
-					userx = RemoteUser(username=author['displayname'], id=author['id'], host=author['host'])
+					userx = RemoteUser(username=author['displayname'], id=author['id'], host=author['host']).first()
 		        	db.session.add(userx)
 		except Exception as e:
 			print e

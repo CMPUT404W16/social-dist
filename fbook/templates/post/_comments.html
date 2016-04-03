@@ -9,7 +9,7 @@
         </div>
         <div class="comment-content">
             <div class="comment-date">{{ comment['published'] }}</div>
-            <div class="comment-author"><a href="">{{ comment['author']['displayname'] }}</a></div>
+            <div class="comment-author"><a href="{{'/users/' + comment['author']['id'] }}">{{ comment['author']['displayname'] }}</a></div>
             <div class="comment-body">
                     {% if comment['contentType'] == "text/x-markdown" %}
                         {{ comment['comment'] | markdown}}
