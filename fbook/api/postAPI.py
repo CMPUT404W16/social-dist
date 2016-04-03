@@ -12,6 +12,7 @@ import datetime
 
 helper = ApiHelper()
 
+
 class BasePostAPI(Resource):
     decorators = [auth.login_required]
     BASE_URL = ""
@@ -20,14 +21,13 @@ class BasePostAPI(Resource):
     def generate_post_response(self, page=0, page_size=50):
         response = {"query": "posts",
                     "size": page_size}
-
         posts = self.posts.order_by(Post.timestamp.desc()).paginate(page+1,
-                    page_size)
+                page_size)
         response['count'] = posts.total
 
         total_page = posts.total / page_size
 
-        #check whether the page is the first page
+        # check whether the page is the first page
         if page != 0:
             response['previous'] = self.API_URL + "?page=%s&size=%s" % (page-1,
                     page_size)
@@ -42,9 +42,9 @@ class BasePostAPI(Resource):
 
     def generate_author(self, id):
         user = User.query.filter_by(id=id).first()
-        if user == None:
+        if user is None:
             user = RemoteUser.query.filter_by(id=id).first()
-            if user == None:
+            if user is None:
                 u = helper.get('author', {'author_id': id})
                 if len(u) > 0:
                     u = u[0]
@@ -54,7 +54,8 @@ class BasePostAPI(Resource):
                         "displayname": u['displayname'],
                         "url": "%s/author/%s" % (u['host'], u['id'])
                     }
-                    remote = RemoteUser(id=u['id'], host=u['host'], username=u['displayname'])
+                    remote = RemoteUser(id=u['id'], host=u['host'],
+                            username=u['displayname'])
                     db.session.add(remote)
                     db.session.commit()
                 else:
@@ -69,13 +70,13 @@ class BasePostAPI(Resource):
                     "id": user.id,
                     "host": user.host,
                     "displayname": user.username,
-                    "url":"%s/author/%s" % (user.host, user.id)
+                    "url": "%s/author/%s" % (user.host, user.id)
                 }
         else:
             author = {"id": user.id,
                       "host":  user.host,
                       "displayname": user.username,
-                      #"github": "",
+                      "github": user.github,
                       "url": "%s/author/%s" % (user.host, user.id)}
 
         return author
@@ -91,7 +92,7 @@ class BasePostAPI(Resource):
 
         post["contentType"] = "text/x-markdown" if cu.markdown == "T" else "text/plain"
 
-        #5 comments per page.
+        # 5 comments per page.
         comments = cu.comments.paginate(1, 5)
         post["count"] = comments.total
 
@@ -107,12 +108,12 @@ class BasePostAPI(Resource):
                     "size": page_size}
 
         comments = cu.order_by(Comment.timestamp.desc()).paginate(page+1,
-                    page_size)
+                page_size)
         response['count'] = comments.total
 
         total_page = comments.total / page_size
 
-        #check whether the page is the first page
+        # check whether the page is the first page
         if page != 0:
             response['previous'] = self.API_URL + "?page=%s&size=%s" % (page-1,
                     page_size)
@@ -181,13 +182,14 @@ class AuthorPost(BasePostAPI):
         args = parser.parse_args()
 
         if author_id is None:
-            #return all post visible to current authenticated user
+            # return all post visible to current authenticated user
             # self.posts = Post.query.filter_by(0)
             self.posts = Post.query
         else:
-            #check user exist or not.
+            # check user exist or not.
             user = User.query.filter_by(id=author_id).first_or_404()
-            #return all post write by author_id and visible to current authenticated user
+            # return all post write by author_id
+            # and visible to current authenticated user
             self.posts = Post.query.filter_by(author_id=author_id)
 
         return self.generate_post_response(args.page, args.page_size)
@@ -202,7 +204,7 @@ class CommentAPI(BasePostAPI):
 
         args = parser.parse_args()
 
-        #check user exist or not.
+        # check user exist or not.
         cu = Post.query.filter_by(id=post_id).first_or_404()
 
         return self.generate_comment_response(cu.comments, args.page, args.page_size)
