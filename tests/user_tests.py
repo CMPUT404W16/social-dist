@@ -27,7 +27,7 @@ class StartingTestCase(unittest.TestCase):
         self.app_context.pop()       
 
     # --------------------------------------------------------------------------
-    # User/profile tests
+    # User/profile and Post tests
     # --------------------------------------------------------------------------
 
     # As an author, I want to befriend local authors
@@ -167,8 +167,54 @@ class StartingTestCase(unittest.TestCase):
 
         assert test1 or test2
 
+    # test comments
+    def comment(self):
+        self.user = User(username='test_user')
+        self.user.set_password('pass')
+        self.user.set_id()
 
+        db.session.add(self.user)
+        db.session.commit()
 
+        assert self.user in db.session
+        driver.save_screenshot('test.png')
+
+        self.driver.get(self.baseURL)
+        self.driver.find_element_by_id("name").send_keys("test_user")
+        self.driver.find_element_by_id("password").send_keys("pass")
+        self.driver.find_element_by_id("submit").click()
+
+        self.driver.find_element_by_id("post_title").click()
+        self.driver.find_element_by_id("comment_box").send_keys("THIS IS A COMMENT")
+        self.driver.find_element_by_id("comment_submit").click()
+
+        test = Comment.query.filter_by(body="THIS IS A COMMENT").first()
+        assert test
+
+    # test posts
+    def post(self):
+        self.user = User(username='test_user')
+        self.user.set_password('pass')
+        self.user.set_id()
+
+        db.session.add(self.user)
+        db.session.commit()
+
+        assert self.user in db.session
+        driver.save_screenshot('test.png')
+
+        self.driver.get(self.baseURL)
+        self.driver.find_element_by_id("name").send_keys("test_user")
+        self.driver.find_element_by_id("password").send_keys("pass")
+        self.driver.find_element_by_id("submit").click()
+
+        self.driver.find_element_by_id("post_title").send_keys("This is title")
+        self.driver.find_element_by_id("post_body").send_keys("This is a post")
+        self.driver.find_element_by_id("post_submit").click()
+
+        test = Post.query.filter_by(title="This is a title").first()
+
+        assert test
 
 if __name__ == '__main__':
     unittest.main()

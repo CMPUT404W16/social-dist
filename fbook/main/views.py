@@ -467,7 +467,7 @@ def show_settings():
 def image_allowed(image):
     allowed_extensions = ['png', 'jpg', 'jpeg']
     f_ext = image.filename.rsplit('.')[1]
-    flash("Image is of type: "+str(f_ext))
+    # flash("Image is of type: "+str(f_ext))
     if (f_ext in allowed_extensions):
         return True
     else:
@@ -481,13 +481,13 @@ def upload_pimage():
     if (request.method=='POST' and 'pimage' in request.files):
         image_upload = request.files['pimage']
         if (image_upload):
-            flash("File found")
+            # flash("File found")
             if (image_allowed(image_upload)):
                 user = User.query.filter_by(
                         username=current_user.username).first()
                 if (user):
                     # save image and reference image to current user
-                    flash("Trying to set image.")
+                    # flash("Trying to set image.")
 
                     image_upload = image_upload.read()
 
@@ -501,7 +501,7 @@ def upload_pimage():
                                 user_id=current_user.get_uuid()).first()
                     # old profile img selection found
                     if (temp_pi):
-                        flash("Old selection found, setting new.")
+                        flash("Old profile image found, setting new profile image.")
                         db.session.delete(temp_pi)
                         db.session.commit()
 
@@ -520,6 +520,82 @@ def upload_pimage():
             flash("Error: No image was selected, found, or transferred.")
 
     return redirect(url_for('.show_settings'))
+
+# returns posts.html with a list of user's posts
+@main.route('/users/<user>/posts', methods=['GET'])
+@login_required
+def show_self_posts(user):
+    """
+    Author's own posts page view function.
+
+    Accept GET method
+    ROUTING: /users/<user>/posts
+
+    Returns the posts.html populated with <user>'s posts from a db
+    query.
+
+    The view is passed with:
+    posts: a list of <user>'s posts
+    image: a list of <user>'s posts' images
+    user_profile: <user>'s username: string
+    user_id: <user>'s id: string
+    user_obj: User mode object
+    """
+
+    userx = User.query.filter_by(id=user).first()
+
+    posts=[]
+    data = helper.get('posts', {'curr_author': user, 'author_id': user})
+
+    #print data
+    for item in data:
+        if type(item) is not dict:
+            continue
+        posts.extend(item['posts']) # switch to u'posts ?? or not??
+
+    post_ids=[]
+    print posts
+    # go through the list of posts and check to see if there is an image in them
+    for i in range(len(posts)):
+        for k, v in posts[i].items():
+            if k == 'id':
+                #print v # the post_ids
+                post_ids.append(v)
+
+    # post_image is the dict where key is post_id and value is image_id
+    post_image={}
+    for post_id in post_ids:
+        query = Image_Posts.query.filter_by(post_id=post_id).all()
+        if len(query) > 0: # there is an image with this post
+            for i in query:
+                post_image[post_id]=i.__dict__['image_id']
+
+    print post_image
+    # serve images based on post ids
+    image = {}
+    for post_id, image_id in post_image.items():
+        query = Image.query.filter_by(id=image_id).all()
+        if len(query) > 0:
+            for i in query:
+                # serve the image give i.__dict__['file'] contains the bytes of the image
+                # print i.__dict__['file']
+                print "serving image"
+                image[post_id] = (b64encode(i.__dict__['file']))
+
+    if (len(image) > 0):
+        return render_template('user/posts.html',
+                                posts=posts,
+                                image=image,
+                                user_profile=current_user.username,
+                                user_id=current_user.id,
+                                user_obj=userx)
+    else:
+        return render_template('user/posts.html',
+                                posts=posts,
+                                image={},
+                                user_profile=current_user.username,
+                                user_id=current_user.id,
+                                user_obj=userx)
 
 # returns followers.html with a list of user's followers
 @main.route('/users/<user>/followers', methods=['GET'])
