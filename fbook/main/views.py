@@ -106,7 +106,30 @@ def index():
                 print "serving image"
                 image[post_id] = (b64encode(i.__dict__['file']))
 
-    #print image
+    posts_result = []
+    # filter for posts
+    for item in posts:
+        flag = ''
+        try:
+            flag = item['target']
+        except:
+            flag = ''
+        if flag is not '' and flag == current_user._get_current_object.username:
+            posts_result.append(item)
+        elif item['author']['id'] == current_user._get_current_object.id:
+            posts_result.append(item)
+        elif item['visibility'].lower() == 'public':
+            posts_result.append(item)
+        elif item['visibility'].lower() == 'private':
+            if item['author']['id'] == current_user._get_current_object.id:
+                posts_result.append(item)
+        elif item['visibility'].lower() == 'private to friends':
+            if item['author']['id'] == current_user._get_current_object.id or
+                is_friend(current_user._get_current_object.id, item['author']['id'])
+                posts_result.append(item)
+
+    posts = posts_result
+     # print image
     if len(image) > 0:
         return render_template('index.html',
                            form=form,
