@@ -32,8 +32,8 @@
     </ul>
 </div>
 <ul class="nav nav-tabs">
-    <li id="tab-posts" role="presentation"><a href="#">Posts</a></li>
     {% if (current_user.username == user_profile) %}
+    <li id="tab-posts" role="presentation"><a href={{ '/users/'+current_user.id+'/posts' }}>Posts</a></li>
     <li id="tab-friends" role="presentation"><a href={{ '/users/'+current_user.id+'/friends' }}>Friends</a></li>
     <li id="tab-followers" role="presentation"><a href={{ '/users/'+current_user.id+'/followers' }}>Followers</a></li>
     {% endif %}
