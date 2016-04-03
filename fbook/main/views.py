@@ -34,25 +34,23 @@ def index():
                     privacy=int(form.privacy.data))
         post.set_id()
         
-        print form.image.data
-        realpath = os.path.realpath(form.image.data)
-        MYDIR = os.path.dirname(form.image.data)
-        print MYDIR
-        print realpath
-
         if(form.image.data): # only if an image to be uploaded has been chosen
-            blob_value = open(form.image.data, "rb").read()
-            #print blob_value
-            image = Image(file=blob_value)
-            image.set_id()
+            try:
+                blob_value = open(form.image.data, "rb").read()
+                #print blob_value
+                image = Image(file=blob_value)
+                image.set_id()
 
-            image_posts = Image_Posts(post_id = post.get_id(), 
-                image_id = image.get_id()
-                )
-            image_posts.set_id()
+                image_posts = Image_Posts(post_id = post.get_id(), 
+                    image_id = image.get_id()
+                    )
+                image_posts.set_id()
 
-            db.session.add(image_posts)
-            db.session.add(image)
+                db.session.add(image)
+                db.session.add(image_posts)
+
+            except: 
+                flash ("Unable to locate image")
         
         db.session.add(post)
         db.session.commit()
@@ -111,7 +109,20 @@ def index():
                            posts=posts,
                            image={}
                            )
-        
+
+
+@main.route('/image/<string:id>', methods=['GET', 'POST'])
+def image(id):
+    #api = ApiHelper()
+    #images = api.get('images', {"image_id": id})
+    #if len(images) == 0:
+    #    abort(404)
+    image = Image.query.get_or_404(id)
+
+    query = Image.query.filter_by(id = id).all()
+    image = b64encode(query[0].__dict__['file'])
+    return render_template('image/image.html', image=image, show=True)        
+
 
 @main.route('/post/<string:id>', methods=['GET', 'POST'])
 def post(id):
