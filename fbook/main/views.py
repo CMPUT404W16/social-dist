@@ -36,22 +36,22 @@ def index():
         db.session.add(post)
         db.session.commit()
 
-        if form.image.data: # only if an image to be uploaded has been chosen
-            
+        if form.image.data: # only if an image to be uploaded has been chosen            
             try:
-                blob_value = request.files['image'].read()
-                image = Image(file=blob_value)
-                image.set_id()
-                db.session.add(image)
-                db.session.commit()
-                image_posts = Image_Posts(post_id = post.get_id(), 
-                    image_id = image.get_id()
-                    )
-                image_posts.set_id()
-                db.session.add(image_posts)
-                db.session.commit()
+                if (image_allowed(request.files['image'])):
+                    blob_value = request.files['image'].read()
+                    image = Image(file=blob_value)
+                    image.set_id()
+                    db.session.add(image)
+                    db.session.commit()
+                    image_posts = Image_Posts(post_id = post.get_id(), 
+                        image_id = image.get_id()
+                        )
+                    image_posts.set_id()
+                    db.session.add(image_posts)
+                    db.session.commit()
             except: 
-                flash ("Unable to locate image")
+                flash ("Unable to read image")
         
         return redirect(url_for('.index'))
 
