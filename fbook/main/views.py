@@ -457,7 +457,7 @@ def show_settings():
 def image_allowed(image):
     allowed_extensions = ['png', 'jpg', 'jpeg']
     f_ext = image.filename.rsplit('.')[1]
-    flash("Image is of type: "+str(f_ext))
+    # flash("Image is of type: "+str(f_ext))
     if (f_ext in allowed_extensions):
         return True
     else:
@@ -471,13 +471,13 @@ def upload_pimage():
     if (request.method=='POST' and 'pimage' in request.files):
         image_upload = request.files['pimage']
         if (image_upload):
-            flash("File found")
+            # flash("File found")
             if (image_allowed(image_upload)):
                 user = User.query.filter_by(
                         username=current_user.username).first()
                 if (user):
                     # save image and reference image to current user
-                    flash("Trying to set image.")
+                    # flash("Trying to set image.")
 
                     image_upload = image_upload.read()
 
@@ -491,7 +491,7 @@ def upload_pimage():
                                 user_id=current_user.get_uuid()).first()
                     # old profile img selection found
                     if (temp_pi):
-                        flash("Old selection found, setting new.")
+                        flash("Old profile image found, setting new profile image.")
                         db.session.delete(temp_pi)
                         db.session.commit()
 
@@ -525,9 +525,11 @@ def show_self_posts(user):
     query.
 
     The view is passed with:
-    friends: a Python list of <user>'s friends
+    posts: a list of <user>'s posts
+    image: a list of <user>'s posts' images
     user_profile: <user>'s username: string
     user_id: <user>'s id: string
+    user_obj: User mode object
     """
 
     userx = User.query.filter_by(id=user).first()
