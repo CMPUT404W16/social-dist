@@ -240,9 +240,7 @@ class CommentAPI(BasePostAPI):
         comment.set_id()
         db.session.add(comment)
         db.session.commit()
-
         return self.get(post_id)
-
 
 api.add_resource(PostAPI, '/api/posts', endpoint="public_post")
 api.add_resource(PostAPI, '/api/posts/')

@@ -16,6 +16,8 @@ from base64 import b64encode, b64decode
 
 helper = ApiHelper()
 git_helper = GitAPI()
+
+
 @main.route('/', methods=['GET', 'POST'])
 @login_required
 def index():
@@ -47,14 +49,14 @@ def index():
         print MYDIR
         print realpath
 
-        if(form.image.data): # only if an image to be uploaded has been chosen
+        if(form.image.data):  # only if an image to be uploaded has been chosen
             blob_value = open(form.image.data, "rb").read()
-            #print blob_value
+            # print blob_value
             image = Image(file=blob_value)
             image.set_id()
 
-            image_posts = Image_Posts(post_id = post.get_id(),
-                image_id = image.get_id()
+            image_posts = Image_Posts(post_id=post.get_id(),
+                image_id=image.get_id()
                 )
             image_posts.set_id()
 
@@ -65,7 +67,7 @@ def index():
         db.session.commit()
         return redirect(url_for('.index'))
 
-    posts=[]
+    posts = []
     data = helper.get('posts')
 
     # print data
@@ -87,9 +89,9 @@ def index():
     post_image = {}
     for post_id in post_ids:
         query = Image_Posts.query.filter_by(post_id=post_id).all()
-        if len(query) > 0: # there is an image with this post
+        if len(query) > 0:  # there is an image with this post
             for i in query:
-                post_image[post_id]=i.__dict__['image_id']
+                post_image[post_id] = i.__dict__['image_id']
 
     print post_image
     # serve images based on post ids
@@ -130,7 +132,7 @@ def post(id):
     Accept GET POST method
     ROUTING: /post/<int:id>
     """
-    #post = Post.query.get_or_404(id)
+    # post = Post.query.get_or_404(id)
     api = ApiHelper()
     posts = api.get('posts', {"post_id": id})
     if len(posts) == 0:
@@ -154,18 +156,18 @@ def post(id):
         flash('Your comment has been created')
         return redirect(url_for('.post', id=post.id))
 
-    #comments = Comment.query.filter_by(post_id=post.id)
+    # comments = Comment.query.filter_by(post_id=post.id)
     comments = posts[0]['comments']
     print comments
 
     image = {}
     image_id = []
     query = Image_Posts.query.filter_by(post_id=id).all()
-    if len(query) > 0: # there is an image with this post
+    if len(query) > 0:  # there is an image with this post
         for i in query:
             image_id.append(i.__dict__['image_id'])
 
-    if len(image_id) > 0: # there is an image
+    if len(image_id) > 0:  # there is an image
         image_query = Image.query.filter_by(id=image_id[0]).all()
         if len(image_query) > 0:
             for i in image_query:
@@ -179,6 +181,7 @@ def post(id):
     else:
         return render_template('post/post.html', posts=posts, form=form,
                                comments=comments, image={}, show=True)
+
 
 @main.route('/edit/<id>', methods=['GET', 'POST'])
 @login_required
@@ -203,6 +206,7 @@ def edit(id):
     form.title.data = post.title
     form.body.data = post.body
     return render_template('post/edit_post.html', form=form)
+
 
 @main.route('/delete_post/<id>', methods=['POST', 'GET'])
 @login_required
@@ -290,11 +294,11 @@ def login():
 #     return helper.get('author', {'author_id': 'd10fe1f5-b426-48eb-840c-50fcd295014c'})
 
 
-@main.route('/request', methods = ['GET', 'POST'])
+@main.route('/request', methods=['GET', 'POST'])
 def register():
     apiForm = APIForm()
 
-    if apiForm.validate_on_submit(): # wants to request access from our server
+    if apiForm.validate_on_submit():  # wants to request access from our server
         valid_info = True
         name = apiForm.name.data
         ip_addr = request.remote_addr
@@ -312,7 +316,7 @@ def register():
 
         # check validity of email
         is_valid = validate_email(email, verify=True)
-        if is_valid == False:
+        if is_valid is False:
             flash("Invalid Email Address")
             valid_info = False
 
@@ -321,21 +325,21 @@ def register():
         equery = Node.query.filter_by(email=email).all()
         print equery
 
-        if len(equery) > 0: # means email already exists
+        if len(equery) > 0:  # means email already exists
             flash("Invalid Email Address")
             valid_info = False
 
         # check if username is unique in the table Node and NodeRequest
         uquery = Node.query.filter_by(username=username).all()
 
-        if len(uquery) > 0: # means username already exists
+        if len(uquery) > 0:  # means username already exists
             flash("Invalid Username")
             valid_info = False
 
-        if valid_info == True: # valid information, commit to db
+        if valid_info is True:  # valid information, commit to db
             # add the new information into request from the request
-            req = NodeRequest (name= name, username= username,
-                password= password, email= email, ip_addr= ip_addr)
+            req = NodeRequest(name=name, username=username,
+                password=password, email=email, ip_addr=ip_addr)
             req.set_password(password)
             try:
                 db.session.add(req)
@@ -346,10 +350,11 @@ def register():
 
             flash("Request sent")
             return redirect(url_for('.index'))
-        else: # invalid information, do not send request info
+        else:  # invalid information, do not send request info
             return redirect(url_for('.index'))
 
     return render_template('request.html', apiForm=apiForm)
+
 
 # <user> requires a id
 @main.route('/users/<user>', methods=['GET', 'POST'])
@@ -370,15 +375,9 @@ def show_profile(user):
 
     # remote-user e8d08d8e-c161-49e2-a60b-0e388f246a46'
     u = helper.get('author', {'author_id': user})
-
-
-
     if (len(u) > 0):
         u = u[0]
-
-
         user = u['displayname']
-
         # store in remote db
         check = RemoteUser.query.filter_by(id=u['id']).first()
         userx = RemoteUser(username=u['displayname'], id=u['id'], host=u['host'])
@@ -401,6 +400,7 @@ def show_profile(user):
     else:
         flash('ERROR user not found')
         return render_template('404.html')
+
 
 @main.route('/settings', methods=['GET', 'POST'])
 @login_required
@@ -440,7 +440,6 @@ def show_settings():
 
                 flash("New username set.")
                 return redirect(url_for('.show_settings'))
-
     elif new_password_form.validate_on_submit() and new_password_form.submit_p.data:
         user = User.query.filter_by(username=current_user.username).first()
         if (user):
@@ -460,8 +459,8 @@ def show_settings():
 
             flash("Github Username set.")
             return redirect(url_for('.show_settings'))
-
     return render_template('user/settings.html', un_form=new_username_form, pass_form=new_password_form, git_form=github_form)
+
 
 def image_allowed(image):
     allowed_extensions = ['png', 'jpg', 'jpeg']
@@ -471,6 +470,7 @@ def image_allowed(image):
         return True
     else:
         return False
+
 
 # upload and set new profile image
 @main.route('/upload_pimage', methods=['POST'])
@@ -520,6 +520,7 @@ def upload_pimage():
 
     return redirect(url_for('.show_settings'))
 
+
 # returns followers.html with a list of user's followers
 @main.route('/users/<user>/followers', methods=['GET'])
 @login_required
@@ -552,7 +553,6 @@ def show_followers(user):
             if f:
                 followersx.append([f.username, f.id])
 
-
     # u = helper.get('author', {'author_id': user})
     # if (len(u) == 1):
     #     u = u[0]
@@ -567,8 +567,8 @@ def show_followers(user):
 
     # u = helper.get()
 
-
     return render_template('user/followers.html', followers=followersx, user_profile=userx.username, user_id=current_user.id, user_obj=userx)
+
 
 # returns friends.html with a list of user's friends
 @main.route('/users/<user>/friends', methods=['GET'])
@@ -614,7 +614,6 @@ def show_friends(user):
     #     user = u['displayname']
     #     userx = User(username=u['displayname'], id=u['id'], host=u['host'])
     #     idx = userx.id
-
     #     return render_template('user/profile.html', user_profile=user, user_id=idx, user_obj=userx)
     # else:
     #     flash('ERROR user not found')
@@ -632,8 +631,6 @@ def show_friends(user):
             name = profile['displayname']
             uid = profile['id']
             nameList.append([name, uid])
-
-
     return render_template('user/friends.html', friends=nameList, user_profile=current_user.username, user_id=current_user.id, user_obj=userx)
 
 # # returns friends.html with a list of user's friends
@@ -642,6 +639,7 @@ def show_friends(user):
 # def show_friends(user):
 #     friends_list = None
 #     return render_template('user/friends.html', friends=friends_list)
+
 
 # current user follows user
 @main.route('/follow/<user>', methods=['GET', 'POST'])
@@ -670,8 +668,6 @@ def follow(user):
     #     new_friend = Friend(a_id=current_user.id,
     #                     b_id=requestee_idx)
     #     db.session.add(new_friend)
-
-
     # db.session.add(new_follow)
     # db.session.commit()
 
@@ -688,16 +684,16 @@ def follow(user):
         return render_template('404.html')
 
     body = {
-        "query":"friendrequest",
+        "query": "friendrequest",
         "author": {
             "id": current_user.id,
-            "host":current_user.host,
-            "displayName":current_user.username
+            "host": current_user.host,
+            "displayName": current_user.username
         },
         "friend": {
             "id": userx.id,
-            "host":userx.host,
-            "displayName":userx.username,
+            "host": userx.host,
+            "displayName": userx.username,
             "url": userURL
         }
     }
@@ -742,16 +738,16 @@ def befriend(user):
         return render_template('404.html')
 
     body = {
-        "query":"friendrequest",
+        "query": "friendrequest",
         "author": {
             "id": current_user.id,
-            "host":current_user.host,
-            "displayName":current_user.username
+            "host": current_user.host,
+            "displayName": current_user.username
         },
         "friend": {
             "id": userx.id,
-            "host":userx.host,
-            "displayName":userx.username,
+            "host": userx.host,
+            "displayName": userx.username,
             "url": userURL
         }
     }
@@ -759,10 +755,10 @@ def befriend(user):
     helper.post('friend_request', body, userx.host)
     helper.post
 
-
     flash("You have just befriended "+user)
 
     return redirect("/users/"+current_user.id+"/followers")
+
 
 @main.route('/unfollow/<user>', methods=['GET', 'POST'])
 @login_required
@@ -785,6 +781,7 @@ def unfollow(user):
 
     return redirect("/users/"+requestee_idx.id)
 
+
 @main.route('/logout', methods=['GET', 'POST'])
 @login_required
 def logout():
@@ -799,6 +796,7 @@ def logout():
 
     logout_user()
     return redirect(url_for('.index'))
+
 
 @login_manager.user_loader
 def load_user(id):
