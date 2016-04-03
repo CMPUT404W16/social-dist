@@ -172,6 +172,7 @@ class Post(db.Model):
     comments = db.relationship('Comment', backref='post', lazy='dynamic')
     privacy = db.Column(db.Integer, default=0)
     markdown = db.Column(db.String, default="F")
+    target = db.Column(db.String(128))
 
     def set_id(self):
         self.id = str(uuid.uuid4())

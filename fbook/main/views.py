@@ -40,7 +40,8 @@ def index():
                     author_id=current_user._get_current_object().id,
                     author=current_user._get_current_object().username,
                     markdown=form.mkdown.data,
-                    privacy=int(form.privacy.data))
+                    privacy=int(form.privacy.data),
+                    target=form.target.data)
         post.set_id()
 
         print form.image.data

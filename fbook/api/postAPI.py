@@ -146,7 +146,7 @@ class PostAPI(BasePostAPI):
         args = parser.parse_args()
 
         if post_id is None:
-            self.posts = Post.query.filter_by(privacy=0)
+            self.posts = Post.query.filter_by(privacy=0) # editing here
             # self.posts = Post.query
         else:
             self.posts = Post.query.filter_by(id=post_id)
