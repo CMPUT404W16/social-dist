@@ -117,17 +117,6 @@ class User(db.Model):
             else:
                 return False
 
-    # not used; using routes
-    def follow(self, user):
-        pass
-
-    def unfollow(self, user):
-        pass
-
-    # not used; using routes
-    def befriend(self, user):
-        pass
-
     def unfriend(self, user):
         opt1 = Friend.query.filter_by(a_id=self.id, b_id=user.id).delete()
         opt2 = Friend.query.filter_by(a_id=user.id, b_id=self.id).delete()
@@ -249,15 +238,6 @@ class Friend(db.Model):
 
     def integrityCheck(self, a_id, b_id):
         return a_id == b_id
-
-
-    def is_friend(self, aid, bid):
-        try:
-            if Friend.query.filterby(a_id=aid, b_id=bid) or \
-                    Friend.query.filterby(a_id=bid, b_id=aid):
-                return True
-        except:
-            return False
 
 class Follow(db.Model):
     __tablename__ = "follows"

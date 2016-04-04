@@ -9,11 +9,12 @@ class PostForm(Form):
     body = StringField('What is on your mind?', validators=[Required()])
     mkdown = SelectField('Use markdown for this post?',
                          choices=[("F", 'No'), ("T", 'Yes')], default="F")
-    privacy = SelectField('0', choices=[('Public', 'Public'),
+    privacy = SelectField('Privacy setting?', choices=[('0', 'Public'),
                          ('1', 'Only me'),
                          ('2', 'Only me and my friend'),
                          ('3', 'To someone (fill below)'),
-                         ('4', 'Friends of friends')])
+                         ('4', 'Host only'),
+                         ('5', 'FOAF')])
     image = FileField('Image', validators=[FileAllowed(['jpg', 'png'], 'Images only!')])
     target = StringField('Target')
     submit = SubmitField("Post")
@@ -26,9 +27,9 @@ class LoginForm(Form):
 
 # for signup
 class SignupForm(Form):
-	username = StringField('Username')
+	username = StringField('Username', validators=[Required()])
 	password = PasswordField('New Password', validators=[Required(), EqualTo('confirm', message='Passwords must match')])
-	confirm = PasswordField('Repeat Password')
+    confirm = PasswordField('Repeat Password')
 	submit = SubmitField('Sign Up')
 
 # form for submitting an nodeAPI request
@@ -58,8 +59,8 @@ class ChangeUsernameForm(Form):
 
 # add github username
 class GithubUsernameForm(Form):
-    gitName = StringField('Github Username', validators=[Required()])
-    confirm = StringField('Confirm Github Username',
+    gitName = StringField('Enter Your Github URL/Username Here', validators=[Required()])
+    confirm = StringField('Enter again',
         validators=[Required(), EqualTo('gitName',
         message='Github Username mismatch!')])
     submit_g = SubmitField('Set Github')

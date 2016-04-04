@@ -90,9 +90,23 @@ class BasePostAPI(Resource):
                 "author": self.generate_author(cu.author_id),
                 "published": cu.timestamp.isoformat(),
                 "id": cu.id,
-                "visibility": cu.privacy,
                 "target": cu.target
                 }
+
+        if cu.privacy == 0:
+            item['visibility'] = 'PUBLIC'
+        elif cu.privacy == 1:
+            item['visibility'] = 'PRIVATE'
+        elif cu.privacy == 2:
+            item['visibility'] = 'FRIENDS'
+        elif cu.privacy == 3:
+            item['visibility'] = 'SOMEONE'
+        elif cu.privacy == 4:
+            item['visibility'] = 'SERVERONLY'
+        elif cu.privacy == 5:
+            item['visibility'] = 'FOAF'
+        else:
+            item['visibility'] = 'PUBLIC'
 
         post["contentType"] = "text/x-markdown" if cu.markdown == "T" else "text/plain"
 

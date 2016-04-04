@@ -98,7 +98,6 @@ def index():
             for i in query:
                 post_image[post_id] = i.__dict__['image_id']
 
-    # print post_image
     # serve images based on post ids
     image = {}
     for post_id, image_id in post_image.items():
@@ -106,8 +105,6 @@ def index():
         if len(query) > 0:
             for i in query:
                 # serve the image give i.__dict__['file'] contains the bytes of the image
-                # print i.__dict__['file']
-                # print "serving image"
                 image[post_id] = (b64encode(i.__dict__['file']))
 
     posts_result = []
@@ -115,46 +112,45 @@ def index():
     for item in posts:
         try:
             if item['visibility'] == 0:
-                item['visibility'] = 'Public'
+                item['visibility'] = 'PUBLIC'
             elif item['visibility'] == 1:
-                item['visibility'] = 'Private'
+                item['visibility'] = 'PRIVATE'
             elif item['visibility'] == 2:
-                item['visibility'] = 'private to Friends'
+                item['visibility'] = 'FRIENDS'
             elif item['visibility'] == 3:
-                item['visibility'] = 'someone'
+                item['visibility'] = 'SOMEONE'
             elif item['visibility'] == 4:
-                item['visibility'] = 'foaf'
+                item['visibility'] = 'SERVERONLY'
+            elif item['visibility'] == 5:
+                item['visibility'] = 'FOAF'
             else:
-                item['visibility'] = 'Public'
+                item['visibility'] = 'PUBLIC'
         except:
-            item['visibility'] = 'Public'
+            item['visibility'] = 'PUBLIC'
 
         flag = ''
         try:
             flag = item['target']
         except:
             flag = ''
-        if flag is not '' and flag == current_user._get_current_object().username and item['visibility']=='someone':
+        if flag is not '' and flag == current_user._get_current_object().username and item['visibility']=='SOMEONE':
             posts_result.append(item)
         elif item['author']['id'] == current_user._get_current_object().id:
             posts_result.append(item)
-        elif item['visibility'].lower() == 'public':
+        elif item['visibility'].upper() == 'PUBLIC':
             posts_result.append(item)
-        elif item['visibility'].lower() == 'private':
+        elif item['visibility'].upper() == 'PRIVATE':
             if item['author']['id'] == current_user._get_current_object().id:
                 posts_result.append(item)
-        elif item['visibility'].lower() == 'private to friends':
-            try:
-                if item['author']['id'] == current_user._get_current_object().id or \
-                Friend.query.filterby(a_id=aid, b_id=bid) or \
-                        Friend.query.filterby(a_id=bid, b_id=aid):
-                    posts_result.append(item)
-            except:
-                pass
+        elif item['visibility'].upper() == 'FRIENDS':
+            if current_user._get_current_object().is_friend(item['author']['id']):
+                posts_result.append(item)
+        elif item[visibility].upper() == "SERVERONLY":
+            if item['author']['host'] == current_user._get_current_object().host:
+                posts_result.append(item)
 
     posts = posts_result
 
-    #print image
     if len(image) > 0:
         return render_template('index.html',
                            form=form,
@@ -426,11 +422,8 @@ def show_profile(user):
     # remote-user e8d08d8e-c161-49e2-a60b-0e388f246a46'
     u = helper.get('author', {'author_id': user})
 
-
-
     if (len(u) > 0):
         u = u[0]
-
 
         user = u['displayname']
 
@@ -507,7 +500,10 @@ def show_settings():
         user = User.query.filter_by(username=current_user.username).first()
         if (user):
             # change password in db
-            user.github = github_form.gitName.data
+            if re.findall('github.com/', github_form.gitName.data) is not []:
+                user.github = github_form.gitName.data
+            else:
+                user.github = 'http://www.github.com/' + github_form.gitName.data
             db.session.commit()
 
             flash("Github Username set.")
@@ -582,7 +578,7 @@ def show_self_posts(user):
     ROUTING: /users/<user>/posts
     Returns the posts.html populated with <user>'s posts from a db
     query.
-    
+
     The view is passed with:
     posts: a list of <user>'s posts
     image: a list of <user>'s posts' images
