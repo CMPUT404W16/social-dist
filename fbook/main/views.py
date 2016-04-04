@@ -7,13 +7,18 @@ from flask.ext.login import login_user, logout_user, current_user, login_require
 from .. import login_manager
 from flask import jsonify
 from urlparse import urlparse
+import json
+import re
 from validate_email import validate_email
 import socket, httplib, urllib, os
 from ..api.apiHelper import ApiHelper
+from ..gitapi.gitfetch import GitAPI
 from binascii import *
 from base64 import b64encode, b64decode
 
 helper = ApiHelper()
+git_helper = GitAPI()
+
 
 @main.route('/', methods=['GET', 'POST'])
 @login_required
@@ -24,67 +29,96 @@ def index():
     Accept GET POST method
     ROUTING: /
     """
+
+    try:
+        git_username = current_user._get_current_object().github
+        print 'This is the username for github! --->>', git_username
+        githubs = git_helper.fetch_events(git_username)
+        # print githubs
+        if githubs is None:
+            githubs = []
+    except:
+        githubs = []
+
     form = PostForm()
-    if form.validate_on_submit():
+    if request.method == 'POST':
+
+        if form.image.data: # only if an image to be uploaded has been chosen
+            try:
+                if (image_allowed(request.files['image'])):
+
+                    post = Post(title=form.title.data,
+                                body=form.body.data,
+                                author_id=current_user._get_current_object().id,
+                                author=current_user._get_current_object().username,
+                                markdown=form.mkdown.data,
+                                privacy=int(form.privacy.data),
+                                target=form.target.data)
+                    post.set_id()
+                    db.session.add(post)
+                    db.session.commit()
+                    
+                    blob_value = request.files['image'].read()
+                    image = Image(file=blob_value)
+                    image.set_id()
+                    db.session.add(image)
+                    db.session.commit()
+                    image_posts = Image_Posts(post_id = post.get_id(),
+                        image_id = image.get_id()
+                        )
+                    image_posts.set_id()
+                    db.session.add(image_posts)
+                    db.session.commit()
+
+                    return redirect(url_for('.index'))
+
+                else:
+                    flash("Error: image extension not allowed. Allowed types: \
+                .png, .jpg, .jpeg.")
+                    return redirect(url_for('.index'))
+
+            except:
+                flash ("Unable to post")
+                return redirect(url_for('.index'))
+
         post = Post(title=form.title.data,
                     body=form.body.data,
                     author_id=current_user._get_current_object().id,
                     author=current_user._get_current_object().username,
                     markdown=form.mkdown.data,
-                    privacy=int(form.privacy.data))
+                    privacy=int(form.privacy.data),
+                    target=form.target.data)
         post.set_id()
-
-        print form.image.data
-        realpath = os.path.realpath(form.image.data)
-        MYDIR = os.path.dirname(form.image.data)
-        print MYDIR
-        print realpath
-
-        if(form.image.data): # only if an image to be uploaded has been chosen
-            blob_value = open(form.image.data, "rb").read()
-            #print blob_value
-            image = Image(file=blob_value)
-            image.set_id()
-
-            image_posts = Image_Posts(post_id = post.get_id(),
-                image_id = image.get_id()
-                )
-            image_posts.set_id()
-
-            db.session.add(image_posts)
-            db.session.add(image)
-
         db.session.add(post)
         db.session.commit()
+        
         return redirect(url_for('.index'))
-
-    posts=[]
+            
+    posts = []
     data = helper.get('posts')
 
-    #print data
+    # print data
     for item in data:
         if type(item) is not dict:
             continue
-        posts.extend(item['posts']) # switch to u'posts ?? or not??
+        posts.extend(item['posts'])
 
-    post_ids=[]
-    print posts
-    # go through the list of posts and check to see if there is an image in them
+    post_ids = []
+    # go through the list of posts and check to see if there are images in them
     for i in range(len(posts)):
         for k, v in posts[i].items():
             if k == 'id':
-                #print v # the post_ids
+                # print v # the post_ids
                 post_ids.append(v)
 
     # post_image is the dict where key is post_id and value is image_id
-    post_image={}
+    post_image = {}
     for post_id in post_ids:
         query = Image_Posts.query.filter_by(post_id=post_id).all()
-        if len(query) > 0: # there is an image with this post
+        if len(query) > 0:  # there is an image with this post
             for i in query:
-                post_image[post_id]=i.__dict__['image_id']
+                post_image[post_id] = i.__dict__['image_id']
 
-    print post_image
     # serve images based on post ids
     image = {}
     for post_id, image_id in post_image.items():
@@ -92,32 +126,86 @@ def index():
         if len(query) > 0:
             for i in query:
                 # serve the image give i.__dict__['file'] contains the bytes of the image
-                # print i.__dict__['file']
-                print "serving image"
                 image[post_id] = (b64encode(i.__dict__['file']))
 
-    #print image
+    posts_result = []
+    # filter for posts
+    for item in posts:
+        try:
+            if item['visibility'] == 0:
+                item['visibility'] = 'PUBLIC'
+            elif item['visibility'] == 1:
+                item['visibility'] = 'PRIVATE'
+            elif item['visibility'] == 2:
+                item['visibility'] = 'FRIENDS'
+            elif item['visibility'] == 3:
+                item['visibility'] = 'SOMEONE'
+            elif item['visibility'] == 4:
+                item['visibility'] = 'SERVERONLY'
+            elif item['visibility'] == 5:
+                item['visibility'] = 'FOAF'
+            else:
+                item['visibility'] = 'PUBLIC'
+        except:
+            item['visibility'] = 'PUBLIC'
+
+        flag = ''
+        try:
+            flag = item['target']
+        except:
+            flag = ''
+        if flag is not '' and flag == current_user._get_current_object().username and item['visibility']=='SOMEONE':
+            posts_result.append(item)
+        elif item['author']['id'] == current_user._get_current_object().id:
+            posts_result.append(item)
+        elif item['visibility'].upper() == 'PUBLIC':
+            posts_result.append(item)
+        elif item['visibility'].upper() == 'PRIVATE':
+            if item['author']['id'] == current_user._get_current_object().id:
+                posts_result.append(item)
+        elif item['visibility'].upper() == 'FRIENDS':
+            if current_user._get_current_object().is_friend(item['author']['id']):
+                posts_result.append(item)
+        elif item['visibility'].upper() == "SERVERONLY":
+            if item['author']['host'] == current_user._get_current_object().host:
+                posts_result.append(item)
+
+    posts = posts_result
+
     if len(image) > 0:
         return render_template('index.html',
                            form=form,
                            name=current_user.username,
                            posts=posts,
-                           image=image
+                           image=image,
+                           events=githubs
                            )
     else:
         return render_template('index.html',
                            form=form,
                            name=current_user.username,
                            posts=posts,
-                           image={}
+                           image={},
+                           events=githubs
                            )
 
+@main.route('/image/<string:id>', methods=['GET', 'POST'])
+def image(id):
+    #api = ApiHelper()
+    #images = api.get('images', {"image_id": id})
+    #if len(images) == 0:
+    #    abort(404)
+    image = Image.query.get_or_404(id)
+
+    query = Image.query.filter_by(id = id).all()
+    image = b64encode(query[0].__dict__['file'])
+
+    return render_template('image/image.html', image=image, show=True)
 
 @main.route('/post/<string:id>', methods=['GET', 'POST'])
 def post(id):
     """
     Post page view function.
-
     Accept GET POST method
     ROUTING: /post/<int:id>
     """
@@ -134,20 +222,32 @@ def post(id):
 
     form = CommentForm()
     if form.validate_on_submit():
-        post = Post.query.get_or_404(id)
-        comment = Comment(body=form.body.data,
-                          post=post,
-                          author_id=current_user._get_current_object().id,
-                          author=current_user._get_current_object().username)
-        comment.set_id()
-        db.session.add(comment)
-        db.session.commit()
+        #post = Post.query.get_or_404(id)
+        #comment = Comment(body=form.body.data,
+        #                  post=post,
+        #                  author_id=current_user._get_current_object().id,
+        #                  author=current_user._get_current_object().username)
+        #comment.set_id()
+        #db.session.add(comment)
+        #db.session.commit()
+        user = current_user._get_current_object()
+        comment_body = {'comment': form.body.data}
+        comment_body['contentType'] = 'text/plain'
+        comment_body['author'] = {'id': user.id,
+                                  'host': "http://" + user.host,
+                                  'displayName': user.username,
+                                  'url': "http://%s/author/%s" % (user.host, user.id),
+                                  'github': user.github
+                                  }
+        print comment_body
+        api.post('posts', comment_body, posts[0]['author']['host'], {"post_id": id, "comments":""})
+
         flash('Your comment has been created')
-        return redirect(url_for('.post', id=post.id))
+        return redirect(url_for('.post', id=id))
 
     #comments = Comment.query.filter_by(post_id=post.id)
     comments = posts[0]['comments']
-    print comments
+    #print comments
 
     image = {}
     image_id = []
@@ -162,7 +262,6 @@ def post(id):
             for i in image_query:
                 # serve the image give i.__dict__['file'] contains the bytes of the image
                 # print i.__dict__['file']
-                print "serving image"
                 image[id] = (b64encode(i.__dict__['file']))
 
         return render_template('post/post.html', posts=posts, form=form,
@@ -176,7 +275,6 @@ def post(id):
 def edit(id):
     """
     Edit post page view function.
-
     Accept GET POST method
     ROUTING: /edit/<int:id>
     """
@@ -200,7 +298,6 @@ def edit(id):
 def delete_post(id):
     """
     Edit post page view function.
-
     Accept GET POST method
     ROUTING: /edit/<int:id>
     """
@@ -219,13 +316,10 @@ def delete_post(id):
 def login():
     """
     Login/Signup page view function.
-
     Accept GET POST method
     ROUTING: /login
-
     Uses WTForms to handle forms. Renders login.html passing a LoginForm and a
     SignupForm Form objects. Uses FLask-Login and redirects the user back to /.
-
     The view is passed with:
     loginForm: Form object
     signupFOrm: Form object
@@ -302,6 +396,7 @@ def register():
             print(e)
 
         # check validity of email
+
         is_valid = validate_email(email, verify=True)
         if is_valid == False:
             flash("Invalid Email Address")
@@ -348,10 +443,8 @@ def register():
 def show_profile(user):
     """
     Profile page view function.
-
     Accept GET POST method
     ROUTING: /users/<user>
-
     Returns the profile page populated with <user>'s information.
     The view is passed with:
     user_profile: <user>'s username: string
@@ -362,11 +455,8 @@ def show_profile(user):
     # remote-user e8d08d8e-c161-49e2-a60b-0e388f246a46'
     u = helper.get('author', {'author_id': user})
 
-
-
     if (len(u) > 0):
         u = u[0]
-
 
         user = u['displayname']
 
@@ -398,13 +488,10 @@ def show_profile(user):
 def show_settings():
     """
     Settings page view function.
-
     Accept GET POST method
     ROUTING: /settings
-
     Returns the settings.html view with a form to change the user's password.
     Redirects back to the settings page upon successful password change.
-
     The view is passed with:
     pass_form: Form object
     """
@@ -445,8 +532,11 @@ def show_settings():
         # change github in db
         user = User.query.filter_by(username=current_user.username).first()
         if (user):
-            # change password in db
-            user.github = github_form.gitName.data
+            if 'github.com/' in github_form.gitName.data:
+                user.github = github_form.gitName.data
+            else:
+                user.github = 'http://www.github.com/' + github_form.gitName.data
+            print user.github
             db.session.commit()
 
             flash("Github Username set.")
@@ -457,7 +547,7 @@ def show_settings():
 def image_allowed(image):
     allowed_extensions = ['png', 'jpg', 'jpeg']
     f_ext = image.filename.rsplit('.')[1]
-    flash("Image is of type: "+str(f_ext))
+    # flash("Image is of type: "+str(f_ext))
     if (f_ext in allowed_extensions):
         return True
     else:
@@ -471,13 +561,13 @@ def upload_pimage():
     if (request.method=='POST' and 'pimage' in request.files):
         image_upload = request.files['pimage']
         if (image_upload):
-            flash("File found")
+            # flash("File found")
             if (image_allowed(image_upload)):
                 user = User.query.filter_by(
                         username=current_user.username).first()
                 if (user):
                     # save image and reference image to current user
-                    flash("Trying to set image.")
+                    # flash("Trying to set image.")
 
                     image_upload = image_upload.read()
 
@@ -491,7 +581,7 @@ def upload_pimage():
                                 user_id=current_user.get_uuid()).first()
                     # old profile img selection found
                     if (temp_pi):
-                        flash("Old selection found, setting new.")
+                        flash("Old profile image found, setting new profile image.")
                         db.session.delete(temp_pi)
                         db.session.commit()
 
@@ -511,19 +601,89 @@ def upload_pimage():
 
     return redirect(url_for('.show_settings'))
 
+# returns posts.html with a list of user's posts
+@main.route('/users/<user>/posts', methods=['GET'])
+@login_required
+def show_self_posts(user):
+    """
+    Author's own posts page view function.
+    Accept GET method
+    ROUTING: /users/<user>/posts
+    Returns the posts.html populated with <user>'s posts from a db
+    query.
+
+    The view is passed with:
+    posts: a list of <user>'s posts
+    image: a list of <user>'s posts' images
+    user_profile: <user>'s username: string
+    user_id: <user>'s id: string
+    user_obj: User mode object
+    """
+
+    userx = User.query.filter_by(id=user).first()
+
+    posts=[]
+    data = helper.get('posts', {'curr_author': user, 'author_id': user})
+
+    #print data
+    for item in data:
+        if type(item) is not dict:
+            continue
+        posts.extend(item['posts']) # switch to u'posts ?? or not??
+
+    post_ids=[]
+
+    # go through the list of posts and check to see if there is an image in them
+    for i in range(len(posts)):
+        for k, v in posts[i].items():
+            if k == 'id':
+                #print v # the post_ids
+                post_ids.append(v)
+
+    # post_image is the dict where key is post_id and value is image_id
+    post_image={}
+    for post_id in post_ids:
+        query = Image_Posts.query.filter_by(post_id=post_id).all()
+        if len(query) > 0: # there is an image with this post
+            for i in query:
+                post_image[post_id]=i.__dict__['image_id']
+
+    # serve images based on post ids
+    image = {}
+    for post_id, image_id in post_image.items():
+        query = Image.query.filter_by(id=image_id).all()
+        if len(query) > 0:
+            for i in query:
+                # serve the image give i.__dict__['file'] contains the bytes of the image
+                # print i.__dict__['file']
+                # print "serving image"
+                image[post_id] = (b64encode(i.__dict__['file']))
+
+    if (len(image) > 0):
+        return render_template('user/posts.html',
+                                posts=posts,
+                                image=image,
+                                user_profile=current_user.username,
+                                user_id=current_user.id,
+                                user_obj=userx)
+    else:
+        return render_template('user/posts.html',
+                                posts=posts,
+                                image={},
+                                user_profile=current_user.username,
+                                user_id=current_user.id,
+                                user_obj=userx)
+
 # returns followers.html with a list of user's followers
 @main.route('/users/<user>/followers', methods=['GET'])
 @login_required
 def show_followers(user):
     """
     Followers page view function.
-
     Accept GET method
     ROUTING: /users/<user>/followers
-
     Returns the followers.html populated with <user>'s followers from a db
     query.
-
     The view is passed with:
     followers: a Python list of <user>'s followers
     user_profile: <user>'s username: string
@@ -567,14 +727,11 @@ def show_followers(user):
 def show_friends(user):
     """
     Friends page view function.
-
     Accept GET method
     ROUTING: /users/<user>/friends
-
     Returns the friends.html populated with <user>'s friends from a db
     query. It executes two queries since <user> could be on either of a_id or
     b_id of the Friends model.
-
     The view is passed with:
     friends: a Python list of <user>'s friends
     user_profile: <user>'s username: string
@@ -640,10 +797,8 @@ def show_friends(user):
 def follow(user):
     """
     User follow route action function.
-
     Accept GET POST method
     ROUTING: /follow/<user>
-
     The URL verb for following <user>. Creates a new Follow with the requester
     as the current user and the requestee as <user>. If the requestee has
     already followed the current user, an automatic friendship is created.
@@ -705,10 +860,8 @@ def follow(user):
 def befriend(user):
     """
     User befriend route action function.
-
     Accept GET POST method
     ROUTING: /befriend/<user>
-
     The URL verb for befriending <user>. Creates a new Friend object and
     redirects to <user>'s friends page.
     """
@@ -760,10 +913,8 @@ def befriend(user):
 def unfollow(user):
     """
     User unfollow route action function.
-
     Accept GET POST method
     ROUTING: /unfollow/<user>
-
     The URL verb for unfollowing <user>. Uses User model function unfriend.
     Redirects to <user>'s profile page.
     """
@@ -785,10 +936,8 @@ def unfollow(user):
 def logout():
     """
     User logout route action function.
-
     Accept GET POST method
     ROUTING: /logout
-
     The URL verb for logout. Redirects to / with the user logged out.
     """
 

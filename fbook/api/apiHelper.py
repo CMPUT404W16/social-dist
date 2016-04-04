@@ -110,6 +110,7 @@ class ApiHelper():
 			if "http://" + node.service + "/" == host or node.service == current_user.host:
 
 				headers = self.createHeaders(node.username, node.password)
+                                headers['ContentType'] = "application/json"
 				if node.prefix != None:
 					url = 'http://' + node.service + node.prefix + uri
 				else:

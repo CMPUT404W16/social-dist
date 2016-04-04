@@ -100,7 +100,7 @@ class User(db.Model):
     # user is an id int
     def is_follower(self, user):
         t = Follow.query.filter_by(requester_id=self.id,
-                                    requestee_id=user).first()
+                                   requestee_id=user).first()
         if t:
             return True
         else:
@@ -116,17 +116,6 @@ class User(db.Model):
                 return True
             else:
                 return False
-
-    # not used; using routes
-    def follow(self, user):
-        pass
-
-    def unfollow(self, user):
-        pass
-
-    # not used; using routes
-    def befriend(self, user):
-        pass
 
     def unfriend(self, user):
         opt1 = Friend.query.filter_by(a_id=self.id, b_id=user.id).delete()
@@ -172,6 +161,7 @@ class Post(db.Model):
     comments = db.relationship('Comment', backref='post', lazy='dynamic')
     privacy = db.Column(db.Integer, default=0)
     markdown = db.Column(db.String, default="F")
+    target = db.Column(db.String(128), default='')
 
     def set_id(self):
         self.id = str(uuid.uuid4())
@@ -239,10 +229,6 @@ class ProfileImageMap(db.Model):
     def get_image_id(self):
         return self.image_id
 
-class Privacy:
-    PUBLIC = 0
-    ONLY_ME = 1
-    ONLY_MY_FRIEND = 2
 
 
 class Friend(db.Model):
