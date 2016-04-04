@@ -144,9 +144,13 @@ def index():
             if item['author']['id'] == current_user._get_current_object().id:
                 posts_result.append(item)
         elif item['visibility'].lower() == 'private to friends':
-            if item['author']['id'] == current_user._get_current_object().id or \
-                is_friend(current_user._get_current_object().id, item['author']['id']):
-                posts_result.append(item)
+            try:
+                if item['author']['id'] == current_user._get_current_object().id or \
+                Friend.query.filterby(a_id=aid, b_id=bid) or \
+                        Friend.query.filterby(a_id=bid, b_id=aid):
+                    posts_result.append(item)
+            except:
+                pass
 
     posts = posts_result
 

@@ -250,12 +250,13 @@ class Friend(db.Model):
     def integrityCheck(self, a_id, b_id):
         return a_id == b_id
 
-    @staticmethod
-    def is_friend(aid, bid):
-        if Friend.query.filterby(a_id=aid, b_id=bid) or \
-                Friend.query.filterby(a_id=bid, b_id=aid):
-            return True
-        else:
+
+    def is_friend(self, aid, bid):
+        try:
+            if Friend.query.filterby(a_id=aid, b_id=bid) or \
+                    Friend.query.filterby(a_id=bid, b_id=aid):
+                return True
+        except:
             return False
 
 class Follow(db.Model):
