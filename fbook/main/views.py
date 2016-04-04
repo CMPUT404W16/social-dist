@@ -924,7 +924,8 @@ def unfollow(user):
         current_user.unfriend(requestee_idx)
     else:
         requestee_idx = RemoteUser.query.filter_by(id=user).first()
-        current_user.unfriend(requestee_idx)
+        if requestee_idx:
+            current_user.unfriend(requestee_idx)
     db.session.commit()
 
     flash("You have just unfollowed "+requestee_idx.username)
