@@ -52,7 +52,8 @@ class BasePostAPI(Resource):
                         "id": u['id'],
                         "host": u['host'],
                         "displayname": u['displayname'],
-                        "url": "%s/author/%s" % (u['host'], u['id'])
+                        "url": "%s/author/%s" % (u['host'], u['id']),
+                        "github": u['github']
                     }
                     remote = RemoteUser(id=u['id'], host=u['host'],
                             username=u['displayname'])
@@ -63,14 +64,16 @@ class BasePostAPI(Resource):
                         'id': id,
                         'host': 'Unknown',
                         'displayname': 'Unknown',
-                        'url': 'Unknown'
+                        'url': 'Unknown',
+                        "github": 'Unknown'
                     }
             else:
                 author = {
                     "id": user.id,
                     "host": user.host,
                     "displayname": user.username,
-                    "url": "%s/author/%s" % (user.host, user.id)
+                    "url": "%s/author/%s" % (user.host, user.id),
+                    'github': user.github
                 }
         else:
             author = {"id": user.id,
