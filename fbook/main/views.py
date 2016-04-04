@@ -113,21 +113,33 @@ def index():
     posts_result = []
     # filter for posts
     for item in posts:
+        try:
+            if item['visibility'] == 0:
+                item['visibility'] = 'Public'
+            elif item['visibility'] == 1:
+                item['visibility'] = 'Private'
+            elif item['visibility'] == 2:
+                item['visibility'] = 'private to Friends'
+            elif item['visibility'] == 3:
+                item['visibility'] = 'someone'
+            elif item['visibility'] == 4:
+                item['visibility'] = 'foaf'
+
         flag = ''
         try:
             flag = item['target']
         except:
             flag = ''
-        if flag is not '' and flag == current_user._get_current_object().username:
+        if flag is not '' and flag == current_user._get_current_object().username and item['visibility']=='someone':
             posts_result.append(item)
         elif item['author']['id'] == current_user._get_current_object().id:
             posts_result.append(item)
-        elif item['visibility'].lower() == 'public' or item['visibility'] == 0:
+        elif item['visibility'].lower() == 'public':
             posts_result.append(item)
-        elif item['visibility'].lower() == 'private' or item['visibility'] == 1:
+        elif item['visibility'].lower() == 'private':
             if item['author']['id'] == current_user._get_current_object().id:
                 posts_result.append(item)
-        elif item['visibility'].lower() == 'private to friends' or item['visibility'] == 2:
+        elif item['visibility'].lower() == 'private to friends':
             if item['author']['id'] == current_user._get_current_object().id or \
                 is_friend(current_user._get_current_object().id, item['author']['id']):
                 posts_result.append(item)
