@@ -119,7 +119,7 @@ def index():
                            form=form,
                            name=current_user.username,
                            posts=posts,
-                           image={}
+                           image={},
                            github=github
                            )
 
