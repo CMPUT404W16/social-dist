@@ -94,19 +94,19 @@ class BasePostAPI(Resource):
                 }
 
         if cu.privacy == 0:
-            item['visibility'] = 'PUBLIC'
+            post['visibility'] = 'PUBLIC'
         elif cu.privacy == 1:
-            item['visibility'] = 'PRIVATE'
+            post['visibility'] = 'PRIVATE'
         elif cu.privacy == 2:
-            item['visibility'] = 'FRIENDS'
+            post['visibility'] = 'FRIENDS'
         elif cu.privacy == 3:
-            item['visibility'] = 'SOMEONE'
+            post['visibility'] = 'SOMEONE'
         elif cu.privacy == 4:
-            item['visibility'] = 'SERVERONLY'
+            post['visibility'] = 'SERVERONLY'
         elif cu.privacy == 5:
-            item['visibility'] = 'FOAF'
+            post['visibility'] = 'FOAF'
         else:
-            item['visibility'] = 'PUBLIC'
+            post['visibility'] = 'PUBLIC'
 
         post["contentType"] = "text/x-markdown" if cu.markdown == "T" else "text/plain"
 
