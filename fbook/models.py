@@ -100,7 +100,7 @@ class User(db.Model):
     # user is an id int
     def is_follower(self, user):
         t = Follow.query.filter_by(requester_id=self.id,
-                                    requestee_id=user).first()
+                                   requestee_id=user).first()
         if t:
             return True
         else:

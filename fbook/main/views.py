@@ -146,7 +146,7 @@ def index():
         elif item['visibility'].upper() == 'FRIENDS':
             if current_user._get_current_object().is_friend(item['author']['id']):
                 posts_result.append(item)
-        elif item[visibility].upper() == "SERVERONLY":
+        elif item['visibility'].upper() == "SERVERONLY":
             if item['author']['host'] == current_user._get_current_object().host:
                 posts_result.append(item)
 
