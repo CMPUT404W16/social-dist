@@ -10,10 +10,13 @@ from urlparse import urlparse
 from validate_email import validate_email
 import socket, httplib, urllib, os
 from ..api.apiHelper import ApiHelper
+from ..gitapi.gitfetch import GitAPI
 from binascii import *
 from base64 import b64encode, b64decode
 
 helper = ApiHelper()
+git_helper = GitAPI()
+
 
 @main.route('/', methods=['GET', 'POST'])
 @login_required
@@ -24,8 +27,19 @@ def index():
     Accept GET POST method
     ROUTING: /
     """
+
+    try:
+        git_username = current_user._get_current_object().github
+        # print 'This is the username for github! --->>', git_username
+        githubs = git_helper.fetch_events(git_username)
+        # print githubs
+        if githubs is None:
+            githubs = []
+    except:
+        githubs = []
+
     form = PostForm()
-    if request.method=='POST':
+    if request.method == 'POST':
         post = Post(title=form.title.data,
                     body=form.body.data,
                     author_id=current_user._get_current_object().id,
@@ -36,7 +50,7 @@ def index():
         db.session.add(post)
         db.session.commit()
 
-        if form.image.data: # only if an image to be uploaded has been chosen            
+        if form.image.data: # only if an image to be uploaded has been chosen
             try:
                 if (image_allowed(request.files['image'])):
                     blob_value = request.files['image'].read()
@@ -44,7 +58,7 @@ def index():
                     image.set_id()
                     db.session.add(image)
                     db.session.commit()
-                    image_posts = Image_Posts(post_id = post.get_id(), 
+                    image_posts = Image_Posts(post_id = post.get_id(),
                         image_id = image.get_id()
                         )
                     image_posts.set_id()
@@ -53,36 +67,36 @@ def index():
                 else:
                     flash("Error: image extension not allowed. Allowed types: \
                 .png, .jpg, .jpeg.")
-            except: 
+            except:
                 flash ("Unable to read image")
-        
+
         return redirect(url_for('.index'))
 
-    posts=[]
+
+    posts = []
     data = helper.get('posts')
 
-    #print data
+    # print data
     for item in data:
         if type(item) is not dict:
             continue
-        posts.extend(item['posts']) # switch to u'posts ?? or not??
+        posts.extend(item['posts'])
 
-    post_ids=[]
-    #print posts
-    # go through the list of posts and check to see if there is an image in them
+    post_ids = []
+    # go through the list of posts and check to see if there are images in them
     for i in range(len(posts)):
         for k, v in posts[i].items():
             if k == 'id':
-                #print v # the post_ids
+                # print v # the post_ids
                 post_ids.append(v)
 
     # post_image is the dict where key is post_id and value is image_id
-    post_image={}
+    post_image = {}
     for post_id in post_ids:
         query = Image_Posts.query.filter_by(post_id=post_id).all()
-        if len(query) > 0: # there is an image with this post
+        if len(query) > 0:  # there is an image with this post
             for i in query:
-                post_image[post_id]=i.__dict__['image_id']
+                post_image[post_id] = i.__dict__['image_id']
 
     # print post_image
     # serve images based on post ids
@@ -102,16 +116,17 @@ def index():
                            form=form,
                            name=current_user.username,
                            posts=posts,
-                           image=image
+                           image=image,
+                           events=githubs
                            )
     else:
         return render_template('index.html',
                            form=form,
                            name=current_user.username,
                            posts=posts,
-                           image={}
+                           image={},
+                           events=githubs
                            )
-
 
 @main.route('/image/<string:id>', methods=['GET', 'POST'])
 def image(id):
@@ -130,7 +145,6 @@ def image(id):
 def post(id):
     """
     Post page view function.
-
     Accept GET POST method
     ROUTING: /post/<int:id>
     """
@@ -175,7 +189,7 @@ def post(id):
             for i in image_query:
                 # serve the image give i.__dict__['file'] contains the bytes of the image
                 # print i.__dict__['file']
-                image[id] = (b64encode(i.__dict__['file']))    
+                image[id] = (b64encode(i.__dict__['file']))
 
         return render_template('post/post.html', posts=posts, form=form,
                                comments=comments, image=image, show=True)
@@ -188,7 +202,6 @@ def post(id):
 def edit(id):
     """
     Edit post page view function.
-
     Accept GET POST method
     ROUTING: /edit/<int:id>
     """
@@ -212,7 +225,6 @@ def edit(id):
 def delete_post(id):
     """
     Edit post page view function.
-
     Accept GET POST method
     ROUTING: /edit/<int:id>
     """
@@ -231,13 +243,10 @@ def delete_post(id):
 def login():
     """
     Login/Signup page view function.
-
     Accept GET POST method
     ROUTING: /login
-
     Uses WTForms to handle forms. Renders login.html passing a LoginForm and a
     SignupForm Form objects. Uses FLask-Login and redirects the user back to /.
-
     The view is passed with:
     loginForm: Form object
     signupFOrm: Form object
@@ -314,12 +323,12 @@ def register():
             print(e)
 
         # check validity of email
-        
+
         is_valid = validate_email(email, verify=True)
         if is_valid == False:
             flash("Invalid Email Address")
             valid_info = False
-        
+
         # check if email is unique in the table Node and NodeRequest
 
         equery = Node.query.filter_by(email=email).all()
@@ -361,10 +370,8 @@ def register():
 def show_profile(user):
     """
     Profile page view function.
-
     Accept GET POST method
     ROUTING: /users/<user>
-
     Returns the profile page populated with <user>'s information.
     The view is passed with:
     user_profile: <user>'s username: string
@@ -411,13 +418,10 @@ def show_profile(user):
 def show_settings():
     """
     Settings page view function.
-
     Accept GET POST method
     ROUTING: /settings
-
     Returns the settings.html view with a form to change the user's password.
     Redirects back to the settings page upon successful password change.
-
     The view is passed with:
     pass_form: Form object
     """
@@ -530,13 +534,10 @@ def upload_pimage():
 def show_self_posts(user):
     """
     Author's own posts page view function.
-
     Accept GET method
     ROUTING: /users/<user>/posts
-
     Returns the posts.html populated with <user>'s posts from a db
     query.
-
     The view is passed with:
     posts: a list of <user>'s posts
     image: a list of <user>'s posts' images
@@ -606,13 +607,10 @@ def show_self_posts(user):
 def show_followers(user):
     """
     Followers page view function.
-
     Accept GET method
     ROUTING: /users/<user>/followers
-
     Returns the followers.html populated with <user>'s followers from a db
     query.
-
     The view is passed with:
     followers: a Python list of <user>'s followers
     user_profile: <user>'s username: string
@@ -656,14 +654,11 @@ def show_followers(user):
 def show_friends(user):
     """
     Friends page view function.
-
     Accept GET method
     ROUTING: /users/<user>/friends
-
     Returns the friends.html populated with <user>'s friends from a db
     query. It executes two queries since <user> could be on either of a_id or
     b_id of the Friends model.
-
     The view is passed with:
     friends: a Python list of <user>'s friends
     user_profile: <user>'s username: string
@@ -729,10 +724,8 @@ def show_friends(user):
 def follow(user):
     """
     User follow route action function.
-
     Accept GET POST method
     ROUTING: /follow/<user>
-
     The URL verb for following <user>. Creates a new Follow with the requester
     as the current user and the requestee as <user>. If the requestee has
     already followed the current user, an automatic friendship is created.
@@ -794,10 +787,8 @@ def follow(user):
 def befriend(user):
     """
     User befriend route action function.
-
     Accept GET POST method
     ROUTING: /befriend/<user>
-
     The URL verb for befriending <user>. Creates a new Friend object and
     redirects to <user>'s friends page.
     """
@@ -849,10 +840,8 @@ def befriend(user):
 def unfollow(user):
     """
     User unfollow route action function.
-
     Accept GET POST method
     ROUTING: /unfollow/<user>
-
     The URL verb for unfollowing <user>. Uses User model function unfriend.
     Redirects to <user>'s profile page.
     """
@@ -870,10 +859,8 @@ def unfollow(user):
 def logout():
     """
     User logout route action function.
-
     Accept GET POST method
     ROUTING: /logout
-
     The URL verb for logout. Redirects to / with the user logged out.
     """
 
