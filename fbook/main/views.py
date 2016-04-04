@@ -7,6 +7,7 @@ from flask.ext.login import login_user, logout_user, current_user, login_require
 from .. import login_manager
 from flask import jsonify
 from urlparse import urlparse
+import json
 from validate_email import validate_email
 import socket, httplib, urllib, os
 from ..api.apiHelper import ApiHelper
@@ -201,20 +202,32 @@ def post(id):
 
     form = CommentForm()
     if form.validate_on_submit():
-        post = Post.query.get_or_404(id)
-        comment = Comment(body=form.body.data,
-                          post=post,
-                          author_id=current_user._get_current_object().id,
-                          author=current_user._get_current_object().username)
-        comment.set_id()
-        db.session.add(comment)
-        db.session.commit()
+        #post = Post.query.get_or_404(id)
+        #comment = Comment(body=form.body.data,
+        #                  post=post,
+        #                  author_id=current_user._get_current_object().id,
+        #                  author=current_user._get_current_object().username)
+        #comment.set_id()
+        #db.session.add(comment)
+        #db.session.commit()
+        user = current_user._get_current_object()
+        comment_body = {'comment': form.body.data}
+        comment_body['contentType'] = 'text/plain'
+        comment_body['author'] = {'id': user.id,
+                                  'host': "http://" + user.host,
+                                  'displayName': user.username,
+                                  'url': "http://%s/author/%s" % (user.host, user.id),
+                                  'github': user.github
+                                  }
+        print comment_body
+        api.post('posts', comment_body, posts[0]['author']['host'], {"post_id": id, "comments":""})
+
         flash('Your comment has been created')
-        return redirect(url_for('.post', id=post.id))
+        return redirect(url_for('.post', id=id))
 
     #comments = Comment.query.filter_by(post_id=post.id)
     comments = posts[0]['comments']
-    print comments
+    #print comments
 
     image = {}
     image_id = []

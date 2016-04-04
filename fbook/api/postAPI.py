@@ -70,17 +70,17 @@ class BasePostAPI(Resource):
             else:
                 author = {
                     "id": user.id,
-                    "host": user.host,
+                    "host": "http://" + user.host,
                     "displayname": user.username,
-                    "url": "%s/author/%s" % (user.host, user.id),
+                    "url": "http://%s/author/%s" % (user.host, user.id),
                     'github': user.github
                 }
         else:
             author = {"id": user.id,
-                      "host":  user.host,
+                    "host":  "http://" + user.host,
                       "displayname": user.username,
                       "github": user.github,
-                      "url": "%s/author/%s" % (user.host, user.id)}
+                      "url": "http://%s/author/%s" % (user.host, user.id)}
 
         return author
 
