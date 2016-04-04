@@ -224,7 +224,7 @@ def post(id):
                                   'github': user.github
                                   }
         print comment_body
-        api.post('posts', json.dumps(comment_body), posts[0]['author']['host'], {"post_id": id})
+        api.post('posts', comment_body, posts[0]['author']['host'], {"post_id": id, "comments":""})
 
         flash('Your comment has been created')
         return redirect(url_for('.post', id=id))
