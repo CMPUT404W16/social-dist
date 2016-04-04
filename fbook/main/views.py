@@ -945,6 +945,20 @@ def logout():
     logout_user()
     return redirect(url_for('.index'))
 
+
+@main.route('/githubpage', methods=['GET', 'POST'])
+@login_required
+def githubpage():
+    git_id = current_user.github
+    return redirect(git_id)
+
+
+@main.route('/githubrepo', methods=['GET', 'POST'])
+@login_required
+def githubrepo():
+    git_id = current_user.github
+    return redirect(git_id)
+
 @login_manager.user_loader
 def load_user(id):
     user = User.query.filter_by(username=id).first()
