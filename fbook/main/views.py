@@ -124,6 +124,10 @@ def index():
                 item['visibility'] = 'someone'
             elif item['visibility'] == 4:
                 item['visibility'] = 'foaf'
+            else:
+                item['visibility'] = 'Public'
+        except:
+            item['visibility'] = 'Public'
 
         flag = ''
         try:
