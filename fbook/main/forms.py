@@ -1,5 +1,5 @@
 from flask.ext.wtf import Form
-from wtforms import *
+from wtforms import StringField, SubmitField, PasswordField, validators, SelectField
 from wtforms.validators import Required, EqualTo
 from flask.ext.uploads import UploadSet, IMAGES
 from flask_wtf.file import FileField, FileAllowed, FileRequired
@@ -18,7 +18,8 @@ class PostForm(Form):
                                    ('2', 'Only me and my friend'),
                                    ('3', 'To someone (fill below)'),
                                    ('4', 'Host only'),
-                                   ('5', 'FOAF')])
+                                   ('5', 'FOAF')],
+                                   default='0')
     image = FileField('Image', validators=[FileAllowed(['jpg', 'png'],
                                                        'Images only!')])
     target = StringField('Target')

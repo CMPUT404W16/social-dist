@@ -8,6 +8,7 @@ from .. import login_manager
 from flask import jsonify
 from urlparse import urlparse
 import json
+import re
 from validate_email import validate_email
 import socket, httplib, urllib, os
 from ..api.apiHelper import ApiHelper
@@ -41,6 +42,7 @@ def index():
 
     form = PostForm()
     if request.method == 'POST':
+        print "SAVEDPOSTSAVEDPOSTSAVEDPOSTSAVEDPOSTSAVEDPOSTSAVEDPOSTSAVEDPOSTSAVEDPOSTSAVEDPOSTSAVEDPOSTSAVEDPOSTSAVEDPOSTSAVEDPOSTSAVEDPOSTSAVEDPOST"
         post = Post(title=form.title.data,
                     body=form.body.data,
                     author_id=current_user._get_current_object().id,
