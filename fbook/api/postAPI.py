@@ -87,7 +87,8 @@ class BasePostAPI(Resource):
                 "author": self.generate_author(cu.author_id),
                 "published": cu.timestamp.isoformat(),
                 "id": cu.id,
-                "visibility": "PUBLIC"
+                "visibility": cu.privacy,
+                "target": cu.target
                 }
 
         post["contentType"] = "text/x-markdown" if cu.markdown == "T" else "text/plain"
@@ -146,7 +147,7 @@ class PostAPI(BasePostAPI):
         args = parser.parse_args()
 
         if post_id is None:
-            self.posts = Post.query.filter_by(privacy=0)
+            self.posts = Post.query
             # self.posts = Post.query
         else:
             self.posts = Post.query.filter_by(id=post_id)

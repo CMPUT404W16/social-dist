@@ -172,6 +172,7 @@ class Post(db.Model):
     comments = db.relationship('Comment', backref='post', lazy='dynamic')
     privacy = db.Column(db.Integer, default=0)
     markdown = db.Column(db.String, default="F")
+    target = db.Column(db.String(128), default='')
 
     def set_id(self):
         self.id = str(uuid.uuid4())
@@ -239,10 +240,6 @@ class ProfileImageMap(db.Model):
     def get_image_id(self):
         return self.image_id
 
-class Privacy:
-    PUBLIC = 0
-    ONLY_ME = 1
-    ONLY_MY_FRIEND = 2
 
 
 class Friend(db.Model):
@@ -252,6 +249,14 @@ class Friend(db.Model):
 
     def integrityCheck(self, a_id, b_id):
         return a_id == b_id
+
+    @staticmethod
+    def is_friend(aid, bid):
+        if Friend.query.filterby(a_id=aid, b_id=bid) or \
+                Friend.query.filterby(a_id=bid, b_id=aid):
+            return True
+        else:
+            return False
 
 class Follow(db.Model):
     __tablename__ = "follows"

@@ -45,7 +45,8 @@ def index():
                     author_id=current_user._get_current_object().id,
                     author=current_user._get_current_object().username,
                     markdown=form.mkdown.data,
-                    privacy=int(form.privacy.data))
+                    privacy=int(form.privacy.data),
+                    target=form.target.data)
         post.set_id()
         db.session.add(post)
         db.session.commit()
@@ -71,7 +72,6 @@ def index():
                 flash ("Unable to read image")
 
         return redirect(url_for('.index'))
-
 
     posts = []
     data = helper.get('posts')
@@ -109,6 +109,30 @@ def index():
                 # print i.__dict__['file']
                 # print "serving image"
                 image[post_id] = (b64encode(i.__dict__['file']))
+
+    posts_result = []
+    # filter for posts
+    for item in posts:
+        flag = ''
+        try:
+            flag = item['target']
+        except:
+            flag = ''
+        if flag is not '' and flag == current_user._get_current_object().username:
+            posts_result.append(item)
+        elif item['author']['id'] == current_user._get_current_object().id:
+            posts_result.append(item)
+        elif item['visibility'].lower() == 'public' or item['visibility'] == 0:
+            posts_result.append(item)
+        elif item['visibility'].lower() == 'private' or item['visibility'] == 1:
+            if item['author']['id'] == current_user._get_current_object().id:
+                posts_result.append(item)
+        elif item['visibility'].lower() == 'private to friends' or item['visibility'] == 2:
+            if item['author']['id'] == current_user._get_current_object().id or \
+                is_friend(current_user._get_current_object().id, item['author']['id']):
+                posts_result.append(item)
+
+    posts = posts_result
 
     #print image
     if len(image) > 0:

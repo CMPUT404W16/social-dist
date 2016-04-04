@@ -27,7 +27,7 @@ class GitAPI:
             ava_url = re.findall(pattern, ava_json_str)[0][14:-1]
             count = 0
             for event in json_dict:
-                if count < 3:
+                if count < 10:
                     result = {'id': event['id'],
                               'type': event['type'],
                               'actor': user_id,

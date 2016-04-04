@@ -15,8 +15,7 @@
 </div>
 <div>
 	<form action="/" method="POST" enctype="multipart/form-data">
-		
-		<!--{{ wtf.quick_form(form) }}-->
+
 		<div class="form-group">
 			<label for="title" class="control-label">Title</label>
 			<input type="text" class="form-control" name="title" id="title" value>
@@ -38,16 +37,23 @@
 		<div class="form-group">
 			<label for="privacy" class="control-label">Public</label>
 			<select class="form-control" id="privacy" name="privacy">
-				<option selected value="0">Public</option>
-				<option value="1">Only Me</option>
-				<option value="2">Only Me and My friends</option>
+				<option selected value=0>Public</option>
+				<option value=1>Only Me</option>
+				<option value=2>Only Me and My friends</option>
+        <option value=3>Someone (fill below target option)</option>
+        <option value=4>Friends of friends</option>
 			</select>
 		</div>
-		
+
+    <div class="form-group">
+      <label for="target" class="control-label">Target</label>
+      <input type="text" class="form-control" name="target" id="target" value>
+    </div>
+
 		<div class="form-group">
 			<label for="image" class="control-label">Image</label>
 	    	<input type="file" class="form-control" name="image" id="image">
-	    </div>
+	  </div>
 
     	<input class="btn btn-default" id="submit" name="submit" type="submit" value="Post">
 	</form>

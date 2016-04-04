@@ -8,12 +8,14 @@ class PostForm(Form):
     title = StringField('Title', validators=[Required()])
     body = StringField('What is on your mind?', validators=[Required()])
     mkdown = SelectField('Use markdown for this post?',
-                         choices=[("F", 'No'),("T", 'Yes')], default="F")
-    privacy = SelectField('Public', choices=[('0', 'Public'),
-                          ('1', 'Only me'),
-                          ('2','Only me and my friend')],
-                          default='0')
+                         choices=[("F", 'No'), ("T", 'Yes')], default="F")
+    privacy = SelectField('0', choices=[('Public', 'Public'),
+                         ('1', 'Only me'),
+                         ('2', 'Only me and my friend'),
+                         ('3', 'To someone (fill below)'),
+                         ('4', 'Friends of friends')])
     image = FileField('Image', validators=[FileAllowed(['jpg', 'png'], 'Images only!')])
+    target = StringField('Target')
     submit = SubmitField("Post")
 
 # form for logging in the user
