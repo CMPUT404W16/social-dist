@@ -32,7 +32,7 @@ def index():
 
     try:
         git_username = current_user._get_current_object().github
-        # print 'This is the username for github! --->>', git_username
+        print 'This is the username for github! --->>', git_username
         githubs = git_helper.fetch_events(git_username)
         # print githubs
         if githubs is None:
@@ -514,11 +514,11 @@ def show_settings():
         # change github in db
         user = User.query.filter_by(username=current_user.username).first()
         if (user):
-            # change password in db
-            if re.findall('github.com/', github_form.gitName.data) is not []:
+            if 'github.com/' in github_form.gitName.data:
                 user.github = github_form.gitName.data
             else:
                 user.github = 'http://www.github.com/' + github_form.gitName.data
+            print user.github
             db.session.commit()
 
             flash("Github Username set.")

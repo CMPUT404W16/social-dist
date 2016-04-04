@@ -12,6 +12,10 @@ class GitAPI:
         pass
 
     def fetch_events(self, user_id):
+        if ".com/" in user_id:
+            pos = user_id.index('.com/')
+            user_id = user_id[pos+5:]
+            print user_id
         returned_list = []
         try:
             ht = urlopen('https://api.github.com/users/' + user_id + '/events')
