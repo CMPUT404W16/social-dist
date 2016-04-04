@@ -5,7 +5,6 @@
 
 {% block page_content %}
 <div class="page-header">
-
     <h1>Hello, {% if name %}{{ name }}{% else %}Stranger{% endif %}!</h1>
     {% if not known %}
     <p>Pleased to meet you!</p>
@@ -41,7 +40,8 @@
 				<option value=1>Only Me</option>
 				<option value=2>Only Me and My friends</option>
         <option value=3>Someone (fill below target option)</option>
-        <option value=4>Friends of friends</option>
+        <option value=4>Only this host</option>
+        <option value=5>FOAF</option>
 			</select>
 		</div>
 
