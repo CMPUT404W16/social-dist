@@ -1,14 +1,14 @@
 <ul class="posts">
-    {% for event in github %}
+    {% for event in events %}
     <li class="post">
         <div class="post-thumbnail">
-          <img class='' src='{{event["ava_url"]}}'>
+          <img style='height:40px; width:40px' src='{{event["ava_url"]}}'>
         </div>
         <div class="post-content">
             <div class="post-date">{{ event['created_at'] }}</div>
             <div class="post-author"><a href="{{'github.com/' + event['actor'] }}">{{ event['actor']}}</a></div>
             <div class="post-body">
-                <a href="{{event['repo_url']}">{{ event['repo'] }}</a></br>
+                <a href="{{event['repo_url']}}">{{ event['repo'] }}</a></br>
                 <p>{{event['type']}}</p>
             </div>
             <div class="post-body">{{ event['created_at']}}</div>

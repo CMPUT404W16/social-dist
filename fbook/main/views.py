@@ -30,9 +30,13 @@ def index():
 
     try:
         git_username = current_user._get_current_object().github
-        github = git_helper.fetch_events(git_username)
+        # print 'This is the username for github! --->>', git_username
+        githubs = git_helper.fetch_events(git_username)
+        # print githubs
+        if githubs is None:
+            githubs = []
     except:
-        github = []
+        githubs = []
     form = PostForm()
     if form.validate_on_submit():
         post = Post(title=form.title.data,
@@ -43,11 +47,8 @@ def index():
                     privacy=int(form.privacy.data))
         post.set_id()
 
-        print form.image.data
         realpath = os.path.realpath(form.image.data)
         MYDIR = os.path.dirname(form.image.data)
-        print MYDIR
-        print realpath
 
         if(form.image.data):  # only if an image to be uploaded has been chosen
             blob_value = open(form.image.data, "rb").read()
@@ -77,7 +78,6 @@ def index():
         posts.extend(item['posts'])
 
     post_ids = []
-    print posts
     # go through the list of posts and check to see if there are images in them
     for i in range(len(posts)):
         for k, v in posts[i].items():
@@ -93,7 +93,7 @@ def index():
             for i in query:
                 post_image[post_id] = i.__dict__['image_id']
 
-    print post_image
+    # print post_image
     # serve images based on post ids
     image = {}
     for post_id, image_id in post_image.items():
@@ -112,7 +112,7 @@ def index():
                            name=current_user.username,
                            posts=posts,
                            image=image,
-                           github=github
+                           events=githubs
                            )
     else:
         return render_template('index.html',
@@ -120,7 +120,7 @@ def index():
                            name=current_user.username,
                            posts=posts,
                            image={},
-                           github=github
+                           events=githubs
                            )
 
 
