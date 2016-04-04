@@ -42,21 +42,22 @@ def index():
 
     form = PostForm()
     if request.method == 'POST':
-        print "SAVEDPOSTSAVEDPOSTSAVEDPOSTSAVEDPOSTSAVEDPOSTSAVEDPOSTSAVEDPOSTSAVEDPOSTSAVEDPOSTSAVEDPOSTSAVEDPOSTSAVEDPOSTSAVEDPOSTSAVEDPOSTSAVEDPOST"
-        post = Post(title=form.title.data,
-                    body=form.body.data,
-                    author_id=current_user._get_current_object().id,
-                    author=current_user._get_current_object().username,
-                    markdown=form.mkdown.data,
-                    privacy=int(form.privacy.data),
-                    target=form.target.data)
-        post.set_id()
-        db.session.add(post)
-        db.session.commit()
 
         if form.image.data: # only if an image to be uploaded has been chosen
             try:
                 if (image_allowed(request.files['image'])):
+
+                    post = Post(title=form.title.data,
+                                body=form.body.data,
+                                author_id=current_user._get_current_object().id,
+                                author=current_user._get_current_object().username,
+                                markdown=form.mkdown.data,
+                                privacy=int(form.privacy.data),
+                                target=form.target.data)
+                    post.set_id()
+                    db.session.add(post)
+                    db.session.commit()
+                    
                     blob_value = request.files['image'].read()
                     image = Image(file=blob_value)
                     image.set_id()
@@ -68,14 +69,31 @@ def index():
                     image_posts.set_id()
                     db.session.add(image_posts)
                     db.session.commit()
+
+                    return redirect(url_for('.index'))
+
                 else:
                     flash("Error: image extension not allowed. Allowed types: \
                 .png, .jpg, .jpeg.")
+                    return redirect(url_for('.index'))
+
             except:
-                flash ("Unable to read image")
+                flash ("Unable to post")
+                return redirect(url_for('.index'))
 
+        post = Post(title=form.title.data,
+                    body=form.body.data,
+                    author_id=current_user._get_current_object().id,
+                    author=current_user._get_current_object().username,
+                    markdown=form.mkdown.data,
+                    privacy=int(form.privacy.data),
+                    target=form.target.data)
+        post.set_id()
+        db.session.add(post)
+        db.session.commit()
+        
         return redirect(url_for('.index'))
-
+            
     posts = []
     data = helper.get('posts')
 
@@ -902,7 +920,11 @@ def unfollow(user):
     """
 
     requestee_idx = User.query.filter_by(id=user).first()
-    current_user.unfriend(requestee_idx)
+    if requestee_idx:
+        current_user.unfriend(requestee_idx)
+    else:
+        requestee_idx = RemoteUser.query.filter_by(id=user).first()
+        current_user.unfriend(requestee_idx)
     db.session.commit()
 
     flash("You have just unfollowed "+requestee_idx.username)
