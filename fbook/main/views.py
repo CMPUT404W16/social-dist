@@ -582,6 +582,7 @@ def show_self_posts(user):
     ROUTING: /users/<user>/posts
     Returns the posts.html populated with <user>'s posts from a db
     query.
+    
     The view is passed with:
     posts: a list of <user>'s posts
     image: a list of <user>'s posts' images
@@ -602,7 +603,7 @@ def show_self_posts(user):
         posts.extend(item['posts']) # switch to u'posts ?? or not??
 
     post_ids=[]
-    print posts
+
     # go through the list of posts and check to see if there is an image in them
     for i in range(len(posts)):
         for k, v in posts[i].items():
@@ -618,7 +619,6 @@ def show_self_posts(user):
             for i in query:
                 post_image[post_id]=i.__dict__['image_id']
 
-    print post_image
     # serve images based on post ids
     image = {}
     for post_id, image_id in post_image.items():
@@ -627,7 +627,7 @@ def show_self_posts(user):
             for i in query:
                 # serve the image give i.__dict__['file'] contains the bytes of the image
                 # print i.__dict__['file']
-                print "serving image"
+                # print "serving image"
                 image[post_id] = (b64encode(i.__dict__['file']))
 
     if (len(image) > 0):
