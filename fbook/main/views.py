@@ -16,6 +16,7 @@ from ..api.apiHelper import ApiHelper
 from ..gitapi.gitfetch import GitAPI
 from binascii import *
 from base64 import b64encode, b64decode
+import io
 
 helper = ApiHelper()
 git_helper = GitAPI()
@@ -197,7 +198,9 @@ def image(id):
     image = b64encode(query[0].__dict__['file'])
     # image = query[0].__dict__['file']
 
-    return 'data:;base64, ' + image
+    # return 'data:;base64, ' + image
+    from flask import send_file
+    return send_file(io.BytesIO(image), mimetype='images/png')
     # return render_template('image/image.html', image=image, show=True)
 
 @main.route('/post/<string:id>', methods=['GET', 'POST'])
