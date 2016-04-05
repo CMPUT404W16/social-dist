@@ -122,7 +122,7 @@ class ApiHelper():
 				print url
 				r = requests.post(url, headers=headers, json=body)
 				print r.text
-				if r.status_code == 200:
+				if r.status_code == 200 and r.text:
 					responses.append(r.json())
 
 		return responses
