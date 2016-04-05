@@ -458,6 +458,7 @@ def show_profile(user):
     user_profile: <user>'s username: string
     user_id: <user>'s id: string
     user_obj: User model object
+    upi: user's profile image
     """
 
     # remote-user e8d08d8e-c161-49e2-a60b-0e388f246a46'
@@ -632,7 +633,13 @@ def show_self_posts(user):
     user_profile: <user>'s username: string
     user_id: <user>'s id: string
     user_obj: User mode object
+    upi: user's profile image
     """
+
+    # if target user is not current user, redirect the target user's main
+    # profile page
+    if (user != current_user.id):
+        return redirect("/users/"+user)
 
     userx = User.query.filter_by(id=user).first()
 
@@ -701,7 +708,13 @@ def show_followers(user):
     followers: a Python list of <user>'s followers
     user_profile: <user>'s username: string
     user_id: <user>'s id: string
+    upi: user's profile image
     """
+
+    # if target user is not current user, redirect the target user's main
+    # profile page
+    if (user != current_user.id):
+        return redirect("/users/"+user)
 
     userx = User.query.filter_by(id=user).first()
 
@@ -756,7 +769,13 @@ def show_friends(user):
     friends: a Python list of <user>'s friends
     user_profile: <user>'s username: string
     user_id: <user>'s id: string
+    upi: user's profile image
     """
+
+    # if target user is not current user, redirect the target user's main
+    # profile page
+    if (user != current_user.id):
+        return redirect("/users/"+user)
 
     userx = User.query.filter_by(id=user).first()
 
