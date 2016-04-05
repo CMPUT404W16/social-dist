@@ -195,8 +195,8 @@ def image(id):
     image = Image.query.get_or_404(id)
 
     query = Image.query.filter_by(id = id).all()
-    image = b64encode(query[0].__dict__['file'])
-    # image = query[0].__dict__['file']
+    # image = b64encode(query[0].__dict__['file'])
+    image = query[0].__dict__['file']
 
     # return 'data:;base64, ' + image
     from flask import send_file
