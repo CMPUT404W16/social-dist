@@ -9,6 +9,7 @@ from flask import jsonify
 from urlparse import urlparse
 import json
 import re
+import requests
 from validate_email import validate_email
 import socket, httplib, urllib, os
 from ..api.apiHelper import ApiHelper
@@ -103,31 +104,26 @@ def index():
             continue
         posts.extend(item['posts'])
 
-    post_ids = []
+    # print(posts)
+
+    image = {}
+
     # go through the list of posts and check to see if there are images in them
     for i in range(len(posts)):
-        for k, v in posts[i].items():
-            if k == 'id':
-                # print v # the post_ids
-                post_ids.append(v)
-
-    # post_image is the dict where key is post_id and value is image_id
-    post_image = {}
-    for post_id in post_ids:
+        post_id = posts[i]['id']
         query = Image_Posts.query.filter_by(post_id=post_id).all()
         if len(query) > 0:  # there is an image with this post
-            for i in query:
-                post_image[post_id] = i.__dict__['image_id']
+            image_id = query[0].__dict__['image_id']
+            query = Image.query.filter_by(id=image_id).all()
+            if len(query) > 0:
+                image[post_id] = (b64encode(query[0].__dict__['file']))
+        elif 'image_url' in posts[i]:
+            url = posts[i]['image_url']
+            if url != None:
+                response = requests.get(url)
+                image[post_id] = b64encode(response.content)
 
-    # serve images based on post ids
-    image = {}
-    for post_id, image_id in post_image.items():
-        query = Image.query.filter_by(id=image_id).all()
-        if len(query) > 0:
-            for i in query:
-                # serve the image give i.__dict__['file'] contains the bytes of the image
-                image[post_id] = (b64encode(i.__dict__['file']))
-
+        
     posts_result = []
     # filter for posts
     for item in posts:
@@ -199,7 +195,9 @@ def image(id):
 
     query = Image.query.filter_by(id = id).all()
     image = b64encode(query[0].__dict__['file'])
+    # image = query[0].__dict__['file']
 
+    # return image
     return render_template('image/image.html', image=image, show=True)
 
 @main.route('/post/<string:id>', methods=['GET', 'POST'])
