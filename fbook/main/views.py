@@ -673,20 +673,30 @@ def show_self_posts(user):
                 # print "serving image"
                 image[post_id] = (b64encode(i.__dict__['file']))
 
+    profile_image = None
+    pi_map = ProfileImageMap.query.filter_by(user_id=user).first()
+    pimage = None
+    if (pi_map):
+        pimage = Image.query.filter_by(id=pi_map.image_id).first()
+        if (pimage):
+            profile_image = b64encode(pimage.__dict__['file'])
+
     if (len(image) > 0):
         return render_template('user/posts.html',
                                 posts=posts,
                                 image=image,
                                 user_profile=current_user.username,
                                 user_id=current_user.id,
-                                user_obj=userx)
+                                user_obj=userx,
+                                upi=profile_image)
     else:
         return render_template('user/posts.html',
                                 posts=posts,
                                 image={},
                                 user_profile=current_user.username,
                                 user_id=current_user.id,
-                                user_obj=userx)
+                                user_obj=userx,
+                                upi=profile_image)
 
 # returns followers.html with a list of user's followers
 @main.route('/users/<user>/followers', methods=['GET'])
@@ -732,8 +742,15 @@ def show_followers(user):
 
     # u = helper.get()
 
+    profile_image = None
+    pi_map = ProfileImageMap.query.filter_by(user_id=user).first()
+    pimage = None
+    if (pi_map):
+        pimage = Image.query.filter_by(id=pi_map.image_id).first()
+        if (pimage):
+            profile_image = b64encode(pimage.__dict__['file'])
 
-    return render_template('user/followers.html', followers=followersx, user_profile=userx.username, user_id=current_user.id, user_obj=userx)
+    return render_template('user/followers.html', followers=followersx, user_profile=userx.username, user_id=current_user.id, user_obj=userx, upi=profile_image)
 
 # returns friends.html with a list of user's friends
 @main.route('/users/<user>/friends', methods=['GET'])
@@ -795,8 +812,15 @@ def show_friends(user):
             uid = profile['id']
             nameList.append([name, uid])
 
+    profile_image = None
+    pi_map = ProfileImageMap.query.filter_by(user_id=user).first()
+    pimage = None
+    if (pi_map):
+        pimage = Image.query.filter_by(id=pi_map.image_id).first()
+        if (pimage):
+            profile_image = b64encode(pimage.__dict__['file'])
 
-    return render_template('user/friends.html', friends=nameList, user_profile=current_user.username, user_id=current_user.id, user_obj=userx)
+    return render_template('user/friends.html', friends=nameList, user_profile=current_user.username, user_id=current_user.id, user_obj=userx, upi=profile_image)
 
 # # returns friends.html with a list of user's friends
 # @login_required
