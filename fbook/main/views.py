@@ -188,20 +188,13 @@ def index():
 
 @main.route('/image/<string:id>', methods=['GET', 'POST'])
 def image(id):
-    #api = ApiHelper()
-    #images = api.get('images', {"image_id": id})
-    #if len(images) == 0:
-    #    abort(404)
     image = Image.query.get_or_404(id)
 
     query = Image.query.filter_by(id = id).all()
-    # image = b64encode(query[0].__dict__['file'])
     image = query[0].__dict__['file']
 
-    # return 'data:;base64, ' + image
     from flask import send_file
     return send_file(io.BytesIO(image), mimetype='images/png')
-    # return render_template('image/image.html', image=image, show=True)
 
 @main.route('/post/<string:id>', methods=['GET', 'POST'])
 def post(id):
@@ -491,6 +484,12 @@ def show_profile(user):
             pimage = Image.query.filter_by(id=pi_map.image_id).first()
             if (pimage):
                 profile_image = b64encode(pimage.__dict__['file'])
+
+        elif 'image' in u:
+            url = u['image']
+            if url != None and url != 'null':
+                response = requests.get(url)
+                profile_image = b64encode(response.content)
 
         return render_template('user/profile.html', user_profile=user,
                                 user_id=idx, user_obj=userx, upi=profile_image)

@@ -72,6 +72,13 @@ class profile(Resource):
 		data["displayname"] = user.username
 		data["url"] = user.host+"/author/"+user.id
 
+		query = ProfileImageMap.query.filter_by(user_id=user.id).first()
+		if (query):
+			image_id = query.image_id
+			data['image'] = 'http://floating-sands-69681.herokuapp.com/image/' + str(image_id)
+		else:
+			data['image'] = None
+
 		data["friends"] = []
 		friendsList = []
 
