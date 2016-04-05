@@ -140,7 +140,7 @@ class friend_request(Resource):
 			check = RemoteUser.query.filter_by(id=author['id']).first()
 			print check
 			if check:
-				continue
+				a = 10
 			else:
 				userx = RemoteUser(username=author['displayname'], id=author['id'], host=author['host']).first()
 	        	db.session.add(userx)
