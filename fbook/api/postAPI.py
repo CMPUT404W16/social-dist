@@ -98,7 +98,7 @@ class BasePostAPI(Resource):
             image_id = query[0].__dict__['image_id']
             post['image_url'] = 'http://floating-sands-69681.herokuapp.com/image/' + str(image_id)
         else:
-            post['image_url'] = 'null'
+            post['image_url'] = None
 
         if cu.privacy == 0:
             post['visibility'] = 'PUBLIC'

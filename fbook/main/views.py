@@ -119,7 +119,7 @@ def index():
                 image[post_id] = (b64encode(query[0].__dict__['file']))
         elif 'image_url' in posts[i]:
             url = posts[i]['image_url']
-            if url != None:
+            if url != None and url != 'null':
                 response = requests.get(url)
                 image[post_id] = b64encode(response.content)
 
