@@ -96,9 +96,9 @@ class BasePostAPI(Resource):
         query = Image_Posts.query.filter_by(post_id=cu.id).all()
         if len(query) > 0:
             image_id = query[0].__dict__['image_id']
-            post['image_url'] = 'http://floating-sands-69681.herokuapp.com/image/' + str(image_id)
+            post['iamge'] = 'http://floating-sands-69681.herokuapp.com/image/' + str(image_id)
         else:
-            post['image_url'] = None
+            post['image'] = None
 
         if cu.privacy == 0:
             post['visibility'] = 'PUBLIC'

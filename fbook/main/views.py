@@ -117,8 +117,8 @@ def index():
             query = Image.query.filter_by(id=image_id).all()
             if len(query) > 0:
                 image[post_id] = (b64encode(query[0].__dict__['file']))
-        elif 'image_url' in posts[i]:
-            url = posts[i]['image_url']
+        elif 'image' in posts[i]:
+            url = posts[i]['image']
             if url != None and url != 'null':
                 response = requests.get(url)
                 image[post_id] = b64encode(response.content)
