@@ -197,8 +197,8 @@ def image(id):
     image = b64encode(query[0].__dict__['file'])
     # image = query[0].__dict__['file']
 
-    # return image
-    return render_template('image/image.html', image=image, show=True)
+    return 'data:;base64, ' + image
+    # return render_template('image/image.html', image=image, show=True)
 
 @main.route('/post/<string:id>', methods=['GET', 'POST'])
 def post(id):
