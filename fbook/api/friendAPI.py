@@ -142,7 +142,7 @@ class friend_request(Resource):
 			if check:
 				a = 10
 			else:
-				userx = RemoteUser(username=author['displayname'], id=author['id'], host=author['host']).first()
+				userx = RemoteUser(username=author['displayname'], id=author['id'], host=author['host'])
 	        	db.session.add(userx)
 		
 
