@@ -139,11 +139,11 @@ class friend_request(Resource):
 		if author['host'] != friend['host']:
 			check = RemoteUser.query.filter_by(id=author['id']).first()
 			print check
-			if check:
+			if check != None:
 				a = 10
 			else:
 				userx = RemoteUser(username=author['displayname'], id=author['id'], host=author['host'])
-	        	db.session.add(userx)
+				db.session.add(userx)
 		
 
 		follow = Follow(requester_id=author['id'], requestee_id=friend['id'])
