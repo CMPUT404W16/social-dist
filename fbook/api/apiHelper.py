@@ -120,6 +120,7 @@ class ApiHelper():
 					url = url + '/'
 
 				print url
+				print body
 				r = requests.post(url, headers=headers, json=body)
 				print r.text
 				if r.status_code == 200:
