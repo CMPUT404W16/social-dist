@@ -135,14 +135,16 @@ class friend_request(Resource):
 
 		#try to add author to remote authors
 
-		try:
-			if author['host'] != friend['host']:
-				check = RemoteUser.query.filter_by(id=author['id']).first()
-				if check == None:
-					userx = RemoteUser(username=author['displayname'], id=author['id'], host=author['host']).first()
-		        	db.session.add(userx)
-		except Exception as e:
-			print e
+		print "hey"
+		if author['host'] != friend['host']:
+			check = RemoteUser.query.filter_by(id=author['id']).first()
+			print check
+			if check:
+				continue
+			else:
+				userx = RemoteUser(username=author['displayname'], id=author['id'], host=author['host']).first()
+	        	db.session.add(userx)
+		
 
 		follow = Follow(requester_id=author['id'], requestee_id=friend['id'])
 
