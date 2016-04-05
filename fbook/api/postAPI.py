@@ -1,6 +1,6 @@
 from .api import api
 from ..db import db
-from .. models import Post, User, Comment, RemoteUser
+from .. models import Post, User, Comment, RemoteUser, Image_Posts
 from flask_restful import Resource, reqparse
 from flask.ext.login import current_user
 from flask import request, abort
@@ -92,6 +92,13 @@ class BasePostAPI(Resource):
                 "id": cu.id,
                 "target": cu.target
                 }
+
+        query = Image_Posts.query.filter_by(post_id=cu.id).all()
+        if len(query) > 0:
+            image_id = query[0].__dict__['image_id']
+            post['image'] = 'http://floating-sands-69681.herokuapp.com/image/' + str(image_id)
+        else:
+            post['image'] = None
 
         if cu.privacy == 0:
             post['visibility'] = 'PUBLIC'

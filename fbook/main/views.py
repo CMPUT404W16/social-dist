@@ -9,12 +9,14 @@ from flask import jsonify
 from urlparse import urlparse
 import json
 import re
+import requests
 from validate_email import validate_email
 import socket, httplib, urllib, os
 from ..api.apiHelper import ApiHelper
 from ..gitapi.gitfetch import GitAPI
 from binascii import *
 from base64 import b64encode, b64decode
+import io
 
 helper = ApiHelper()
 git_helper = GitAPI()
@@ -103,31 +105,26 @@ def index():
             continue
         posts.extend(item['posts'])
 
-    post_ids = []
+    # print(posts)
+
+    image = {}
+
     # go through the list of posts and check to see if there are images in them
     for i in range(len(posts)):
-        for k, v in posts[i].items():
-            if k == 'id':
-                # print v # the post_ids
-                post_ids.append(v)
-
-    # post_image is the dict where key is post_id and value is image_id
-    post_image = {}
-    for post_id in post_ids:
+        post_id = posts[i]['id']
         query = Image_Posts.query.filter_by(post_id=post_id).all()
         if len(query) > 0:  # there is an image with this post
-            for i in query:
-                post_image[post_id] = i.__dict__['image_id']
+            image_id = query[0].__dict__['image_id']
+            query = Image.query.filter_by(id=image_id).all()
+            if len(query) > 0:
+                image[post_id] = (b64encode(query[0].__dict__['file']))
+        elif 'image' in posts[i]:
+            url = posts[i]['image']
+            if url != None and url != 'null':
+                response = requests.get(url)
+                image[post_id] = b64encode(response.content)
 
-    # serve images based on post ids
-    image = {}
-    for post_id, image_id in post_image.items():
-        query = Image.query.filter_by(id=image_id).all()
-        if len(query) > 0:
-            for i in query:
-                # serve the image give i.__dict__['file'] contains the bytes of the image
-                image[post_id] = (b64encode(i.__dict__['file']))
-
+        
     posts_result = []
     # filter for posts
     for item in posts:
@@ -191,16 +188,13 @@ def index():
 
 @main.route('/image/<string:id>', methods=['GET', 'POST'])
 def image(id):
-    #api = ApiHelper()
-    #images = api.get('images', {"image_id": id})
-    #if len(images) == 0:
-    #    abort(404)
     image = Image.query.get_or_404(id)
 
     query = Image.query.filter_by(id = id).all()
-    image = b64encode(query[0].__dict__['file'])
+    image = query[0].__dict__['file']
 
-    return render_template('image/image.html', image=image, show=True)
+    from flask import send_file
+    return send_file(io.BytesIO(image), mimetype='images/png')
 
 @main.route('/post/<string:id>', methods=['GET', 'POST'])
 def post(id):
@@ -305,8 +299,22 @@ def delete_post(id):
     p = Post.query.get_or_404(id)
     if current_user.id != p.author_id:
         abort(403)
+    
+    img_post = Image_Posts.query.filter_by(post_id=id).all()
+    if len(img_post) > 0:
+        image_id = img_post[0].__dict__['image_id']
+  
+        db.session.delete(img_post[0])
+        db.session.commit()
+
+        img = Image.query.filter_by(id=image_id).all()
+        if len(img) > 0:
+            db.session.delete(img[0])
+            db.session.commit()
+
     db.session.delete(p)
     db.session.commit()
+    
     form = PostForm()
     posts = Post.query.order_by(Post.timestamp.desc()).all()
     return redirect(url_for('.index'))
@@ -476,6 +484,12 @@ def show_profile(user):
             pimage = Image.query.filter_by(id=pi_map.image_id).first()
             if (pimage):
                 profile_image = b64encode(pimage.__dict__['file'])
+
+        elif 'image' in u:
+            url = u['image']
+            if url != None and url != 'null':
+                response = requests.get(url)
+                profile_image = b64encode(response.content)
 
         return render_template('user/profile.html', user_profile=user,
                                 user_id=idx, user_obj=userx, upi=profile_image)
@@ -659,20 +673,30 @@ def show_self_posts(user):
                 # print "serving image"
                 image[post_id] = (b64encode(i.__dict__['file']))
 
+    profile_image = None
+    pi_map = ProfileImageMap.query.filter_by(user_id=user).first()
+    pimage = None
+    if (pi_map):
+        pimage = Image.query.filter_by(id=pi_map.image_id).first()
+        if (pimage):
+            profile_image = b64encode(pimage.__dict__['file'])
+
     if (len(image) > 0):
         return render_template('user/posts.html',
                                 posts=posts,
                                 image=image,
                                 user_profile=current_user.username,
                                 user_id=current_user.id,
-                                user_obj=userx)
+                                user_obj=userx,
+                                upi=profile_image)
     else:
         return render_template('user/posts.html',
                                 posts=posts,
                                 image={},
                                 user_profile=current_user.username,
                                 user_id=current_user.id,
-                                user_obj=userx)
+                                user_obj=userx,
+                                upi=profile_image)
 
 # returns followers.html with a list of user's followers
 @main.route('/users/<user>/followers', methods=['GET'])
@@ -718,8 +742,15 @@ def show_followers(user):
 
     # u = helper.get()
 
+    profile_image = None
+    pi_map = ProfileImageMap.query.filter_by(user_id=user).first()
+    pimage = None
+    if (pi_map):
+        pimage = Image.query.filter_by(id=pi_map.image_id).first()
+        if (pimage):
+            profile_image = b64encode(pimage.__dict__['file'])
 
-    return render_template('user/followers.html', followers=followersx, user_profile=userx.username, user_id=current_user.id, user_obj=userx)
+    return render_template('user/followers.html', followers=followersx, user_profile=userx.username, user_id=current_user.id, user_obj=userx, upi=profile_image)
 
 # returns friends.html with a list of user's friends
 @main.route('/users/<user>/friends', methods=['GET'])
@@ -781,8 +812,15 @@ def show_friends(user):
             uid = profile['id']
             nameList.append([name, uid])
 
+    profile_image = None
+    pi_map = ProfileImageMap.query.filter_by(user_id=user).first()
+    pimage = None
+    if (pi_map):
+        pimage = Image.query.filter_by(id=pi_map.image_id).first()
+        if (pimage):
+            profile_image = b64encode(pimage.__dict__['file'])
 
-    return render_template('user/friends.html', friends=nameList, user_profile=current_user.username, user_id=current_user.id, user_obj=userx)
+    return render_template('user/friends.html', friends=nameList, user_profile=current_user.username, user_id=current_user.id, user_obj=userx, upi=profile_image)
 
 # # returns friends.html with a list of user's friends
 # @login_required
