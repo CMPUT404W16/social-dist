@@ -303,8 +303,22 @@ def delete_post(id):
     p = Post.query.get_or_404(id)
     if current_user.id != p.author_id:
         abort(403)
+    
+    img_post = Image_Posts.query.filter_by(post_id=id).all()
+    if len(img_post) > 0:
+        image_id = img_post[0].__dict__['image_id']
+  
+        db.session.delete(img_post[0])
+        db.session.commit()
+
+        img = Image.query.filter_by(id=image_id).all()
+        if len(img) > 0:
+            db.session.delete(img[0])
+            db.session.commit()
+
     db.session.delete(p)
     db.session.commit()
+    
     form = PostForm()
     posts = Post.query.order_by(Post.timestamp.desc()).all()
     return redirect(url_for('.index'))
